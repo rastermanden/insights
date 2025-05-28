@@ -87,6 +87,42 @@
             box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
         }
 
+        .value-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .arrow-btn {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        #upBtn {
+            background: #1e3a8a;
+            color: white;
+        }
+
+        #upBtn:hover {
+            background: #1e40af;
+            transform: translateY(-2px);
+        }
+
+        #downBtn {
+            background: #9ca3af;
+            color: white;
+        }
+
+        #downBtn:hover {
+            background: #6b7280;
+            transform: translateY(-2px);
+        }
+
         .temperature-display {
             margin-top: 25px;
             padding: 20px;
@@ -146,7 +182,11 @@
         <div class="slider-container">
             <label for="albedoSlider">Albedo (0 to 1):</label>
             <input type="range" id="albedoSlider" min="0" max="1" step="0.01" value="0.3" aria-label="Adjust albedo value">
-            <span id="albedoValue">0.30</span>
+            <div class="value-container">
+                <span id="albedoValue">0.30</span>
+                <button id="upBtn" class="arrow-btn" aria-label="Increase albedo" tabindex="0">↑</button>
+                <button id="downBtn" class="arrow-btn" aria-label="Decrease albedo" tabindex="0">↓</button>
+            </div>
         </div>
         <div class="temperature-display">
             Effective Temperature: <span id="temperatureDisplay">-18.2°C</span>
@@ -176,6 +216,8 @@
         const albedoSlider = document.getElementById('albedoSlider');
         const albedoValue = document.getElementById('albedoValue');
         const temperatureDisplay = document.getElementById('temperatureDisplay');
+        const upBtn = document.getElementById('upBtn');
+        const downBtn = document.getElementById('downBtn');
 
         // Function to calculate effective temperature in Celsius
         function calculateTemperature(albedo) {
@@ -279,8 +321,23 @@
             chart.update();
         }
 
-        // Add event listener to the slider
+        // Function to adjust albedo value
+        function adjustAlbedo(direction) {
+            let albedo = parseFloat(albedoSlider.value);
+            const step = 0.01;
+            if (direction === 'up' && albedo < 1) {
+                albedo = Math.min(1, albedo + step);
+            } else if (direction === 'down' && albedo > 0) {
+                albedo = Math.max(0, albedo - step);
+            }
+            albedoSlider.value = albedo.toFixed(2);
+            updateDisplay();
+        }
+
+        // Add event listeners
         albedoSlider.addEventListener('input', updateDisplay);
+        upBtn.addEventListener('click', () => adjustAlbedo('up'));
+        downBtn.addEventListener('click', () => adjustAlbedo('down'));
 
         // Initial calculation
         updateDisplay();
