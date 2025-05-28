@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Links Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            max-width: 1200px;
+            padding: 20px;
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 200px;
+            padding: 20px;
+            text-align: center;
+            text-decoration: none;
+            color: #333;
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card h3 {
+            margin: 0 0 10px;
+        }
+        .card p {
+            margin: 0;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="card-container" id="cardContainer"></div>
+
+    <script>
+        const pages = [
+            { title: "Reverse polish notation", description: "Demo of the stack in reverse polish notation", link: "/math/polish.html" },
+            { title: "Bayes theorem", description: "Demo of Baeyes Theorem", link: "/math/bayes.html" },
+            { title: "Abosute and relative risk", description: "Calculating efficacy, risk and number neeeded to treat NNT", link: "/math/risk.html" },
+            { title: "Earth temperature", description: "Calculating earth temperature with Stefan-Boltzmann with changing albedo", link: "/physics/earth_temperature.html" }
+
+        ];
+
+        const cardContainer = document.getElementById('cardContainer');
+
+        pages.forEach(page => {
+            const card = document.createElement('a');
+            card.className = 'card';
+            card.href = page.link;
+            card.innerHTML = `
+                <h3>${page.title}</h3>
+                <p>${page.description}</p>
+            `;
+            cardContainer.appendChild(card);
+        });
+    </script>
+</body>
+</html>

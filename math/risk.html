@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Risk, NNT, and Efficacy Calculator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff, #f3f4f6);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+
+        .calculator {
+            width: 450px;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            transition: transform 0.3s ease;
+        }
+
+        .calculator:hover {
+            transform: translateY(-5px);
+        }
+
+        h2 {
+            color: #1e3a8a;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 24px;
+            letter-spacing: 1px;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+        }
+
+        label {
+            flex: 1;
+            color: #4b5563;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100px;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        #calculateBtn {
+            background: #1e3a8a;
+            color: white;
+        }
+
+        #calculateBtn:hover {
+            background: #1e40af;
+            transform: translateY(-2px);
+        }
+
+        #clearBtn {
+            background: #9ca3af;
+            color: white;
+        }
+
+        #clearBtn:hover {
+            background: #6b7280;
+            transform: translateY(-2px);
+        }
+
+        #results {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+        }
+
+        #results p {
+            margin: 10px 0;
+            color: #374151;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        #results span {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .instructions {
+            margin-top: 20px;
+            padding: 15px;
+            background: #eff6ff;
+            border-radius: 10px;
+            border: 1px solid #dbeafe;
+        }
+
+        .instructions h3 {
+            color: #1e3a8a;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .instructions p {
+            color: #6b7280;
+            font-size: 13px;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h2>Risk, NNT, and Efficacy Calculator</h2>
+        
+        <div class="input-group">
+            <label>Control Group Events:</label>
+            <input type="number" id="controlEvents" min="0" value="162">
+        </div>
+        <div class="input-group">
+            <label>Control Group Total:</label>
+            <input type="number" id="controlTotal" min="1" value="21728">
+        </div>
+        <div class="input-group">
+            <label>Treatment Group Events:</label>
+            <input type="number" id="treatmentEvents" min="0" value="8">
+        </div>
+        <div class="input-group">
+            <label>Treatment Group Total:</label>
+            <input type="number" id="treatmentTotal" min="1" value="21720">
+        </div>
+        
+        <div class="button-group">
+            <button id="calculateBtn">Calculate</button>
+            <button id="clearBtn">Clear</button>
+        </div>
+        
+        <div id="results">
+            <p>Control Event Rate (CER): <span id="cer"></span></p>
+            <p>Treatment Event Rate (TER): <span id="ter"></span></p>
+            <p>Absolute Risk Reduction (ARR): <span id="arr"></span></p>
+            <p>Relative Risk (RR): <span id="rr"></span></p>
+            <p>Number Needed to Treat (NNT): <span id="nnt"></span></p>
+            <p>Efficacy (VE) = (CER - TER) / CER × 100%: <span id="efficacy"></span></p>
+        </div>
+        
+        <div class="instructions">
+            <h3>Instructions</h3>
+            <p>Enter the number of events and total subjects in both control and treatment groups.</p>
+            <p>Example: If 30/100 controls and 20/100 treated had an event.</p>
+        </div>
+    </div>
+
+    <script>
+        class RiskCalculator {
+            constructor() {
+                this.clearResults();
+            }
+
+            calculate(controlEvents, controlTotal, treatmentEvents, treatmentTotal) {
+                console.log("Calculating with inputs:", { controlEvents, controlTotal, treatmentEvents, treatmentTotal });
+
+                controlEvents = Number(controlEvents);
+                controlTotal = Number(controlTotal);
+                treatmentEvents = Number(treatmentEvents);
+                treatmentTotal = Number(treatmentTotal);
+
+                if (isNaN(controlEvents) || isNaN(controlTotal) || 
+                    isNaN(treatmentEvents) || isNaN(treatmentTotal)) {
+                    throw new Error("All inputs must be valid numbers");
+                }
+
+                if (controlTotal <= 0 || treatmentTotal <= 0) {
+                    throw new Error("Totals must be greater than zero");
+                }
+
+                if (controlEvents > controlTotal || treatmentEvents > treatmentTotal ||
+                    controlEvents < 0 || treatmentEvents < 0) {
+                    throw new Error("Events must be between 0 and total");
+                }
+
+                const cer = controlEvents / controlTotal;
+                const ter = treatmentEvents / treatmentTotal;
+                const arr = cer - ter;
+                const rr = ter / cer;
+                const nnt = arr === 0 ? Infinity : Math.abs(1 / arr);
+                const efficacy = cer === 0 ? 0 : ((cer - ter) / cer) * 100;
+
+                const results = {
+                    cer: cer.toFixed(5),
+                    ter: ter.toFixed(5),
+                    arr: arr.toFixed(5),
+                    rr: rr.toFixed(5),
+                    nnt: Math.round(nnt),
+                    efficacy: efficacy.toFixed(2)
+                };
+
+                console.log("Calculated results:", results);
+                return results;
+            }
+
+            displayResults(results) {
+                console.log("Attempting to display results:", results);
+                const elements = {
+                    cer: document.getElementById('cer'),
+                    ter: document.getElementById('ter'),
+                    arr: document.getElementById('arr'),
+                    rr: document.getElementById('rr'),
+                    nnt: document.getElementById('nnt'),
+                    efficacy: document.getElementById('efficacy')
+                };
+
+                for (const [key, element] of Object.entries(elements)) {
+                    if (!element) {
+                        console.error(`DOM element for ${key} not found`);
+                        return;
+                    }
+                }
+
+                elements.cer.textContent = results.cer;
+                elements.ter.textContent = results.ter;
+                elements.arr.textContent = `${results.arr} (${(results.arr * 100).toFixed(2)}%)`;
+                elements.rr.textContent = `${results.rr} (${(results.rr * 100).toFixed(2)}%)`;
+                elements.nnt.textContent = results.nnt === Infinity ? '∞' : results.nnt;
+                elements.efficacy.textContent = `${results.efficacy}%`;
+                console.log("Results displayed successfully");
+            }
+
+            clearResults() {
+                console.log("Clearing results");
+                const elements = ['cer', 'ter', 'arr', 'rr', 'nnt', 'efficacy'];
+                elements.forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) element.textContent = '';
+                });
+            }
+        }
+
+        const calculator = new RiskCalculator();
+
+        function calculate() {
+            console.log("Calculate button clicked");
+            try {
+                const controlEvents = document.getElementById('controlEvents').value;
+                const controlTotal = document.getElementById('controlTotal').value;
+                const treatmentEvents = document.getElementById('treatmentEvents').value;
+                const treatmentTotal = document.getElementById('treatmentTotal').value;
+
+                console.log("Raw input values:", { controlEvents, controlTotal, treatmentEvents, treatmentTotal });
+
+                const results = calculator.calculate(
+                    controlEvents,
+                    controlTotal,
+                    treatmentEvents,
+                    treatmentTotal
+                );
+                calculator.displayResults(results);
+            } catch (error) {
+                console.error("Error during calculation:", error.message);
+                alert("Error: " + error.message);
+                calculator.clearResults();
+            }
+        }
+
+        function clearInputs() {
+            console.log("Clear button clicked");
+            document.getElementById('controlEvents').value = '';
+            document.getElementById('controlTotal').value = '';
+            document.getElementById('treatmentEvents').value = '';
+            document.getElementById('treatmentTotal').value = '';
+            calculator.clearResults();
+        }
+
+        const calculateBtn = document.getElementById('calculateBtn');
+        const clearBtn = document.getElementById('clearBtn');
+
+        if (calculateBtn) {
+            calculateBtn.addEventListener('click', calculate);
+            console.log("Calculate button listener added");
+        } else {
+            console.error("Calculate button not found");
+        }
+
+        if (clearBtn) {
+            clearBtn.addEventListener('click', clearInputs);
+            console.log("Clear button listener added");
+        } else {
+            console.error("Clear button not found");
+        }
+
+        console.log("Page loaded, running initial calculation");
+        calculate();
+    </script>
+</body>
+</html>

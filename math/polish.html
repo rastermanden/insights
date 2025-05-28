@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RPN Calculator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff, #f3f4f6);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+
+        .calculator {
+            width: 450px;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+empreview: none;
+            transition: transform 0.3s ease;
+        }
+
+        .calculator:hover {
+            transform: translateY(-5px);
+        }
+
+        h2 {
+            color: #1e3a8a;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 24px;
+            letter-spacing: 1px;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+        }
+
+        label {
+            flex: 1;
+            color: #4b5563;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100px;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        #enterBtn {
+            background: #1e3a8a;
+            color: white;
+        }
+
+        #enterBtn:hover {
+            background: #1e40af;
+            transform: translateY(-2px);
+        }
+
+        #clearBtn {
+            background: #9ca3af;
+            color: white;
+        }
+
+        #clearBtn:hover {
+            background: #6b7280;
+            transform: translateY(-2px);
+        }
+
+        #stackDisplay {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            color: #374151;
+            font-size: 14px;
+            min-height: 50px;
+        }
+
+        #stackDisplay p {
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        #stackDisplay span {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .instructions {
+            margin-top: 20px;
+            padding: 15px;
+            background: #eff6ff;
+            border-radius: 10px;
+            border: 1px solid #dbeafe;
+        }
+
+        .instructions h3 {
+            color: #1e3a8a;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .instructions p {
+            color: #6b7280;
+            font-size: 13px;
+            margin: 5px 0;
+        }
+
+        #error {
+            color: #dc2626;
+            font-size: 13px;
+            margin-top: 10px;
+            display: none;
+            text-align: center;
+        }
+
+        @media (max-width: 500px) {
+            .calculator {
+                width: 90%;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h2>RPN Calculator</h2>
+        
+        <div class="input-group">
+            <label>Enter number or operator:</label>
+            <input type="text" id="input" placeholder="e.g., 3, +, -" required>
+        </div>
+        
+        <div class="button-group">
+            <button id="enterBtn" aria-label="Process input">Enter</button>
+            <button id="clearBtn" aria-label="Clear stack">Clear</button>
+        </div>
+        
+        <div id="stackDisplay">
+            <p>Stack: <span id="stackContent"></span></p>
+        </div>
+        
+        <div id="error"></div>
+        
+        <div class="instructions">
+            <h3>How to Use</h3>
+            <p>Enter numbers or operators (+, -, *, /) one at a time and press Enter.</p>
+            <p>Example: To calculate 3 + 4, enter: 3 [Enter], 4 [Enter], + [Enter].</p>
+            <p>Results are shown in the stack below.</p>
+        </div>
+    </div>
+
+    <script>
+        class RPNCalculator {
+            constructor() {
+                this.stack = [];
+                this.errorDisplay = document.getElementById('error');
+            }
+
+            process(token) {
+                this.errorDisplay.style.display = 'none';
+                token = token.trim();
+
+                if (!token) {
+                    this.showError("Input cannot be empty");
+                    return;
+                }
+
+                if (!isNaN(parseFloat(token))) {
+                    this.stack.push(parseFloat(token));
+                } else {
+                    if (this.stack.length < 2) {
+                        this.showError("Not enough operands!");
+                        return;
+                    }
+                    const b = this.stack.pop();
+                    const a = this.stack.pop();
+                    
+                    switch(token) {
+                        case '+':
+                            this.stack.push(a + b);
+                            break;
+                        case '-':
+                            this.stack.push(a - b);
+                            break;
+                        case '*':
+                            this.stack.push(a * b);
+                            break;
+                        case '/':
+                            if (b === 0) {
+                                this.showError("Division by zero!");
+                                this.stack.push(a);
+                                this.stack.push(b);
+                                return;
+                            }
+                            this.stack.push(a / b);
+                            break;
+                        default:
+                            this.showError("Unknown operator!");
+                            this.stack.push(a);
+                            this.stack.push(b);
+                            return;
+                    }
+                }
+                this.updateDisplay();
+            }
+
+            clear() {
+                this.stack = [];
+                this.errorDisplay.style.display = 'none';
+                this.updateDisplay();
+            }
+
+            updateDisplay() {
+                const stackContent = document.getElementById('stackContent');
+                if (stackContent) {
+                    stackContent.textContent = this.stack.join(' ');
+                }
+            }
+
+            showError(message) {
+                this.errorDisplay.textContent = message;
+                this.errorDisplay.style.display = 'block';
+            }
+        }
+
+        const calculator = new RPNCalculator();
+
+        function processInput() {
+            const input = document.getElementById('input').value;
+            calculator.process(input);
+            document.getElementById('input').value = '';
+        }
+
+        function clearStack() {
+            calculator.clear();
+        }
+
+        const enterBtn = document.getElementById('enterBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const inputField = document.getElementById('input');
+
+        if (enterBtn) {
+            enterBtn.addEventListener('click', processInput);
+        }
+        if (clearBtn) {
+            clearBtn.addEventListener('click', clearStack);
+        }
+        if (inputField) {
+            inputField.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    processInput();
+                }
+            });
+        }
+    </script>
+</body>
+</html>

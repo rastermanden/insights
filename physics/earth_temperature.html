@@ -1,0 +1,192 @@
+<script type="text/javascript">
+    var gk_isXlsx = false;
+    var gk_xlsxFileLookup = {};
+    var gk_fileData = {};
+    function filledCell(cell) {
+      return cell !== '' && cell != null;
+    }
+    function loadFileData(filename) {
+    if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+        try {
+            var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+            var firstSheetName = workbook.SheetNames[0];
+            var worksheet = workbook.Sheets[firstSheetName];
+
+            // Convert sheet to JSON to filter blank rows
+            var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+            // Filter out blank rows (rows where all cells are empty, null, or undefined)
+            var filteredData = jsonData.filter(row => row.some(filledCell));
+
+            // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+            var headerRowIndex = filteredData.findIndex((row, index) =>
+              row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+            );
+            // Fallback
+            if (headerRowIndex === -1 || headerRowIndex > 25) {
+              headerRowIndex = 0;
+            }
+
+            // Convert filtered JSON back to CSV
+            var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+            csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+            return csv;
+        } catch (e) {
+            console.error(e);
+            return "";
+        }
+    }
+    return gk_fileData[filename] || "";
+    }
+    </script><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planet Effective Temperature Calculator</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    h1, h2 {
+        text-align: center;
+    }
+    .slider-container {
+        margin: 20px 0;
+    }
+    .temperature-display {
+        font-size: 24px;
+        font-weight: bold;
+        margin-top: 20px;
+    }
+    .explanation {
+        margin-top: 40px;
+        font-size: 16px;
+    }
+</style>
+</head>
+<body>
+<h1>Planet Effective Temperature Calculator</h1>
+<div class="slider-container">
+    <label for="albedoSlider">Albedo (0 to 1): </label>
+    <input type="range" id="albedoSlider" min="0" max="1" step="0.01" value="0.3">
+    <span id="albedoValue">0.30</span>
+</div>
+<div class="temperature-display">
+    Effective Temperature: <span id="temperatureDisplay">-18.2°C</span>
+</div>
+<canvas id="temperatureChart" height="200"></canvas>
+<div class="explanation">
+    <h2>Formula Explanation</h2>
+    <p>The effective temperature \( T \) of a planet is calculated using the formula:</p>
+    \[ T = \left( \frac{S (1 - \alpha)}{4 \sigma} \right)^{1/4} - 273.15 \]
+    <p>where:</p>
+    <ul>
+        <li>\( S \) is the solar constant, the incoming solar radiation per unit area (\( 1361 \, \text{W/m}^2 \)),</li>
+        <li>\( \alpha \) is the albedo, the fraction of sunlight reflected by the planet (0 to 1),</li>
+        <li>\( \sigma \) is the Stefan-Boltzmann constant (\( 5.670367 \times 10^{-8} \, \text{W/m}^2\text{K}^4 \)),</li>
+        <li>The result is converted from Kelvin to Celsius by subtracting 273.15.</li>
+    </ul>
+    <p>This formula balances the absorbed solar energy and the radiated thermal energy. The factor of 4 accounts for the planet absorbing energy over its cross-sectional area (a disk) and radiating it over its entire surface area (a sphere).</p>
+</div>
+<script>
+    // Constants
+    const S = 1361; // Solar constant in W/m^2
+    const sigma = 5.670367e-8; // Stefan-Boltzmann constant in W/m^2K^4
+
+    // Get DOM elements
+    const albedoSlider = document.getElementById('albedoSlider');
+    const albedoValue = document.getElementById('albedoValue');
+    const temperatureDisplay = document.getElementById('temperatureDisplay');
+
+    // Function to calculate effective temperature in Celsius
+    function calculateTemperature(albedo) {
+        const absorbedEnergy = S * (1 - albedo);
+        const tempFourth = absorbedEnergy / (4 * sigma);
+        if (tempFourth <= 0) {
+            return -273.15; // Absolute zero in Celsius
+        }
+        const T_kelvin = Math.pow(tempFourth, 0.25);
+        const T_celsius = T_kelvin - 273.15;
+        return T_celsius;
+    }
+
+    // Generate data for chart
+    const albedos = [];
+    for (let a = 0; a <= 1; a += 0.01) {
+        albedos.push(a);
+    }
+    const temperatures = albedos.map(a => calculateTemperature(a));
+
+    // Create chart
+    const ctx = document.getElementById('temperatureChart').getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            datasets: [{
+                label: 'Temperature vs. Albedo',
+                data: albedos.map((a, i) => ({x: a, y: temperatures[i]})),
+                borderColor: 'blue',
+                fill: false,
+                pointRadius: 0
+            }, {
+                label: 'Current',
+                data: [{x: 0.3, y: calculateTemperature(0.3)}],
+                type: 'scatter',
+                pointBackgroundColor: 'red',
+                pointRadius: 5
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    type: 'linear',
+                    position: 'bottom',
+                    title: {
+                        display: true,
+                        text: 'Albedo'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Effective Temperature (°C)'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true
+                },
+                title: {
+                    display: true,
+                    text: 'Effective Temperature vs. Albedo'
+                }
+            }
+        }
+    });
+
+    // Function to update the display
+    function updateDisplay() {
+        const albedo = parseFloat(albedoSlider.value);
+        albedoValue.textContent = albedo.toFixed(2);
+        const T_celsius = calculateTemperature(albedo);
+        temperatureDisplay.textContent = T_celsius.toFixed(1) + '°C';
+        // Update chart
+        chart.data.datasets[1].data = [{x: albedo, y: T_celsius}];
+        chart.update();
+    }
+
+    // Add event listener to the slider
+    albedoSlider.addEventListener('input', updateDisplay);
+
+    // Initial calculation
+    updateDisplay();
+</script>
+</body>
+</html>

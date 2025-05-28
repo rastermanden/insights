@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bayes' Theorem Calculator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff, #f3f4f6);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+
+        .calculator {
+            width: 450px;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            transition: transform 0.3s ease;
+        }
+
+        .calculator:hover {
+            transform: translateY(-5px);
+        }
+
+        h2 {
+            color: #1e3a8a;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 24px;
+            letter-spacing: 1px;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+        }
+
+        label {
+            flex: 1;
+            color: #4b5563;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100px;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        #calculateBtn {
+            background: #1e3a8a;
+            color: white;
+        }
+
+        #calculateBtn:hover {
+            background: #1e40af;
+            transform: translateY(-2px);
+        }
+
+        #clearBtn {
+            background: #9ca3af;
+            color: white;
+        }
+
+        #clearBtn:hover {
+            background: #6b7280;
+            transform: translateY(-2px);
+        }
+
+        #results {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+        }
+
+        #results p {
+            margin: 10px 0;
+            color: #374151;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        #results span {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .instructions {
+            margin-top: 20px;
+            padding: 15px;
+            background: #eff6ff;
+            border-radius: 10px;
+            border: 1px solid #dbeafe;
+        }
+
+        .instructions h3 {
+            color: #1e3a8a;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .instructions p {
+            color: #6b7280;
+            font-size: 13px;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h2>Bayes' Theorem Calculator</h2>
+        
+        <div class="input-group">
+            <label>Sensitivity (%):</label>
+            <input type="number" id="sensitivity" min="0" max="100" value="90">
+        </div>
+        <div class="input-group">
+            <label>Specificity (%):</label>
+            <input type="number" id="specificity" min="0" max="100" value="95">
+        </div>
+        <div class="input-group">
+            <label>Prior Disease Rate (%):</label>
+            <input type="number" id="prevalence" min="0" max="100" value="1">
+        </div>
+        
+        <div class="button-group">
+            <button id="calculateBtn">Calculate</button>
+            <button id="clearBtn">Clear</button>
+        </div>
+        
+        <div id="results">
+            <p>Positive Predictive Value (PPV): <span id="ppv"></span></p>
+            <p>PPV Formula: Sensitivity × Prevalence / [Sensitivity × Prevalence + (1 - Specificity) × (1 - Prevalence)]</p>
+            <p>Negative Predictive Value (NPV): <span id="npv"></span></p>
+            <p>NPV Formula: Specificity × (1 - Prevalence) / [Specificity × (1 - Prevalence) + (1 - Sensitivity) × Prevalence]</p>
+        </div>
+        
+        <div class="instructions">
+            <h3>Instructions</h3>
+            <p>Enter sensitivity, specificity, and prior disease rate as percentages (0-100).</p>
+            <p>Example: Sensitivity 90%, Specificity 95%, Prevalence 5%.</p>
+        </div>
+    </div>
+
+    <script>
+        class BayesCalculator {
+            constructor() {
+                this.clearResults();
+            }
+
+            calculate(sensitivity, specificity, prevalence) {
+                console.log("Calculating with inputs:", { sensitivity, specificity, prevalence });
+
+                sensitivity = Number(sensitivity) / 100; // Convert to proportion
+                specificity = Number(specificity) / 100;
+                prevalence = Number(prevalence) / 100;
+
+                if (isNaN(sensitivity) || isNaN(specificity) || isNaN(prevalence)) {
+                    throw new Error("All inputs must be valid numbers");
+                }
+
+                if (sensitivity < 0 || sensitivity > 1 || 
+                    specificity < 0 || specificity > 1 || 
+                    prevalence < 0 || prevalence > 1) {
+                    throw new Error("Values must be between 0 and 100");
+                }
+
+                // Positive Predictive Value (PPV)
+                const ppvNumerator = sensitivity * prevalence;
+                const ppvDenominator = ppvNumerator + (1 - specificity) * (1 - prevalence);
+                const ppv = ppvDenominator === 0 ? 0 : (ppvNumerator / ppvDenominator) * 100;
+
+                // Negative Predictive Value (NPV)
+                const npvNumerator = specificity * (1 - prevalence);
+                const npvDenominator = npvNumerator + (1 - sensitivity) * prevalence;
+                const npv = npvDenominator === 0 ? 0 : (npvNumerator / npvDenominator) * 100;
+
+                const results = {
+                    ppv: ppv.toFixed(2),
+                    npv: npv.toFixed(2)
+                };
+
+                console.log("Calculated results:", results);
+                return results;
+            }
+
+            displayResults(results) {
+                console.log("Attempting to display results:", results);
+                const elements = {
+                    ppv: document.getElementById('ppv'),
+                    npv: document.getElementById('npv')
+                };
+
+                for (const [key, element] of Object.entries(elements)) {
+                    if (!element) {
+                        console.error(`DOM element for ${key} not found`);
+                        return;
+                    }
+                }
+
+                elements.ppv.textContent = `${results.ppv}%`;
+                elements.npv.textContent = `${results.npv}%`;
+                console.log("Results displayed successfully");
+            }
+
+            clearResults() {
+                console.log("Clearing results");
+                const elements = ['ppv', 'npv'];
+                elements.forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) element.textContent = '';
+                });
+            }
+        }
+
+        const calculator = new BayesCalculator();
+
+        function calculate() {
+            console.log("Calculate button clicked");
+            try {
+                const sensitivity = document.getElementById('sensitivity').value;
+                const specificity = document.getElementById('specificity').value;
+                const prevalence = document.getElementById('prevalence').value;
+
+                console.log("Raw input values:", { sensitivity, specificity, prevalence });
+
+                const results = calculator.calculate(sensitivity, specificity, prevalence);
+                calculator.displayResults(results);
+            } catch (error) {
+                console.error("Error during calculation:", error.message);
+                alert("Error: " + error.message);
+                calculator.clearResults();
+            }
+        }
+
+        function clearInputs() {
+            console.log("Clear button clicked");
+            document.getElementById('sensitivity').value = '';
+            document.getElementById('specificity').value = '';
+            document.getElementById('prevalence').value = '';
+            calculator.clearResults();
+        }
+
+        const calculateBtn = document.getElementById('calculateBtn');
+        const clearBtn = document.getElementById('clearBtn');
+
+        if (calculateBtn) {
+            calculateBtn.addEventListener('click', calculate);
+            console.log("Calculate button listener added");
+        } else {
+            console.error("Calculate button not found");
+        }
+
+        if (clearBtn) {
+            clearBtn.addEventListener('click', clearInputs);
+            console.log("Clear button listener added");
+        } else {
+            console.error("Clear button not found");
+        }
+
+        console.log("Page loaded, running initial calculation");
+        calculate();
+    </script>
+</body>
+</html>
