@@ -1,7 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Risk, NNT, and Efficacy Calculator.</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risk, NNT, and Efficacy Calculator</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -20,10 +22,7 @@
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             border: 1px solid #e5e7eb;
-            transition: transform 0.3s ease;
         }
-
-
 
         h2 {
             color: #1e3a8a;
@@ -61,39 +60,38 @@
             box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
         }
 
-        .button-group {
+        .value-container {
             display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin: 20px 0;
+            align-items: center;
+            gap: 10px;
         }
 
-        button {
-            padding: 10px 20px;
+        .arrow-btn {
+            padding: 6px 10px;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             transition: background-color 0.3s ease, transform 0.2s ease;
         }
 
-        #calculateBtn {
+        .up-btn {
             background: #1e3a8a;
             color: white;
         }
 
-        #calculateBtn:hover {
+        .up-btn:hover {
             background: #1e40af;
             transform: translateY(-2px);
         }
 
-        #clearBtn {
+        .down-btn {
             background: #9ca3af;
             color: white;
         }
 
-        #clearBtn:hover {
+        .down-btn:hover {
             background: #6b7280;
             transform: translateY(-2px);
         }
@@ -119,6 +117,14 @@
             color: #1f2937;
         }
 
+        #error {
+            color: #dc2626;
+            font-size: 13px;
+            margin-top: 10px;
+            display: none;
+            text-align: center;
+        }
+
         .instructions {
             margin-top: 20px;
             padding: 15px;
@@ -138,6 +144,13 @@
             font-size: 13px;
             margin: 5px 0;
         }
+
+        @media (max-width: 500px) {
+            .calculator {
+                width: 90%;
+                padding: 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -145,26 +158,39 @@
         <h2>Risk, NNT, and Efficacy Calculator</h2>
         
         <div class="input-group">
-            <label>Control Group Events:</label>
-            <input type="number" id="controlEvents" min="0" value="162">
+            <label for="controlEvents">Control Group Events:</label>
+            <div class="value-container">
+                <input type="number" id="controlEvents" min="0" value="162" required aria-label="Control group events">
+                <button class="arrow-btn up-btn" data-input="controlEvents" aria-label="Increase control events" tabindex="0">↑</button>
+                <button class="arrow-btn down-btn" data-input="controlEvents" aria-label="Decrease control events" tabindex="0">↓</button>
+            </div>
         </div>
         <div class="input-group">
-            <label>Control Group Total:</label>
-            <input type="number" id="controlTotal" min="1" value="21728">
+            <label for="controlTotal">Control Group Total:</label>
+            <div class="value-container">
+                <input type="number" id="controlTotal" min="1" value="21728" required aria-label="Control group total">
+                <button class="arrow-btn up-btn" data-input="controlTotal" aria-label="Increase control total" tabindex="0">↑</button>
+                <button class="arrow-btn down-btn" data-input="controlTotal" aria-label="Decrease control total" tabindex="0">↓</button>
+            </div>
         </div>
         <div class="input-group">
-            <label>Treatment Group Events:</label>
-            <input type="number" id="treatmentEvents" min="0" value="8">
+            <label for="treatmentEvents">Treatment Group Events:</label>
+            <div class="value-container">
+                <input type="number" id="treatmentEvents" min="0" value="8" required aria-label="Treatment group events">
+                <button class="arrow-btn up-btn" data-input="treatmentEvents" aria-label="Increase treatment events" tabindex="0">↑</button>
+                <button class="arrow-btn down-btn" data-input="treatmentEvents" aria-label="Decrease treatment events" tabindex="0">↓</button>
+            </div>
         </div>
         <div class="input-group">
-            <label>Treatment Group Total:</label>
-            <input type="number" id="treatmentTotal" min="1" value="21720">
+            <label for="treatmentTotal">Treatment Group Total:</label>
+            <div class="value-container">
+                <input type="number" id="treatmentTotal" min="1" value="21720" required aria-label="Treatment group total">
+                <button class="arrow-btn up-btn" data-input="treatmentTotal" aria-label="Increase treatment total" tabindex="0">↑</button>
+                <button class="arrow-btn down-btn" data-input="treatmentTotal" aria-label="Decrease treatment total" tabindex="0">↓</button>
+            </div>
         </div>
         
-        <div class="button-group">
-            <button id="calculateBtn">Calculate</button>
-            <button id="clearBtn">Clear</button>
-        </div>
+        <div id="error"></div>
         
         <div id="results">
             <p>Control Event Rate (CER): <span id="cer"></span></p>
@@ -178,19 +204,20 @@
         <div class="instructions">
             <h3>Instructions</h3>
             <p>Enter the number of events and total subjects in both control and treatment groups.</p>
-            <p>Example: If 30/100 controls and 20/100 treated had an event.</p>
+            <p>Use the arrows to adjust values or type directly; results update automatically.</p>
+            <p>Example: If 30/100 controls and 20/100 treated had an event, enter 30, 100, 20, 100.</p>
+            <p>To reset, type default values (e.g., 162, 21728, 8, 21720).</p>
         </div>
     </div>
 
     <script>
         class RiskCalculator {
             constructor() {
+                this.errorDisplay = document.getElementById('error');
                 this.clearResults();
             }
 
             calculate(controlEvents, controlTotal, treatmentEvents, treatmentTotal) {
-                console.log("Calculating with inputs:", { controlEvents, controlTotal, treatmentEvents, treatmentTotal });
-
                 controlEvents = Number(controlEvents);
                 controlTotal = Number(controlTotal);
                 treatmentEvents = Number(treatmentEvents);
@@ -213,7 +240,7 @@
                 const cer = controlEvents / controlTotal;
                 const ter = treatmentEvents / treatmentTotal;
                 const arr = cer - ter;
-                const rr = ter / cer;
+                const rr = cer === 0 ? 0 : ter / cer;
                 const nnt = arr === 0 ? Infinity : Math.abs(1 / arr);
                 const efficacy = cer === 0 ? 0 : ((cer - ter) / cer) * 100;
 
@@ -226,12 +253,10 @@
                     efficacy: efficacy.toFixed(2)
                 };
 
-                console.log("Calculated results:", results);
                 return results;
             }
 
             displayResults(results) {
-                console.log("Attempting to display results:", results);
                 const elements = {
                     cer: document.getElementById('cer'),
                     ter: document.getElementById('ter'),
@@ -243,8 +268,7 @@
 
                 for (const [key, element] of Object.entries(elements)) {
                     if (!element) {
-                        console.error(`DOM element for ${key} not found`);
-                        return;
+                        throw new Error(`DOM element for ${key} not found`);
                     }
                 }
 
@@ -254,30 +278,31 @@
                 elements.rr.textContent = `${results.rr} (${(results.rr * 100).toFixed(2)}%)`;
                 elements.nnt.textContent = results.nnt === Infinity ? '∞' : results.nnt;
                 elements.efficacy.textContent = `${results.efficacy}%`;
-                console.log("Results displayed successfully");
             }
 
             clearResults() {
-                console.log("Clearing results");
+                this.errorDisplay.style.display = 'none';
                 const elements = ['cer', 'ter', 'arr', 'rr', 'nnt', 'efficacy'];
                 elements.forEach(id => {
                     const element = document.getElementById(id);
                     if (element) element.textContent = '';
                 });
             }
+
+            showError(message) {
+                this.errorDisplay.textContent = message;
+                this.errorDisplay.style.display = 'block';
+            }
         }
 
         const calculator = new RiskCalculator();
 
         function calculate() {
-            console.log("Calculate button clicked");
             try {
                 const controlEvents = document.getElementById('controlEvents').value;
                 const controlTotal = document.getElementById('controlTotal').value;
                 const treatmentEvents = document.getElementById('treatmentEvents').value;
                 const treatmentTotal = document.getElementById('treatmentTotal').value;
-
-                console.log("Raw input values:", { controlEvents, controlTotal, treatmentEvents, treatmentTotal });
 
                 const results = calculator.calculate(
                     controlEvents,
@@ -287,39 +312,41 @@
                 );
                 calculator.displayResults(results);
             } catch (error) {
-                console.error("Error during calculation:", error.message);
-                alert("Error: " + error.message);
+                calculator.showError("Error: " + error.message);
                 calculator.clearResults();
             }
         }
 
-        function clearInputs() {
-            console.log("Clear button clicked");
-            document.getElementById('controlEvents').value = '';
-            document.getElementById('controlTotal').value = '';
-            document.getElementById('treatmentEvents').value = '';
-            document.getElementById('treatmentTotal').value = '';
-            calculator.clearResults();
+        function adjustValue(inputId, direction) {
+            const input = document.getElementById(inputId);
+            let value = parseFloat(input.value);
+            const step = 1;
+            const min = parseFloat(input.min);
+            if (direction === 'up') {
+                value += step;
+            } else if (direction === 'down' && value > min) {
+                value -= step;
+            }
+            input.value = Math.max(min, Math.round(value));
+            calculate();
         }
 
-        const calculateBtn = document.getElementById('calculateBtn');
-        const clearBtn = document.getElementById('clearBtn');
+        const upButtons = document.querySelectorAll('.up-btn');
+        const downButtons = document.querySelectorAll('.down-btn');
 
-        if (calculateBtn) {
-            calculateBtn.addEventListener('click', calculate);
-            console.log("Calculate button listener added");
-        } else {
-            console.error("Calculate button not found");
-        }
+        upButtons.forEach(btn => {
+            btn.addEventListener('click', () => adjustValue(btn.dataset.input, 'up'));
+        });
+        downButtons.forEach(btn => {
+            btn.addEventListener('click', () => adjustValue(btn.dataset.input, 'down'));
+        });
 
-        if (clearBtn) {
-            clearBtn.addEventListener('click', clearInputs);
-            console.log("Clear button listener added");
-        } else {
-            console.error("Clear button not found");
-        }
+        // Add input event listeners for real-time updates
+        ['controlEvents', 'controlTotal', 'treatmentEvents', 'treatmentTotal'].forEach(id => {
+            document.getElementById(id).addEventListener('input', calculate);
+        });
 
-        console.log("Page loaded, running initial calculation");
+        // Initial calculation
         calculate();
     </script>
 </body>
