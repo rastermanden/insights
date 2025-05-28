@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bayes' Theorem Calculator</title>
     <style>
         body {
@@ -20,7 +22,6 @@
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             border: 1px solid #e5e7eb;
-            transition: transform 0.3s ease;
         }
 
         h2 {
@@ -57,6 +58,42 @@
             outline: none;
             border-color: #3b82f6;
             box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+        }
+
+        .value-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .arrow-btn {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .up-btn {
+            background: #1e3a8a;
+            color: white;
+        }
+
+        .up-btn:hover {
+            background: #1e40af;
+            transform: translateY(-2px);
+        }
+
+        .down-btn {
+            background: #9ca3af;
+            color: white;
+        }
+
+        .down-btn:hover {
+            background: #6b7280;
+            transform: translateY(-2px);
         }
 
         .button-group {
@@ -117,6 +154,14 @@
             color: #1f2937;
         }
 
+        #error {
+            color: #dc2626;
+            font-size: 13px;
+            margin-top: 10px;
+            display: none;
+            text-align: center;
+        }
+
         .instructions {
             margin-top: 20px;
             padding: 15px;
@@ -136,6 +181,13 @@
             font-size: 13px;
             margin: 5px 0;
         }
+
+        @media (max-width: 500px) {
+            .calculator {
+                width: 90%;
+                padding: 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -143,22 +195,36 @@
         <h2>Bayes' Theorem Calculator</h2>
         
         <div class="input-group">
-            <label>Sensitivity (%):</label>
-            <input type="number" id="sensitivity" min="0" max="100" value="90">
+            <label for="sensitivity">Sensitivity (%):</label>
+            <div class="value-container">
+                <input type="number" id="sensitivity" min="0" max="100" step="0.1" value="90" required aria-label="Sensitivity percentage">
+                <button class="arrow-btn up-btn" data-input="sensitivity" aria-label="Increase sensitivity" tabindex="0">↑</button>
+                <button class="arrow-btn down-btn" data-input="sensitivity" aria-label="Decrease sensitivity" tabindex="0">↓</button>
+            </div>
         </div>
         <div class="input-group">
-            <label>Specificity (%):</label>
-            <input type="number" id="specificity" min="0" max="100" value="95">
+            <label for="specificity">Specificity (%):</label>
+            <div class="value-container">
+                <input type="number" id="specificity" min="0" max="100" step="0.1" value="95" required aria-label="Specificity percentage">
+                <button class="arrow-btn up-btn" data-input="specificity" aria-label="Increase specificity" tabindex="0">↑</button>
+                <button class="arrow-btn down-btn" data-input="specificity" aria-label="Decrease specificity" tabindex="0">↓</button>
+            </div>
         </div>
         <div class="input-group">
-            <label>Prior Disease Rate (%):</label>
-            <input type="number" id="prevalence" min="0" max="100" value="1">
+            <label for="prevalence">Prior Disease Rate (%):</label>
+            <div class="value-container">
+                <input type="number" id="prevalence" min="0" max="100" step="0.1" value="1" required aria-label="Prior disease rate percentage">
+                <button class="arrow-btn up-btn" data-input="prevalence" aria-label="Increase prior disease rate" tabindex="0">↑</button>
+                <button class="arrow-btn down-btn" data-input="prevalence" aria-label="Decrease prior disease rate" tabindex="0">↓</button>
+            </div>
         </div>
         
         <div class="button-group">
-            <button id="calculateBtn">Calculate</button>
-            <button id="clearBtn">Clear</button>
+            <button id="calculateBtn" aria-label="Calculate PPV and NPV">Calculate</button>
+            <button id="clearBtn" aria-label="Clear inputs and results">Clear</button>
         </div>
+        
+        <div id="error"></div>
         
         <div id="results">
             <p>Positive Predictive Value (PPV): <span id="ppv"></span></p>
@@ -169,7 +235,10 @@
         
         <div class="instructions">
             <h3>Instructions</h3>
-            <p>Enter sensitivity, specificity, and prior disease rate as percentages (0-100).</p>
+            <p>Sensitivity is the probability that a test correctly identifies a positive case (true positive rate). For example, a 90% sensitivity means 90% of positive cases are detected.</p>
+            <p>Specificity is the probability that a test correctly identifies a negative case (true negative rate). For example, a 95% specificity means 95% of negative cases are correctly identified.</p>
+            <p>Prior Disease Rate (Prevalence) is the baseline probability of the disease in the population before testing.</p>
+            <p>Enter sensitivity, specificity, and prior disease rate as percentages (0-100). Use the arrows to adjust values or type directly.</p>
             <p>Example: Sensitivity 90%, Specificity 95%, Prevalence 5%.</p>
         </div>
     </div>
@@ -177,12 +246,11 @@
     <script>
         class BayesCalculator {
             constructor() {
+                this.errorDisplay = document.getElementById('error');
                 this.clearResults();
             }
 
             calculate(sensitivity, specificity, prevalence) {
-                console.log("Calculating with inputs:", { sensitivity, specificity, prevalence });
-
                 sensitivity = Number(sensitivity) / 100; // Convert to proportion
                 specificity = Number(specificity) / 100;
                 prevalence = Number(prevalence) / 100;
@@ -212,12 +280,10 @@
                     npv: npv.toFixed(2)
                 };
 
-                console.log("Calculated results:", results);
                 return results;
             }
 
             displayResults(results) {
-                console.log("Attempting to display results:", results);
                 const elements = {
                     ppv: document.getElementById('ppv'),
                     npv: document.getElementById('npv')
@@ -225,72 +291,89 @@
 
                 for (const [key, element] of Object.entries(elements)) {
                     if (!element) {
-                        console.error(`DOM element for ${key} not found`);
-                        return;
+                        throw new Error(`DOM element for ${key} not found`);
                     }
                 }
 
                 elements.ppv.textContent = `${results.ppv}%`;
                 elements.npv.textContent = `${results.npv}%`;
-                console.log("Results displayed successfully");
             }
 
             clearResults() {
-                console.log("Clearing results");
+                this.errorDisplay.style.display = 'none';
                 const elements = ['ppv', 'npv'];
                 elements.forEach(id => {
                     const element = document.getElementById(id);
                     if (element) element.textContent = '';
                 });
             }
+
+            showError(message) {
+                this.errorDisplay.textContent = message;
+                this.errorDisplay.style.display = 'block';
+            }
         }
 
         const calculator = new BayesCalculator();
 
         function calculate() {
-            console.log("Calculate button clicked");
             try {
                 const sensitivity = document.getElementById('sensitivity').value;
                 const specificity = document.getElementById('specificity').value;
                 const prevalence = document.getElementById('prevalence').value;
 
-                console.log("Raw input values:", { sensitivity, specificity, prevalence });
-
                 const results = calculator.calculate(sensitivity, specificity, prevalence);
                 calculator.displayResults(results);
             } catch (error) {
-                console.error("Error during calculation:", error.message);
-                alert("Error: " + error.message);
+                calculator.showError("Error: " + error.message);
                 calculator.clearResults();
             }
         }
 
         function clearInputs() {
-            console.log("Clear button clicked");
-            document.getElementById('sensitivity').value = '';
-            document.getElementById('specificity').value = '';
-            document.getElementById('prevalence').value = '';
+            document.getElementById('sensitivity').value = '90';
+            document.getElementById('specificity').value = '95';
+            document.getElementById('prevalence').value = '1';
             calculator.clearResults();
+        }
+
+        function adjustValue(inputId, direction) {
+            const input = document.getElementById(inputId);
+            let value = parseFloat(input.value);
+            const step = 0.1;
+            if (direction === 'up' && value < 100) {
+                value = Math.min(100, value + step);
+            } else if (direction === 'down' && value > 0) {
+                value = Math.max(0, value - step);
+            }
+            input.value = value.toFixed(1);
+            calculate();
         }
 
         const calculateBtn = document.getElementById('calculateBtn');
         const clearBtn = document.getElementById('clearBtn');
+        const upButtons = document.querySelectorAll('.up-btn');
+        const downButtons = document.querySelectorAll('.down-btn');
 
         if (calculateBtn) {
             calculateBtn.addEventListener('click', calculate);
-            console.log("Calculate button listener added");
-        } else {
-            console.error("Calculate button not found");
         }
-
         if (clearBtn) {
             clearBtn.addEventListener('click', clearInputs);
-            console.log("Clear button listener added");
-        } else {
-            console.error("Clear button not found");
         }
+        upButtons.forEach(btn => {
+            btn.addEventListener('click', () => adjustValue(btn.dataset.input, 'up'));
+        });
+        downButtons.forEach(btn => {
+            btn.addEventListener('click', () => adjustValue(btn.dataset.input, 'down'));
+        });
 
-        console.log("Page loaded, running initial calculation");
+        // Add input event listeners for real-time updates
+        ['sensitivity', 'specificity', 'prevalence'].forEach(id => {
+            document.getElementById(id).addEventListener('input', calculate);
+        });
+
+        // Initial calculation
         calculate();
     </script>
 </body>
