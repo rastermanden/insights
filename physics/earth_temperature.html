@@ -194,6 +194,8 @@
         <canvas id="temperatureChart" height="200"></canvas>
         <div class="explanation">
             <h2>Formula Explanation</h2>
+            <p>Albedo (\( \alpha \)) is the fraction of sunlight a planet reflects, ranging from 0 (no reflection) to 1 (complete reflection). For example, icy surfaces have high albedo, while dark surfaces have low albedo.</p>
+            <p>This calculation assumes a simplified model with no atmosphere, ignoring effects like greenhouse gases or atmospheric scattering that can alter the planet's actual temperature.</p>
             <p>The effective temperature \( T \) of a planet is calculated using the formula:</p>
             \[ T = \left( \frac{S (1 - \alpha)}{4 \sigma} \right)^{1/4} - 273.15 \]
             <p>where:</p>
@@ -245,7 +247,7 @@
             data: {
                 datasets: [{
                     label: 'Temperature vs. Albedo',
-                    data: albedos.map((a, i) => ({x: a, y: temperatures[i]})),
+                    data: albedos.map((a, i) => (({x: a, y: temperatures[i]}))),
                     borderColor: '#3b82f6',
                     backgroundColor: 'rgba(59, 130, 246, 0.1)',
                     fill: false,
