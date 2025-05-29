@@ -3,45 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Insights of math and physics</title>
+    <title>Insights of Math and Physics</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff, #f3f4f6);
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
             margin: 0;
-            background-color: #f0f0f0;
+            padding: 10px;
+            box-sizing: border-box;
         }
+
         .card-container {
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
             max-width: 1200px;
+            width: 100%;
             padding: 20px;
+            justify-content: center;
+            box-sizing: border-box;
         }
+
         .card {
-            background-color: #ffffff;
+            background-color: #f9fafb;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             width: 200px;
+            min-width: 180px;
             padding: 20px;
             text-align: center;
             text-decoration: none;
             color: #333;
-            transition: transform 0.2s;
+            transition: box-shadow 0.2s ease, background-color 0.2s ease;
+            flex: 1 1 200px;
+            max-width: 250px;
         }
+
         .card:hover {
-            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            background-color: #ffffff;
         }
+
         .card h3 {
             margin: 0 0 10px;
+            color: #1e3a8a;
+            font-size: 18px;
         }
+
         .card p {
             margin: 0;
             font-size: 14px;
-            color: #666;
+            color: #6b7280;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 900px) {
+            .card-container {
+                gap: 15px;
+                padding: 15px;
+            }
+
+            .card {
+                width: 180px;
+                padding: 15px;
+                flex: 1 1 180px;
+                max-width: 220px;
+            }
+
+            .card h3 {
+                font-size: 16px;
+            }
+
+            .card p {
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .card-container {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+                padding: 10px;
+            }
+
+            .card {
+                width: 100%;
+                max-width: 300px;
+                padding: 12px;
+                flex: 1 1 auto;
+            }
+
+            .card h3 {
+                font-size: 15px;
+            }
+
+            .card p {
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            body {
+                padding: 5px;
+            }
+
+            .card-container {
+                padding: 5px;
+            }
+
+            .card {
+                padding: 10px;
+            }
+
+            .card h3 {
+                font-size: 14px;
+                margin-bottom: 8px;
+            }
+
+            .card p {
+                font-size: 11px;
+            }
         }
     </style>
 </head>
@@ -50,11 +136,10 @@
 
     <script>
         const pages = [
-            { title: "Reverse polish notation", description: "Demo of the stack in reverse polish notation", link: "math/polish.html" },
-            { title: "Bayes theorem", description: "Demo of Baeyes Theorem", link: "math/bayes.html" },
-            { title: "Abosute and relative risk", description: "Calculating efficacy, risk and number needed to treat NNT", link: "math/risk.html" },
-            { title: "Earth temperature", description: "Calculating earth temperature with Stefan-Boltzmann with changing albedo", link: "physics/earth_temperature.html" }
-
+            { title: "Reverse Polish Notation", description: "Demo of the stack in Reverse Polish Notation", link: "math/polish.html" },
+            { title: "Bayes Theorem", description: "Demo of Bayes' Theorem", link: "math/bayes.html" },
+            { title: "Absolute and Relative Risk", description: "Calculating efficacy, risk, and Number Needed to Treat (NNT)", link: "math/risk.html" },
+            { title: "Earth Temperature", description: "Calculating Earth's temperature with Stefan-Boltzmann law by varying albedo", link: "physics/earth_temperature.html" }
         ];
 
         const cardContainer = document.getElementById('cardContainer');
@@ -63,6 +148,7 @@
             const card = document.createElement('a');
             card.className = 'card';
             card.href = page.link;
+            card.setAttribute('aria-label', `View ${page.title} demo`);
             card.innerHTML = `
                 <h3>${page.title}</h3>
                 <p>${page.description}</p>
