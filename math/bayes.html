@@ -13,15 +13,19 @@
             justify-content: center;
             align-items: center;
             margin: 0;
+            padding: 10px;
+            box-sizing: border-box;
         }
 
         .calculator {
             width: 450px;
+            max-width: 100%;
             background: #ffffff;
             padding: 30px;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             border: 1px solid #e5e7eb;
+            box-sizing: border-box;
         }
 
         h2 {
@@ -36,6 +40,8 @@
             display: flex;
             align-items: center;
             margin: 15px 0;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         label {
@@ -43,6 +49,7 @@
             color: #4b5563;
             font-size: 14px;
             font-weight: 500;
+            min-width: 120px;
         }
 
         input {
@@ -52,6 +59,8 @@
             border-radius: 8px;
             font-size: 14px;
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            flex-grow: 1;
+            max-width: 150px;
         }
 
         input:focus {
@@ -96,35 +105,6 @@
             transform: translateY(-2px);
         }
 
-        .button-group {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin: 20px 0;
-        }
-
-        button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;92.2
-        }
-
-        #calculateBtn:hover {
-            background: #1e40af;
-            transform: translateY(-2px);
-        }
-
-        #clearBtn {
-            background: #9ca3af;
-            color: white;
-        }
-
-        #clearBtn:hover {
-            background: #6b7280;
-            transform: translateY(-2px);
-        }
-
         #results {
             margin-top: 25px;
             padding: 20px;
@@ -139,11 +119,66 @@
             font-size: 14px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
 
         #results span {
             font-weight: 600;
             color: #1f2937;
+        }
+
+        .fraction {
+            display: inline-block;
+            text-align: center;
+            color: #374151;
+            font-size: 13px;
+            margin-left: 10px;
+        }
+
+        .fraction sup, .fraction sub {
+            font-size: 11px;
+        }
+
+        .formula {
+            margin: 5px 0;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .formula-description {
+            margin: 5px 0 10px;
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .table-note {
+            margin: 5px 0;
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .confusion-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+
+        .confusion-table th, .confusion-table td {
+            border: 1px solid #e5e7eb;
+            padding: 8px;
+            text-align: center;
+            color: #374151;
+        }
+
+        .confusion-table th {
+            background: #1e3a8a;
+            color: white;
+            font-weight: 600;
+        }
+
+        .confusion-table td {
+            background: #ffffff;
         }
 
         #error {
@@ -174,10 +209,151 @@
             margin: 5px 0;
         }
 
-        @media (max-width: 500px) {
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
             .calculator {
                 width: 90%;
                 padding: 20px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            .input-group {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+
+            label {
+                font-size: 13px;
+                min-width: unset;
+            }
+
+            input {
+                width: 100%;
+                max-width: unset;
+                font-size: 13px;
+                padding: 6px 10px;
+            }
+
+            .arrow-btn {
+                padding: 5px 8px;
+                font-size: 13px;
+            }
+
+            #results {
+                padding: 15px;
+            }
+
+            #results p, .formula {
+                font-size: 13px;
+            }
+
+            .fraction {
+                font-size: 12px;
+            }
+
+            .fraction sup, .fraction sub {
+                font-size: 10px;
+            }
+
+            .formula-description, .table-note {
+                font-size: 12px;
+            }
+
+            .confusion-table {
+                font-size: 12px;
+            }
+
+            .confusion-table th, .confusion-table td {
+                padding: 6px;
+            }
+
+            .instructions h3 {
+                font-size: 14px;
+            }
+
+            .instructions p {
+                font-size: 12px;
+            }
+
+            #error {
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .calculator {
+                padding: 15px;
+            }
+
+            h2 {
+                font-size: 18px;
+                margin-bottom: 15px;
+            }
+
+            .input-group {
+                margin: 10px 0;
+            }
+
+            label {
+                font-size: 12px;
+            }
+
+            input {
+                font-size: 12px;
+                padding: 5px 8px;
+            }
+
+            .arrow-btn {
+                padding: 4px 6px;
+                font-size: 12px;
+            }
+
+            #results {
+                padding: 10px;
+            }
+
+            #results p, .formula {
+                font-size: 12px;
+            }
+
+            .fraction {
+                font-size: 11px;
+            }
+
+            .fraction sup, .fraction sub {
+                font-size: 9px;
+            }
+
+            .formula-description, .table-note {
+                font-size: 11px;
+            }
+
+            .confusion-table {
+                font-size: 11px;
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            .confusion-table th, .confusion-table td {
+                padding: 4px;
+            }
+
+            .instructions {
+                padding: 10px;
+            }
+
+            .instructions h3 {
+                font-size: 13px;
+                margin-bottom: 8px;
+            }
+
+            .instructions p {
+                font-size: 11px;
             }
         }
     </style>
@@ -211,15 +387,39 @@
             </div>
         </div>
         
-
-        
         <div id="error"></div>
         
         <div id="results">
-            <p>Positive Predictive Value (PPV): <span id="ppv"></span></p>
-            <p>PPV Formula: Sensitivity × Prevalence / [Sensitivity × Prevalence + (1 - Specificity) × (1 - Prevalence)]</p>
-            <p>Negative Predictive Value (NPV): <span id="npv"></span></p>
-            <p>NPV Formula: Specificity × (1 - Prevalence) / [Specificity × (1 - Prevalence) + (1 - Sensitivity) × Prevalence]</p>
+            <p>Positive Predictive Value (PPV): <span id="ppv"></span> <span class="fraction" id="ppvFraction" aria-label="PPV fraction"></span></p>
+            <p class="formula" id="ppvSimpleFormula" aria-describedby="ppvFormulaDesc">PPV Formula: TP / (TP + FP)</p>
+            <p class="formula" id="ppvFullFormula" aria-describedby="ppvFormulaDesc">PPV Full Formula: Sensitivity × Prevalence / [Sensitivity × Prevalence + (1 - Specificity) × (1 - Prevalence)]</p>
+            <p class="formula-description" id="ppvFormulaDesc">This formula calculates the probability that a positive test result is correct, using the test’s sensitivity, specificity, and disease prevalence.</p>
+            <p>Negative Predictive Value (NPV): <span id="npv"></span> <span class="fraction" id="npvFraction" aria-label="NPV fraction"></span></p>
+            <p class="formula" id="npvSimpleFormula" aria-describedby="npvFormulaDesc">NPV Formula: TN / (TN + FN)</p>
+            <p class="formula" id="npvFullFormula" aria-describedby="npvFormulaDesc">NPV Full Formula: Specificity × (1 - Prevalence) / [Specificity × (1 - Prevalence) + (1 - Sensitivity) × Prevalence]</p>
+            <p class="formula-description" id="npvFormulaDesc">This formula calculates the probability that a negative test result is correct, based on the test’s specificity, sensitivity, and disease prevalence.</p>
+            <table class="confusion-table" aria-label="Confusion matrix for test results (population 100,000)" aria-describedby="tableNote">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Positive Test</th>
+                        <th>Negative Test</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>Has Disease</th>
+                        <td id="tp"></td>
+                        <td id="fn"></td>
+                    </tr>
+                    <tr>
+                        <th>No Disease</th>
+                        <td id="fp"></td>
+                        <td id="tn"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <p class="table-note" id="tableNote">Note: Table values represent counts for a population of 100,000.</p>
         </div>
         
         <div class="instructions">
@@ -227,8 +427,9 @@
             <p>Sensitivity is the probability that a test correctly identifies a positive case (true positive rate). For example, a 90% sensitivity means 90% of positive cases are detected.</p>
             <p>Specificity is the probability that a test correctly identifies a negative case (true negative rate). For example, a 95% specificity means 95% of negative cases are correctly identified.</p>
             <p>Prior Disease Rate (Prevalence) is the baseline probability of the disease in the population before testing.</p>
-            <p>Enter sensitivity, specificity, and prior disease rate as percentages (0-100). Use the arrows to adjust values or type directly.</p>
-            <p>Example: Sensitivity 90%, Specificity 95%, Prevalence 5%.</p>
+            <p>Enter sensitivity, specificity, and prior disease rate as percentages (0-100). Use the arrows to adjust values or type directly; results update automatically.</p>
+            <p>The table shows True Positives (TP), False Positives (FP), True Negatives (TN), and False Negatives (FN) for a population of 100,000. PPV and NPV are shown as percentages and fractions, with both simple table-based formulas and full formulas with descriptions provided.</p>
+            <p>Example: Sensitivity 99%, Specificity 99%, Prevalence 1%.</p>
         </div>
     </div>
 
@@ -240,7 +441,8 @@
             }
 
             calculate(sensitivity, specificity, prevalence) {
-                sensitivity = Number(sensitivity) / 100; // Convert to proportion
+                // Convert percentages to proportions
+                sensitivity = Number(sensitivity) / 100;
                 specificity = Number(specificity) / 100;
                 prevalence = Number(prevalence) / 100;
 
@@ -254,20 +456,35 @@
                     throw new Error("Values must be between 0 and 100");
                 }
 
-                // Positive Predictive Value (PPV)
-                const ppvNumerator = sensitivity * prevalence;
-                const ppvDenominator = ppvNumerator + (1 - specificity) * (1 - prevalence);
-                const ppv = ppvDenominator === 0 ? 0 : (ppvNumerator / ppvDenominator) * 100;
+                // Confusion Matrix for population of 100,000
+                const population = 100000;
+                const truePositives = sensitivity * prevalence * population;
+                const falseNegatives = (1 - sensitivity) * prevalence * population;
+                const falsePositives = (1 - specificity) * (1 - prevalence) * population;
+                const trueNegatives = specificity * (1 - prevalence) * population;
 
-                // Negative Predictive Value (NPV)
-                const npvNumerator = specificity * (1 - prevalence);
-                const npvDenominator = npvNumerator + (1 - sensitivity) * prevalence;
-                const npv = npvDenominator === 0 ? 0 : (npvNumerator / npvDenominator) * 100;
+                // Calculate PPV and NPV from table values
+                const ppv = truePositives + falsePositives === 0 ? 0 : (truePositives / (truePositives + falsePositives)) * 100;
+                const npv = trueNegatives + falseNegatives === 0 ? 0 : (trueNegatives / (trueNegatives + falseNegatives)) * 100;
 
                 const results = {
                     ppv: ppv.toFixed(2),
-                    npv: npv.toFixed(2)
+                    npv: npv.toFixed(2),
+                    truePositives: Math.round(truePositives),
+                    falseNegatives: Math.round(falseNegatives),
+                    falsePositives: Math.round(falsePositives),
+                    trueNegatives: Math.round(trueNegatives)
                 };
+
+                // Debug logging
+                console.log("Inputs (proportions):", { sensitivity, specificity, prevalence });
+                console.log("Confusion Matrix:", {
+                    TP: results.truePositives,
+                    FN: results.falseNegatives,
+                    FP: results.falsePositives,
+                    TN: results.trueNegatives
+                });
+                console.log("Calculated:", { PPV: results.ppv, NPV: results.npv });
 
                 return results;
             }
@@ -275,7 +492,13 @@
             displayResults(results) {
                 const elements = {
                     ppv: document.getElementById('ppv'),
-                    npv: document.getElementById('npv')
+                    npv: document.getElementById('npv'),
+                    ppvFraction: document.getElementById('ppvFraction'),
+                    npvFraction: document.getElementById('npvFraction'),
+                    tp: document.getElementById('tp'),
+                    fn: document.getElementById('fn'),
+                    fp: document.getElementById('fp'),
+                    tn: document.getElementById('tn')
                 };
 
                 for (const [key, element] of Object.entries(elements)) {
@@ -286,14 +509,30 @@
 
                 elements.ppv.textContent = `${results.ppv}%`;
                 elements.npv.textContent = `${results.npv}%`;
+                elements.ppvFraction.innerHTML = results.truePositives + results.falsePositives === 0 ? 
+                    '0/0' : 
+                    `<sup>${results.truePositives.toLocaleString()}</sup>/<sub>${(results.truePositives + results.falsePositives).toLocaleString()}</sub>`;
+                elements.npvFraction.innerHTML = results.trueNegatives + results.falseNegatives === 0 ? 
+                    '0/0' : 
+                    `<sup>${results.trueNegatives.toLocaleString()}</sup>/<sub>${(results.trueNegatives + results.falseNegatives).toLocaleString()}</sub>`;
+                elements.tp.textContent = results.truePositives.toLocaleString();
+                elements.fn.textContent = results.falseNegatives.toLocaleString();
+                elements.fp.textContent = results.falsePositives.toLocaleString();
+                elements.tn.textContent = results.trueNegatives.toLocaleString();
+
+                // Update aria-label for accessibility
+                elements.ppvFraction.setAttribute('aria-label', 
+                    `PPV fraction: ${results.truePositives.toLocaleString()} over ${(results.truePositives + results.falsePositives).toLocaleString()}`);
+                elements.npvFraction.setAttribute('aria-label', 
+                    `NPV fraction: ${results.trueNegatives.toLocaleString()} over ${(results.trueNegatives + results.falseNegatives).toLocaleString()}`);
             }
 
             clearResults() {
                 this.errorDisplay.style.display = 'none';
-                const elements = ['ppv', 'npv'];
+                const elements = ['ppv', 'npv', 'ppvFraction', 'npvFraction', 'tp', 'fn', 'fp', 'tn'];
                 elements.forEach(id => {
                     const element = document.getElementById(id);
-                    if (element) element.textContent = '';
+                    if (element) element.innerHTML = '';
                 });
             }
 
@@ -319,13 +558,6 @@
             }
         }
 
-        function clearInputs() {
-            document.getElementById('sensitivity').value = '90';
-            document.getElementById('specificity').value = '95';
-            document.getElementById('prevalence').value = '1';
-            calculator.clearResults();
-        }
-
         function adjustValue(inputId, direction) {
             const input = document.getElementById(inputId);
             let value = parseFloat(input.value);
@@ -339,17 +571,9 @@
             calculate();
         }
 
-        const calculateBtn = document.getElementById('calculateBtn');
-        const clearBtn = document.getElementById('clearBtn');
         const upButtons = document.querySelectorAll('.up-btn');
         const downButtons = document.querySelectorAll('.down-btn');
 
-        if (calculateBtn) {
-            calculateBtn.addEventListener('click', calculate);
-        }
-        if (clearBtn) {
-            clearBtn.addEventListener('click', clearInputs);
-        }
         upButtons.forEach(btn => {
             btn.addEventListener('click', () => adjustValue(btn.dataset.input, 'up'));
         });
