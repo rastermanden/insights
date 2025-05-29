@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RPN Calculator</title>
     <style>
         body {
@@ -11,20 +13,20 @@
             justify-content: center;
             align-items: center;
             margin: 0;
+            padding: 10px;
+            box-sizing: border-box;
         }
 
         .calculator {
             width: 450px;
+            max-width: 100%;
             background: #ffffff;
             padding: 30px;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             border: 1px solid #e5e7eb;
-    empreview: none;
-            transition: transform 0.3s ease;
+            box-sizing: border-box;
         }
-
-
 
         h2 {
             color: #1e3a8a;
@@ -38,6 +40,8 @@
             display: flex;
             align-items: center;
             margin: 15px 0;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         label {
@@ -45,6 +49,7 @@
             color: #4b5563;
             font-size: 14px;
             font-weight: 500;
+            min-width: 120px;
         }
 
         input {
@@ -54,6 +59,8 @@
             border-radius: 8px;
             font-size: 14px;
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            flex-grow: 1;
+            max-width: 200px;
         }
 
         input:focus {
@@ -67,6 +74,7 @@
             justify-content: center;
             gap: 15px;
             margin: 20px 0;
+            flex-wrap: wrap;
         }
 
         button {
@@ -77,6 +85,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: background-color 0.3s ease, transform 0.2s ease;
+            min-width: 80px;
         }
 
         #enterBtn {
@@ -114,6 +123,7 @@
             margin: 10px 0;
             display: flex;
             justify-content: space-between;
+            flex-wrap: wrap;
         }
 
         #stackDisplay span {
@@ -149,10 +159,109 @@
             text-align: center;
         }
 
-        @media (max-width: 500px) {
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
             .calculator {
                 width: 90%;
                 padding: 20px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            .input-group {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+
+            label {
+                font-size: 13px;
+                min-width: unset;
+            }
+
+            input {
+                width: 100%;
+                max-width: unset;
+                font-size: 13px;
+                padding: 6px 10px;
+            }
+
+            .button-group {
+                gap: 10px;
+            }
+
+            button {
+                padding: 8px 16px;
+                font-size: 13px;
+                min-width: 70px;
+            }
+
+            #stackDisplay {
+                padding: 15px;
+                font-size: 13px;
+            }
+
+            .instructions h3 {
+                font-size: 14px;
+            }
+
+            .instructions p {
+                font-size: 12px;
+            }
+
+            #error {
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .calculator {
+                padding: 15px;
+            }
+
+            h2 {
+                font-size: 18px;
+                margin-bottom: 15px;
+            }
+
+            .input-group {
+                margin: 10px 0;
+            }
+
+            label {
+                font-size: 12px;
+            }
+
+            input {
+                font-size: 12px;
+                padding: 5px 8px;
+            }
+
+            button {
+                padding: 6px 12px;
+                font-size: 12px;
+                min-width: 60px;
+            }
+
+            #stackDisplay {
+                padding: 10px;
+                font-size: 12px;
+                min-height: 40px;
+            }
+
+            .instructions {
+                padding: 10px;
+            }
+
+            .instructions h3 {
+                font-size: 13px;
+                margin-bottom: 8px;
+            }
+
+            .instructions p {
+                font-size: 11px;
             }
         }
     </style>
@@ -162,8 +271,8 @@
         <h2>RPN Calculator</h2>
         
         <div class="input-group">
-            <label>Enter number or operator:</label>
-            <input type="text" id="input" placeholder="e.g., 3, +, -" required>
+            <label for="input">Enter number or operator:</label>
+            <input type="text" id="input" placeholder="e.g., 3, +, -" required aria-label="Enter number or operator">
         </div>
         
         <div class="button-group">
@@ -179,9 +288,9 @@
         
         <div class="instructions">
             <h3>How to Use</h3>
-            <p>Enter numbers or operators (+, -, *, /) one at a time and press Enter.</p>
+            <p>Enter numbers or operators (+, -, *, /) one at a time and press Enter or click the Enter button.</p>
             <p>Example: To calculate 3 + 4, enter: 3 [Enter], 4 [Enter], + [Enter].</p>
-            <p>Results are shown in the stack below.</p>
+            <p>Results are shown in the stack below. Use the Clear button to reset the stack.</p>
         </div>
     </div>
 
