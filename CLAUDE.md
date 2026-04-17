@@ -21,8 +21,8 @@ Pushing to `main` triggers `.github/workflows/static.yml`, which deploys the ent
 Static HTML/CSS/JavaScript educational demos — no framework, no bundler, no package manager.
 
 - `index.html` — landing page with card-based navigation to the demos
-- `Math/` — Bayes' Theorem calculator, RPN stack calculator, Risk/NNT calculator
-- `Physics/` — Planet effective temperature calculator (Stefan-Boltzmann law)
+- `math/` — Bayes' Theorem calculator, RPN stack calculator, Risk/NNT calculator
+- `physics/` — Planet effective temperature calculator (Stefan-Boltzmann law)
 
 Each demo is a self-contained `.html` file with all CSS and JavaScript inline. External dependencies (Chart.js for graphs, MathJax for LaTeX rendering) are loaded via CDN.
 

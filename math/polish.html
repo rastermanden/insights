@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RPN Calculator</title>
+    <title>Reverse Polish Notation Calculator</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -272,7 +272,7 @@
         
         <div class="input-group">
             <label for="input">Enter number or operator:</label>
-            <input type="text" id="input" placeholder="e.g., 3, +, -" required aria-label="Enter number or operator">
+            <input type="text" id="input" placeholder="e.g., 3, +, -" aria-label="Enter number or operator">
         </div>
         
         <div class="button-group">
@@ -280,11 +280,11 @@
             <button id="clearBtn" aria-label="Clear stack">Clear</button>
         </div>
         
-        <div id="stackDisplay">
+        <div id="stackDisplay" aria-live="polite">
             <p>Stack: <span id="stackContent"></span></p>
         </div>
-        
-        <div id="error"></div>
+
+        <div id="error" role="alert"></div>
         
         <div class="instructions">
             <h3>How to Use</h3>
@@ -299,6 +299,7 @@
             constructor() {
                 this.stack = [];
                 this.errorDisplay = document.getElementById('error');
+                this.stackContent = document.getElementById('stackContent');
             }
 
             process(token) {
@@ -310,8 +311,8 @@
                     return;
                 }
 
-                if (!isNaN(parseFloat(token))) {
-                    this.stack.push(parseFloat(token));
+                if (token !== '' && !isNaN(Number(token))) {
+                    this.stack.push(Number(token));
                 } else {
                     if (this.stack.length < 2) {
                         this.showError("Not enough operands!");
@@ -320,15 +321,16 @@
                     const b = this.stack.pop();
                     const a = this.stack.pop();
                     
+                    const round = n => parseFloat(n.toPrecision(10));
                     switch(token) {
                         case '+':
-                            this.stack.push(a + b);
+                            this.stack.push(round(a + b));
                             break;
                         case '-':
-                            this.stack.push(a - b);
+                            this.stack.push(round(a - b));
                             break;
                         case '*':
-                            this.stack.push(a * b);
+                            this.stack.push(round(a * b));
                             break;
                         case '/':
                             if (b === 0) {
@@ -337,7 +339,7 @@
                                 this.stack.push(b);
                                 return;
                             }
-                            this.stack.push(a / b);
+                            this.stack.push(round(a / b));
                             break;
                         default:
                             this.showError("Unknown operator!");
@@ -356,10 +358,7 @@
             }
 
             updateDisplay() {
-                const stackContent = document.getElementById('stackContent');
-                if (stackContent) {
-                    stackContent.textContent = this.stack.join(' ');
-                }
+                this.stackContent.textContent = this.stack.join(' ');
             }
 
             showError(message) {
@@ -384,19 +383,13 @@
         const clearBtn = document.getElementById('clearBtn');
         const inputField = document.getElementById('input');
 
-        if (enterBtn) {
-            enterBtn.addEventListener('click', processInput);
-        }
-        if (clearBtn) {
-            clearBtn.addEventListener('click', clearStack);
-        }
-        if (inputField) {
-            inputField.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    processInput();
-                }
-            });
-        }
+        enterBtn.addEventListener('click', processInput);
+        clearBtn.addEventListener('click', clearStack);
+        inputField.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                processInput();
+            }
+        });
     </script>
 </body>
 </html>
