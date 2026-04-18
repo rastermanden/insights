@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sine &amp; Cosine</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff, #f3f4f6);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            margin: 0;
+            padding: 20px 10px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 820px;
+            max-width: 100%;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            box-sizing: border-box;
+        }
+
+        h2 {
+            color: #1e3a8a;
+            text-align: center;
+            margin: 0 0 6px;
+            font-size: 24px;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            gap: 24px;
+            align-items: start;
+            margin-bottom: 24px;
+        }
+
+        canvas#unitCircle {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 10px;
+            display: block;
+        }
+
+        .chart-wrap {
+            position: relative;
+            width: 100%;
+            height: 240px;
+        }
+
+        .angle-section {
+            margin-bottom: 20px;
+        }
+
+        .angle-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .angle-label {
+            font-weight: 600;
+            color: #1e3a8a;
+            font-size: 15px;
+        }
+
+        .angle-display {
+            font-size: 15px;
+            color: #374151;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            accent-color: #3b82f6;
+            cursor: pointer;
+        }
+
+        .values-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .value-card {
+            background: #f3f4f6;
+            border-radius: 10px;
+            padding: 14px 10px;
+            text-align: center;
+            border: 1px solid #e5e7eb;
+        }
+
+        .value-card .label {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .value-card .val {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .val.sin-color { color: #3b82f6; }
+        .val.cos-color { color: #f59e0b; }
+        .val.tan-color { color: #10b981; }
+
+        .explanation {
+            margin-top: 24px;
+            background: #f0f4ff;
+            border-left: 4px solid #3b82f6;
+            border-radius: 0 8px 8px 0;
+            padding: 14px 16px;
+            font-size: 14px;
+            color: #374151;
+            line-height: 1.6;
+        }
+
+        .explanation p { margin: 0 0 8px; }
+        .explanation p:last-child { margin: 0; }
+
+        .legend {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #374151;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .animate-btn {
+            display: block;
+            margin: 0 auto 16px;
+            padding: 8px 24px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .animate-btn:hover { background: #2563eb; }
+
+        @media (max-width: 600px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+
+            canvas#unitCircle {
+                max-width: 220px;
+                margin: 0 auto;
+            }
+
+            .values-row {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Sine &amp; Cosine</h2>
+        <p class="subtitle">Explore how sin and cos arise from a point on the unit circle</p>
+
+        <div class="main-layout">
+            <div>
+                <canvas id="unitCircle" width="240" height="240" aria-label="Unit circle diagram"></canvas>
+            </div>
+            <div>
+                <div class="legend">
+                    <span class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span>sin(θ)</span>
+                    <span class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span>cos(θ)</span>
+                </div>
+                <div class="chart-wrap">
+                    <canvas id="waveChart" aria-label="Sine and cosine wave chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="angle-section">
+            <div class="angle-header">
+                <span class="angle-label">Angle θ</span>
+                <span class="angle-display" id="angleDisplay">0° = 0.00 rad</span>
+            </div>
+            <input type="range" id="angleSlider" min="0" max="360" step="1" value="0" aria-label="Angle in degrees">
+        </div>
+
+        <button class="animate-btn" id="animateBtn">▶ Animate</button>
+
+        <div class="values-row">
+            <div class="value-card">
+                <div class="label">sin(θ)</div>
+                <div class="val sin-color" id="sinVal">0.000</div>
+            </div>
+            <div class="value-card">
+                <div class="label">cos(θ)</div>
+                <div class="val cos-color" id="cosVal">1.000</div>
+            </div>
+            <div class="value-card">
+                <div class="label">tan(θ)</div>
+                <div class="val tan-color" id="tanVal">0.000</div>
+            </div>
+        </div>
+
+        <div class="explanation">
+            <p><strong>The unit circle</strong> has radius 1. For any angle θ, place a point on the circle at that angle from the positive x-axis. The point's coordinates are <strong>(cos θ, sin θ)</strong>.</p>
+            <p><strong>Cosine</strong> is the horizontal distance — how far left or right the point is. <strong>Sine</strong> is the vertical distance — how far up or down. Both oscillate smoothly between −1 and 1 as θ sweeps around the circle. <strong>Tangent</strong> is sin θ / cos θ, the slope of the line from the origin to the point.</p>
+        </div>
+    </div>
+
+    <script>
+        const N = 361;
+        const angles = Array.from({ length: N }, (_, i) => i);
+        const sinData = angles.map(a => Math.sin(a * Math.PI / 180));
+        const cosData = angles.map(a => Math.cos(a * Math.PI / 180));
+
+        const waveCtx = document.getElementById('waveChart').getContext('2d');
+        const waveChart = new Chart(waveCtx, {
+            type: 'line',
+            data: {
+                labels: angles,
+                datasets: [
+                    {
+                        label: 'sin(θ)',
+                        data: sinData,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'cos(θ)',
+                        data: cosData,
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'marker',
+                        data: [],
+                        borderColor: 'transparent',
+                        backgroundColor: 'transparent',
+                        pointRadius: 0,
+                        showLine: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false }
+                },
+                scales: {
+                    x: {
+                        type: 'linear',
+                        min: 0,
+                        max: 360,
+                        title: { display: true, text: 'θ (degrees)', color: '#6b7280', font: { size: 12 } },
+                        ticks: {
+                            stepSize: 90,
+                            callback: v => v + '°',
+                            color: '#6b7280',
+                            font: { size: 11 }
+                        },
+                        grid: { color: '#e5e7eb' }
+                    },
+                    y: {
+                        min: -1.2,
+                        max: 1.2,
+                        ticks: { color: '#6b7280', font: { size: 11 }, stepSize: 0.5 },
+                        grid: { color: '#e5e7eb' }
+                    }
+                }
+            }
+        });
+
+        const circleCanvas = document.getElementById('unitCircle');
+        const ctx2 = circleCanvas.getContext('2d');
+
+        function drawCircle(deg) {
+            const W = circleCanvas.width;
+            const H = circleCanvas.height;
+            const cx = W / 2;
+            const cy = H / 2;
+            const R = W * 0.38;
+
+            ctx2.clearRect(0, 0, W, H);
+
+            ctx2.fillStyle = '#f8fafc';
+            ctx2.beginPath();
+            ctx2.arc(cx, cy, R + 12, 0, Math.PI * 2);
+            ctx2.fill();
+
+            // axes
+            ctx2.strokeStyle = '#d1d5db';
+            ctx2.lineWidth = 1;
+            ctx2.beginPath();
+            ctx2.moveTo(cx - R - 14, cy);
+            ctx2.lineTo(cx + R + 14, cy);
+            ctx2.moveTo(cx, cy - R - 14);
+            ctx2.lineTo(cx, cy + R + 14);
+            ctx2.stroke();
+
+            // circle
+            ctx2.strokeStyle = '#cbd5e1';
+            ctx2.lineWidth = 1.5;
+            ctx2.beginPath();
+            ctx2.arc(cx, cy, R, 0, Math.PI * 2);
+            ctx2.stroke();
+
+            const rad = deg * Math.PI / 180;
+            const px = cx + R * Math.cos(rad);
+            const py = cy - R * Math.sin(rad);
+
+            // angle arc
+            ctx2.strokeStyle = '#a5b4fc';
+            ctx2.lineWidth = 1.5;
+            ctx2.beginPath();
+            ctx2.arc(cx, cy, R * 0.22, 0, -rad, rad >= 0);
+            ctx2.stroke();
+
+            // cos line (horizontal, x-axis to point)
+            ctx2.strokeStyle = '#f59e0b';
+            ctx2.lineWidth = 2.5;
+            ctx2.setLineDash([4, 3]);
+            ctx2.beginPath();
+            ctx2.moveTo(cx, py);
+            ctx2.lineTo(px, py);
+            ctx2.stroke();
+            ctx2.setLineDash([]);
+
+            // sin line (vertical, from point to x-axis)
+            ctx2.strokeStyle = '#3b82f6';
+            ctx2.lineWidth = 2.5;
+            ctx2.setLineDash([4, 3]);
+            ctx2.beginPath();
+            ctx2.moveTo(px, cy);
+            ctx2.lineTo(px, py);
+            ctx2.stroke();
+            ctx2.setLineDash([]);
+
+            // radius line
+            ctx2.strokeStyle = '#475569';
+            ctx2.lineWidth = 2;
+            ctx2.beginPath();
+            ctx2.moveTo(cx, cy);
+            ctx2.lineTo(px, py);
+            ctx2.stroke();
+
+            // point on circle
+            ctx2.fillStyle = '#1e3a8a';
+            ctx2.beginPath();
+            ctx2.arc(px, py, 5, 0, Math.PI * 2);
+            ctx2.fill();
+
+            // labels
+            ctx2.font = 'bold 11px Segoe UI, sans-serif';
+            ctx2.fillStyle = '#f59e0b';
+            const cosLabelX = (cx + px) / 2;
+            ctx2.fillText('cos', cosLabelX - 10, py - 5);
+
+            ctx2.fillStyle = '#3b82f6';
+            const sinLabelY = (cy + py) / 2;
+            ctx2.fillText('sin', px + 5, sinLabelY);
+
+            // θ label
+            ctx2.fillStyle = '#7c3aed';
+            ctx2.font = 'bold 12px Segoe UI, sans-serif';
+            const thetaR = R * 0.28;
+            const halfRad = rad / 2;
+            ctx2.fillText('θ', cx + thetaR * Math.cos(halfRad) - 4, cy - thetaR * Math.sin(halfRad) + 4);
+
+            // axis tick labels
+            ctx2.fillStyle = '#9ca3af';
+            ctx2.font = '10px Segoe UI, sans-serif';
+            ctx2.fillText('1', cx + R + 2, cy - 3);
+            ctx2.fillText('-1', cx - R - 16, cy - 3);
+            ctx2.fillText('1', cx + 3, cy - R - 2);
+            ctx2.fillText('-1', cx + 3, cy + R + 10);
+        }
+
+        function addMarker(deg) {
+            const s = Math.sin(deg * Math.PI / 180);
+            const c = Math.cos(deg * Math.PI / 180);
+
+            waveChart.data.datasets[2].data = [
+                { x: deg, y: s },
+                { x: deg, y: c }
+            ];
+            waveChart.data.datasets[2].pointRadius = [5, 5];
+            waveChart.data.datasets[2].pointBackgroundColor = ['#3b82f6', '#f59e0b'];
+            waveChart.data.datasets[2].pointBorderColor = ['#1e40af', '#d97706'];
+            waveChart.data.datasets[2].pointBorderWidth = [2, 2];
+            waveChart.data.datasets[2].showLine = false;
+        }
+
+        function update(deg) {
+            const rad = deg * Math.PI / 180;
+            const s = Math.sin(rad);
+            const c = Math.cos(rad);
+            const t = Math.tan(rad);
+
+            document.getElementById('angleDisplay').textContent =
+                `${deg}° = ${rad.toFixed(4)} rad`;
+            document.getElementById('sinVal').textContent = s.toFixed(3);
+            document.getElementById('cosVal').textContent = c.toFixed(3);
+
+            if (Math.abs(c) < 0.01) {
+                document.getElementById('tanVal').textContent = '±∞';
+            } else {
+                document.getElementById('tanVal').textContent = t.toFixed(3);
+            }
+
+            drawCircle(deg);
+            addMarker(deg);
+            waveChart.update();
+        }
+
+        const slider = document.getElementById('angleSlider');
+        slider.addEventListener('input', () => {
+            if (animating) stopAnimation();
+            update(parseInt(slider.value));
+        });
+
+        let animating = false;
+        let animFrame = null;
+        let animDeg = 0;
+        const animBtn = document.getElementById('animateBtn');
+
+        function startAnimation() {
+            animating = true;
+            animBtn.textContent = '⏹ Stop';
+            animDeg = parseInt(slider.value);
+
+            function step() {
+                animDeg = (animDeg + 1) % 361;
+                slider.value = animDeg;
+                update(animDeg);
+                animFrame = requestAnimationFrame(step);
+            }
+            animFrame = requestAnimationFrame(step);
+        }
+
+        function stopAnimation() {
+            animating = false;
+            animBtn.textContent = '▶ Animate';
+            cancelAnimationFrame(animFrame);
+        }
+
+        animBtn.addEventListener('click', () => {
+            if (animating) stopAnimation();
+            else startAnimation();
+        });
+
+        update(0);
+    </script>
+</body>
+</html>
