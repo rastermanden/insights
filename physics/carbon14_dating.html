@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carbon-14 Dating</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff, #f3f4f6);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            margin: 0;
+            padding: 20px 10px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 720px;
+            max-width: 100%;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: #1e3a8a;
+            text-align: center;
+            margin: 0 0 6px;
+            font-size: 24px;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .chart-wrap {
+            position: relative;
+            width: 100%;
+            height: 320px;
+            margin-bottom: 28px;
+        }
+
+        .section-label {
+            color: #1e3a8a;
+            font-weight: 700;
+            font-size: 15px;
+            margin: 0 0 12px;
+            border-bottom: 2px solid #e0e7ff;
+            padding-bottom: 6px;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .control-group label {
+            color: #4b5563;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .control-group label span {
+            color: #1e3a8a;
+            font-weight: 700;
+            min-width: 60px;
+            text-align: right;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            -webkit-appearance: none;
+            background: #d1d5db;
+            border-radius: 8px;
+            height: 6px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #3b82f6;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: #3b82f6;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .result-box {
+            background: linear-gradient(135deg, #eff6ff, #e0e7ff);
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+            padding: 18px 22px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .result-age {
+            font-size: 32px;
+            font-weight: 800;
+            color: #1e3a8a;
+            margin-bottom: 2px;
+        }
+
+        .result-sub {
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .result-detail {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .detail-item {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 10px 14px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .detail-item .label {
+            font-size: 11px;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .detail-item .value {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1e3a8a;
+            margin-top: 2px;
+        }
+
+        .explainer {
+            background: #f9fafb;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            padding: 18px 22px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            color: #374151;
+            line-height: 1.7;
+        }
+
+        .explainer p {
+            margin: 0 0 10px;
+        }
+
+        .explainer p:last-child {
+            margin-bottom: 0;
+        }
+
+        .formula-box {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+            padding: 16px 22px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+        }
+
+        .formula-box .formula-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #3b82f6;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .legend {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #374151;
+        }
+
+        .legend-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        a.back-link {
+            display: inline-block;
+            color: #3b82f6;
+            font-size: 13px;
+            text-decoration: none;
+            margin-bottom: 18px;
+        }
+
+        a.back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            .result-detail {
+                grid-template-columns: 1fr;
+            }
+            .container {
+                padding: 20px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a href="../index.html" class="back-link">← Back to overview</a>
+    <h1>Carbon-14 Dating</h1>
+    <p class="subtitle">Using C-14 → N-14 radioactive decay to determine the age of organic materials</p>
+
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-dot" style="background:#3b82f6;"></div>
+            <span>C-14 remaining</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot" style="background:#ef4444;"></div>
+            <span>N-14 accumulated</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot" style="background:#10b981; width:3px; height:14px; border-radius:2px;"></div>
+            <span>Measured sample</span>
+        </div>
+    </div>
+
+    <div class="chart-wrap">
+        <canvas id="decayChart"></canvas>
+    </div>
+
+    <div class="section-label">Measured Sample</div>
+    <div class="controls">
+        <div class="control-group">
+            <label>
+                C-14 fraction remaining
+                <span id="fracVal">50.0%</span>
+            </label>
+            <input type="range" id="fracSlider" min="0.1" max="100" step="0.1" value="50">
+        </div>
+        <div class="control-group">
+            <label>
+                Initial C-14 (pg)
+                <span id="c0Val">10.0</span>
+            </label>
+            <input type="range" id="c0Slider" min="1" max="100" step="1" value="10">
+        </div>
+    </div>
+
+    <div class="result-box">
+        <div class="result-age" id="ageDisplay">—</div>
+        <div class="result-sub">calculated sample age</div>
+        <div class="result-detail">
+            <div class="detail-item">
+                <div class="label">C-14 remaining</div>
+                <div class="value" id="cRemDisplay">—</div>
+            </div>
+            <div class="detail-item">
+                <div class="label">N-14 accumulated</div>
+                <div class="value" id="nAccDisplay">—</div>
+            </div>
+            <div class="detail-item">
+                <div class="label">C-14 fraction left</div>
+                <div class="value" id="cFracDisplay">—</div>
+            </div>
+            <div class="detail-item">
+                <div class="label">Half-lives elapsed</div>
+                <div class="value" id="halfLivesDisplay">—</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="formula-box">
+        <div class="formula-title">Decay equations</div>
+        <div id="formulas">
+            \[
+              N_{C}(t) = N_0\, e^{-\lambda t}
+              \qquad
+              N_{N}(t) = N_0\!\left(1 - e^{-\lambda t}\right)
+            \]
+            \[
+              t = \frac{\ln(N_0 / N_C)}{\lambda} = \frac{t_{1/2}}{\ln 2}\,\ln\!\frac{N_0}{N_C}
+            \]
+        </div>
+    </div>
+
+    <div class="explainer">
+        <p><strong>Why Carbon-14?</strong> Living organisms continuously exchange carbon with the atmosphere, maintaining a fixed ratio of radioactive <strong>C-14</strong> to stable C-12. When an organism dies, this exchange stops and the C-14 decays into <strong>nitrogen-14</strong> (N-14) via beta emission — the clock starts. Measuring how much C-14 remains tells us how long ago the organism died.</p>
+        <p><strong>Half-life:</strong> C-14 has a half-life of <strong>5,730 years</strong>, making it ideal for dating organic materials up to about 50,000 years old — from ancient charcoal and wooden artifacts to bones, seeds, and parchment.</p>
+        <p><strong>Reading the chart:</strong> The blue curve shows the C-14 fraction remaining over time. The red curve shows the N-14 that has accumulated. The green vertical line marks the age calculated from the measured fraction, showing where the sample sits on both curves.</p>
+    </div>
+</div>
+
+<script>
+    const HALF_LIFE_YR = 5730;
+    const LAMBDA = Math.LN2 / HALF_LIFE_YR;
+    const T_MAX = 57300;
+
+    function calcAge(frac) {
+        return -Math.log(frac) / LAMBDA;
+    }
+
+    const ctx = document.getElementById('decayChart').getContext('2d');
+
+    const N_POINTS = 300;
+    const timeAxis = Array.from({length: N_POINTS + 1}, (_, i) => i * T_MAX / N_POINTS);
+
+    const c14 = timeAxis.map(t => Math.exp(-LAMBDA * t));
+    const n14 = timeAxis.map(t => 1 - Math.exp(-LAMBDA * t));
+
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: timeAxis,
+            datasets: [
+                {
+                    label: 'C-14 remaining (N/N₀)',
+                    data: c14,
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59,130,246,0.08)',
+                    borderWidth: 2.5,
+                    pointRadius: 0,
+                    fill: true,
+                    tension: 0.4
+                },
+                {
+                    label: 'N-14 accumulated (N/N₀)',
+                    data: n14,
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239,68,68,0.07)',
+                    borderWidth: 2.5,
+                    pointRadius: 0,
+                    fill: true,
+                    tension: 0.4
+                },
+                {
+                    label: 'Sample age',
+                    data: [],
+                    borderColor: '#10b981',
+                    borderWidth: 2,
+                    borderDash: [6, 4],
+                    pointRadius: 6,
+                    pointBackgroundColor: '#10b981',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    showLine: true,
+                    fill: false
+                }
+            ]
+        },
+        options: {
+            animation: false,
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {mode: 'index', intersect: false},
+            scales: {
+                x: {
+                    type: 'linear',
+                    title: {
+                        display: true,
+                        text: 'Time (years)',
+                        color: '#6b7280',
+                        font: {size: 12}
+                    },
+                    min: 0,
+                    max: T_MAX,
+                    ticks: {
+                        callback: v => (v / 1000).toFixed(0) + ' kyr',
+                        maxTicksLimit: 6,
+                        color: '#9ca3af'
+                    },
+                    grid: {color: 'rgba(0,0,0,0.05)'}
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Fraction of N₀',
+                        color: '#6b7280',
+                        font: {size: 12}
+                    },
+                    min: 0,
+                    max: 1.05,
+                    ticks: {
+                        callback: v => (v * 100).toFixed(0) + '%',
+                        color: '#9ca3af'
+                    },
+                    grid: {color: 'rgba(0,0,0,0.05)'}
+                }
+            },
+            plugins: {
+                legend: {display: false},
+                tooltip: {
+                    callbacks: {
+                        title: items => (parseFloat(items[0].label) / 1000).toFixed(2) + ' kyr',
+                        label: item => {
+                            if (item.datasetIndex === 2) return null;
+                            return item.dataset.label + ': ' + (item.raw * 100).toFixed(2) + '%';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    function formatAge(yr) {
+        if (yr >= 1000) return (yr / 1000).toFixed(2) + ' kyr';
+        return Math.round(yr) + ' yr';
+    }
+
+    function update() {
+        const fracPct = parseFloat(document.getElementById('fracSlider').value);
+        const c0 = parseFloat(document.getElementById('c0Slider').value);
+
+        const frac = fracPct / 100;
+
+        document.getElementById('fracVal').textContent = fracPct.toFixed(1) + '%';
+        document.getElementById('c0Val').textContent = c0.toFixed(0);
+
+        const ageYr = calcAge(frac);
+        const cFrac = Math.exp(-LAMBDA * ageYr);
+        const nFrac = 1 - cFrac;
+
+        const cRem = cFrac * c0;
+        const nAcc = nFrac * c0;
+        const halfLives = ageYr / HALF_LIFE_YR;
+
+        document.getElementById('ageDisplay').textContent = formatAge(ageYr);
+        document.getElementById('cRemDisplay').textContent = cRem.toFixed(2) + ' pg';
+        document.getElementById('nAccDisplay').textContent = nAcc.toFixed(2) + ' pg';
+        document.getElementById('cFracDisplay').textContent = (cFrac * 100).toFixed(2) + '%';
+        document.getElementById('halfLivesDisplay').textContent = halfLives.toFixed(3);
+
+        const clampedAge = Math.min(ageYr, T_MAX);
+        chart.data.datasets[2].data = [
+            {x: clampedAge, y: 0},
+            {x: clampedAge, y: cFrac},
+            {x: clampedAge, y: nFrac}
+        ];
+        chart.update();
+    }
+
+    document.getElementById('fracSlider').addEventListener('input', update);
+    document.getElementById('c0Slider').addEventListener('input', update);
+
+    update();
+</script>
+</body>
+</html>
