@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Equations</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff, #f3f4f6);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            margin: 0;
+            padding: 20px 10px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 720px;
+            max-width: 100%;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            box-sizing: border-box;
+        }
+
+        h2 {
+            color: #1e3a8a;
+            text-align: center;
+            margin: 0 0 6px;
+            font-size: 24px;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 28px;
+        }
+
+        .tab-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0;
+        }
+
+        .tab {
+            padding: 8px 18px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #6b7280;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            border-radius: 4px 4px 0 0;
+            transition: color 0.15s, border-color 0.15s;
+        }
+
+        .tab:hover { color: #1e3a8a; }
+
+        .tab.active {
+            color: #1e3a8a;
+            border-bottom-color: #3b82f6;
+        }
+
+        .section { display: none; }
+        .section.active { display: block; }
+
+        .chart-wrap {
+            position: relative;
+            width: 100%;
+            height: 280px;
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        .controls-3 {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-group label {
+            color: #4b5563;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .control-group label span {
+            color: #1e3a8a;
+            font-weight: 700;
+            min-width: 40px;
+            text-align: right;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            accent-color: #3b82f6;
+            cursor: pointer;
+        }
+
+        .formula-box {
+            background: #eff6ff;
+            border: 1px solid #dbeafe;
+            border-radius: 10px;
+            padding: 14px 18px;
+            margin-bottom: 18px;
+            text-align: center;
+        }
+
+        .formula-box .formula {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1e3a8a;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+        }
+
+        .results {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .result-card {
+            background: #f0f4ff;
+            border: 1px solid #dbeafe;
+            border-radius: 10px;
+            padding: 12px 8px;
+            text-align: center;
+        }
+
+        .result-card .label {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .result-card .value {
+            font-size: 17px;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        .explanation {
+            background: #f9fafb;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            padding: 16px 18px;
+        }
+
+        .explanation h3 {
+            color: #1e3a8a;
+            font-size: 15px;
+            margin: 0 0 10px;
+        }
+
+        .explanation p {
+            color: #6b7280;
+            font-size: 13px;
+            margin: 6px 0;
+            line-height: 1.6;
+        }
+
+        .explanation strong { color: #374151; }
+
+        /* Solver styles */
+        .solver-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 18px;
+        }
+
+        .solver-block {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 16px;
+        }
+
+        .solver-block h3 {
+            color: #1e3a8a;
+            font-size: 14px;
+            margin: 0 0 12px;
+        }
+
+        .input-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+            font-size: 15px;
+            font-family: 'Courier New', monospace;
+            color: #374151;
+            flex-wrap: wrap;
+        }
+
+        .input-row input[type="number"] {
+            width: 54px;
+            padding: 5px 6px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            color: #1e3a8a;
+            font-weight: 700;
+        }
+
+        .solve-btn {
+            width: 100%;
+            padding: 9px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s;
+            margin-top: 6px;
+        }
+
+        .solve-btn:hover { background: #2563eb; }
+
+        .answer-box {
+            margin-top: 10px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            text-align: center;
+            min-height: 38px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .answer-ok { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+        .answer-err { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+        .answer-empty { background: #f3f4f6; color: #9ca3af; border: 1px solid #e5e7eb; }
+
+        @media (max-width: 600px) {
+            .container { padding: 18px; }
+            h2 { font-size: 20px; }
+            .chart-wrap { height: 220px; }
+            .controls { grid-template-columns: 1fr; gap: 10px; }
+            .controls-3 { grid-template-columns: 1fr; }
+            .formula-box .formula { font-size: 18px; }
+            .result-card .value { font-size: 14px; }
+            .tab { padding: 7px 12px; font-size: 13px; }
+            .solver-grid { grid-template-columns: 1fr; }
+            .results { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 400px) {
+            .container { padding: 12px; }
+            .results { gap: 6px; }
+            .result-card { padding: 9px 5px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Simple Equations</h2>
+    <p class="subtitle">Explore linear and quadratic equations — adjust parameters and see the graph update live</p>
+
+    <div class="tab-bar" role="tablist">
+        <button class="tab active" role="tab" aria-selected="true" onclick="showTab('linear', this)">Linear</button>
+        <button class="tab" role="tab" aria-selected="false" onclick="showTab('quadratic', this)">Quadratic</button>
+        <button class="tab" role="tab" aria-selected="false" onclick="showTab('solver', this)">Solver</button>
+    </div>
+
+    <!-- LINEAR SECTION -->
+    <div id="linear" class="section active">
+        <div class="chart-wrap">
+            <canvas id="linearChart" aria-label="Linear equation graph"></canvas>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="lm">Slope (m) <span id="lmVal">1</span></label>
+                <input type="range" id="lm" min="-5" max="5" step="0.1" value="1" aria-label="Slope m">
+            </div>
+            <div class="control-group">
+                <label for="lb">Intercept (b) <span id="lbVal">0</span></label>
+                <input type="range" id="lb" min="-10" max="10" step="0.5" value="0" aria-label="Y-intercept b">
+            </div>
+        </div>
+
+        <div class="formula-box">
+            <div class="formula" id="linearFormula">y = 1x + 0</div>
+        </div>
+
+        <div class="results">
+            <div class="result-card">
+                <div class="label">y-intercept</div>
+                <div class="value" id="lYInt">0</div>
+            </div>
+            <div class="result-card">
+                <div class="label">x-intercept (root)</div>
+                <div class="value" id="lXInt">0</div>
+            </div>
+            <div class="result-card">
+                <div class="label">y at x = 5</div>
+                <div class="value" id="lY5">5</div>
+            </div>
+        </div>
+
+        <div class="explanation">
+            <h3>How it works</h3>
+            <p><strong>m (slope)</strong> — how steep the line is. For every 1 step right, y changes by m. Positive = goes up, negative = goes down, zero = flat.</p>
+            <p><strong>b (y-intercept)</strong> — where the line crosses the y-axis (x = 0).</p>
+            <p><strong>Root (x-intercept)</strong> — where y = 0, solved as x = −b / m.</p>
+            <p>Linear equations model constant-rate relationships: distance at fixed speed, simple interest, temperature conversion (°C to °F).</p>
+        </div>
+    </div>
+
+    <!-- QUADRATIC SECTION -->
+    <div id="quadratic" class="section">
+        <div class="chart-wrap">
+            <canvas id="quadChart" aria-label="Quadratic equation graph"></canvas>
+        </div>
+
+        <div class="controls controls-3">
+            <div class="control-group">
+                <label for="qa">a <span id="qaVal">1</span></label>
+                <input type="range" id="qa" min="-3" max="3" step="0.1" value="1" aria-label="Coefficient a">
+            </div>
+            <div class="control-group">
+                <label for="qb">b <span id="qbVal">0</span></label>
+                <input type="range" id="qb" min="-6" max="6" step="0.5" value="0" aria-label="Coefficient b">
+            </div>
+            <div class="control-group">
+                <label for="qc">c <span id="qcVal">0</span></label>
+                <input type="range" id="qc" min="-10" max="10" step="0.5" value="0" aria-label="Coefficient c">
+            </div>
+        </div>
+
+        <div class="formula-box">
+            <div class="formula" id="quadFormula">y = x²</div>
+        </div>
+
+        <div class="results">
+            <div class="result-card">
+                <div class="label">Vertex x</div>
+                <div class="value" id="qVx">0</div>
+            </div>
+            <div class="result-card">
+                <div class="label">Vertex y (min/max)</div>
+                <div class="value" id="qVy">0</div>
+            </div>
+            <div class="result-card">
+                <div class="label">Real roots</div>
+                <div class="value" id="qRoots">x = 0</div>
+            </div>
+        </div>
+
+        <div class="explanation">
+            <h3>How it works</h3>
+            <p><strong>a</strong> — controls width and direction. <strong>a &gt; 0</strong> opens upward (U-shape, minimum). <strong>a &lt; 0</strong> opens downward (∩-shape, maximum). Larger |a| = narrower.</p>
+            <p><strong>b</strong> — shifts the vertex left or right. Vertex x = −b / (2a).</p>
+            <p><strong>c</strong> — the y-intercept (value at x = 0).</p>
+            <p><strong>Roots</strong> — where the parabola crosses y = 0, found via the quadratic formula: x = (−b ± √(b²−4ac)) / 2a. The discriminant b²−4ac tells you how many real roots exist.</p>
+        </div>
+    </div>
+
+    <!-- SOLVER SECTION -->
+    <div id="solver" class="section">
+        <div class="solver-grid">
+            <div class="solver-block">
+                <h3>Solve linear: ax + b = c</h3>
+                <div class="input-row">
+                    <input type="number" id="sla" value="2" aria-label="a coefficient">
+                    <span>x +</span>
+                    <input type="number" id="slb" value="3" aria-label="b constant">
+                    <span>=</span>
+                    <input type="number" id="slc" value="11" aria-label="c value">
+                </div>
+                <button class="solve-btn" onclick="solveLinear()">Solve for x</button>
+                <div class="answer-box answer-empty" id="linearAnswer">—</div>
+            </div>
+
+            <div class="solver-block">
+                <h3>Solve quadratic: ax² + bx + c = 0</h3>
+                <div class="input-row">
+                    <input type="number" id="sqa" value="1" aria-label="a coefficient">
+                    <span>x² +</span>
+                    <input type="number" id="sqb" value="-5" aria-label="b coefficient">
+                    <span>x +</span>
+                    <input type="number" id="sqc" value="6" aria-label="c constant">
+                    <span>= 0</span>
+                </div>
+                <button class="solve-btn" onclick="solveQuadratic()">Solve for x</button>
+                <div class="answer-box answer-empty" id="quadAnswer">—</div>
+            </div>
+        </div>
+
+        <div class="explanation">
+            <h3>How the solver works</h3>
+            <p><strong>Linear (ax + b = c)</strong> — rearrange to ax = c − b, then x = (c − b) / a. Requires a ≠ 0.</p>
+            <p><strong>Quadratic (ax² + bx + c = 0)</strong> — uses the quadratic formula: x = (−b ± √(b²−4ac)) / 2a.</p>
+            <p>The <strong>discriminant</strong> b²−4ac determines the number of solutions: positive → two real roots, zero → one repeated root, negative → no real roots (complex).</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ── Tab switching ──────────────────────────────────────────────────────────
+    function showTab(name, btn) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
+        document.getElementById(name).classList.add('active');
+        btn.classList.add('active');
+        btn.setAttribute('aria-selected', 'true');
+    }
+
+    // ── Helpers ────────────────────────────────────────────────────────────────
+    function fmt(n) { return parseFloat(n.toPrecision(4)).toString(); }
+
+    function signedCoeff(val, variable, first) {
+        const v = parseFloat(val);
+        if (first) return v === 1 ? variable : (v === -1 ? '−' + variable : fmt(v) + variable);
+        if (v === 0) return '';
+        const abs = Math.abs(v);
+        const sign = v > 0 ? ' + ' : ' − ';
+        if (variable === '') return sign + fmt(abs);
+        return abs === 1 ? sign + variable : sign + fmt(abs) + variable;
+    }
+
+    // ── Linear chart ──────────────────────────────────────────────────────────
+    const linearChart = new Chart(document.getElementById('linearChart').getContext('2d'), {
+        type: 'line',
+        data: { datasets: [{ label: 'y = mx + b', data: [], borderColor: '#3b82f6', borderWidth: 2.5, pointRadius: 0, fill: false, tension: 0 }] },
+        options: {
+            responsive: true, maintainAspectRatio: false, parsing: false,
+            plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `y = ${fmt(c.parsed.y)}` } } },
+            scales: {
+                x: { type: 'linear', min: -10, max: 10, title: { display: true, text: 'x', color: '#6b7280' }, grid: { color: '#f3f4f6' } },
+                y: { min: -15, max: 15, title: { display: true, text: 'y', color: '#6b7280' }, grid: { color: '#f3f4f6' } }
+            }
+        }
+    });
+
+    function updateLinear() {
+        const m = parseFloat(document.getElementById('lm').value);
+        const b = parseFloat(document.getElementById('lb').value);
+        document.getElementById('lmVal').textContent = fmt(m);
+        document.getElementById('lbVal').textContent = fmt(b);
+
+        const mPart = signedCoeff(m, 'x', true);
+        const bPart = signedCoeff(b, '', false);
+        document.getElementById('linearFormula').textContent = 'y = ' + mPart + (bPart || (b === 0 ? ' + 0' : ''));
+
+        document.getElementById('lYInt').textContent = fmt(b);
+        document.getElementById('lXInt').textContent = Math.abs(m) < 1e-9 ? '—' : fmt(-b / m);
+        document.getElementById('lY5').textContent = fmt(m * 5 + b);
+
+        const pts = [];
+        for (let x = -10; x <= 10; x += 0.5) pts.push({ x, y: m * x + b });
+        linearChart.data.datasets[0].data = pts;
+        linearChart.update();
+    }
+
+    document.getElementById('lm').addEventListener('input', updateLinear);
+    document.getElementById('lb').addEventListener('input', updateLinear);
+    updateLinear();
+
+    // ── Quadratic chart ───────────────────────────────────────────────────────
+    const quadChart = new Chart(document.getElementById('quadChart').getContext('2d'), {
+        type: 'line',
+        data: { datasets: [{ label: 'y = ax²+bx+c', data: [], borderColor: '#3b82f6', borderWidth: 2.5, pointRadius: 0, fill: false, tension: 0 }] },
+        options: {
+            responsive: true, maintainAspectRatio: false, parsing: false,
+            plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `y = ${fmt(c.parsed.y)}` } } },
+            scales: {
+                x: { type: 'linear', min: -8, max: 8, title: { display: true, text: 'x', color: '#6b7280' }, grid: { color: '#f3f4f6' } },
+                y: { min: -15, max: 20, title: { display: true, text: 'y', color: '#6b7280' }, grid: { color: '#f3f4f6' } }
+            }
+        }
+    });
+
+    function updateQuad() {
+        const a = parseFloat(document.getElementById('qa').value);
+        const b = parseFloat(document.getElementById('qb').value);
+        const c = parseFloat(document.getElementById('qc').value);
+        document.getElementById('qaVal').textContent = fmt(a);
+        document.getElementById('qbVal').textContent = fmt(b);
+        document.getElementById('qcVal').textContent = fmt(c);
+
+        let formula = 'y = ';
+        if (a === 0) formula += '0';
+        else formula += signedCoeff(a, 'x²', true);
+        formula += signedCoeff(b, 'x', false);
+        formula += signedCoeff(c, '', false) || (a === 0 && b === 0 ? '' : c === 0 ? '' : '');
+        if (b === 0 && c === 0 && a !== 0) { /* no extra needed */ }
+        else if (b !== 0 || c !== 0) { /* already appended */ }
+        document.getElementById('quadFormula').textContent = formula;
+
+        const vx = Math.abs(a) < 1e-9 ? '—' : fmt(-b / (2 * a));
+        const vy = Math.abs(a) < 1e-9 ? '—' : fmt(c - (b * b) / (4 * a));
+        document.getElementById('qVx').textContent = vx;
+        document.getElementById('qVy').textContent = vy;
+
+        const disc = b * b - 4 * a * c;
+        let rootText;
+        if (Math.abs(a) < 1e-9) {
+            rootText = Math.abs(b) < 1e-9 ? '—' : fmt(-c / b);
+        } else if (disc < 0) {
+            rootText = 'None (complex)';
+        } else if (disc < 1e-9) {
+            rootText = 'x = ' + fmt(-b / (2 * a));
+        } else {
+            const r1 = (-b + Math.sqrt(disc)) / (2 * a);
+            const r2 = (-b - Math.sqrt(disc)) / (2 * a);
+            rootText = fmt(Math.min(r1, r2)) + ', ' + fmt(Math.max(r1, r2));
+        }
+        document.getElementById('qRoots').textContent = rootText;
+
+        const pts = [];
+        for (let x = -8; x <= 8; x += 0.25) {
+            const y = a * x * x + b * x + c;
+            if (isFinite(y) && y > -100 && y < 100) pts.push({ x: parseFloat(x.toFixed(3)), y: parseFloat(y.toPrecision(5)) });
+        }
+        quadChart.data.datasets[0].data = pts;
+        quadChart.update();
+    }
+
+    document.getElementById('qa').addEventListener('input', updateQuad);
+    document.getElementById('qb').addEventListener('input', updateQuad);
+    document.getElementById('qc').addEventListener('input', updateQuad);
+    updateQuad();
+
+    // ── Solver ────────────────────────────────────────────────────────────────
+    function solveLinear() {
+        const a = parseFloat(document.getElementById('sla').value);
+        const b = parseFloat(document.getElementById('slb').value);
+        const c = parseFloat(document.getElementById('slc').value);
+        const el = document.getElementById('linearAnswer');
+        if (isNaN(a) || isNaN(b) || isNaN(c)) {
+            el.className = 'answer-box answer-err'; el.textContent = 'Enter valid numbers'; return;
+        }
+        if (Math.abs(a) < 1e-12) {
+            el.className = 'answer-box answer-err';
+            el.textContent = Math.abs(b - c) < 1e-9 ? 'All x (0 = 0)' : 'No solution';
+            return;
+        }
+        el.className = 'answer-box answer-ok';
+        el.textContent = 'x = ' + fmt((c - b) / a);
+    }
+
+    function solveQuadratic() {
+        const a = parseFloat(document.getElementById('sqa').value);
+        const b = parseFloat(document.getElementById('sqb').value);
+        const c = parseFloat(document.getElementById('sqc').value);
+        const el = document.getElementById('quadAnswer');
+        if (isNaN(a) || isNaN(b) || isNaN(c)) {
+            el.className = 'answer-box answer-err'; el.textContent = 'Enter valid numbers'; return;
+        }
+        if (Math.abs(a) < 1e-12) {
+            el.className = 'answer-box answer-err'; el.textContent = 'a cannot be 0 (not quadratic)'; return;
+        }
+        const disc = b * b - 4 * a * c;
+        if (disc < 0) {
+            el.className = 'answer-box answer-err';
+            const re = fmt(-b / (2 * a));
+            const im = fmt(Math.sqrt(-disc) / (2 * a));
+            el.textContent = 'No real roots — complex: ' + re + ' ± ' + im + 'i';
+            return;
+        }
+        el.className = 'answer-box answer-ok';
+        if (disc < 1e-9) {
+            el.textContent = 'x = ' + fmt(-b / (2 * a)) + ' (double root)';
+        } else {
+            const r1 = (-b + Math.sqrt(disc)) / (2 * a);
+            const r2 = (-b - Math.sqrt(disc)) / (2 * a);
+            el.textContent = 'x = ' + fmt(Math.min(r1, r2)) + ' or x = ' + fmt(Math.max(r1, r2));
+        }
+    }
+</script>
+</body>
+</html>
