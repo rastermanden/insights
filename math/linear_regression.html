@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linear Regression</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff, #f3f4f6);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            margin: 0;
+            padding: 20px 10px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 680px;
+            max-width: 100%;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            box-sizing: border-box;
+        }
+
+        h2 {
+            color: #1e3a8a;
+            text-align: center;
+            margin: 0 0 6px;
+            font-size: 24px;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .chart-wrap {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            margin-bottom: 20px;
+            cursor: crosshair;
+        }
+
+        .add-point {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .add-point label {
+            color: #4b5563;
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .add-point input {
+            width: 80px;
+            padding: 7px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .add-point input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 5px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.15s;
+        }
+
+        .btn-primary {
+            background: #1e3a8a;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1e40af;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: #9ca3af;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #6b7280;
+            transform: translateY(-1px);
+        }
+
+        .results {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .result-card {
+            background: #f0f4ff;
+            border: 1px solid #dbeafe;
+            border-radius: 10px;
+            padding: 14px 10px;
+            text-align: center;
+        }
+
+        .result-card .label {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .result-card .value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        .formula-box {
+            background: #eff6ff;
+            border: 1px solid #dbeafe;
+            border-radius: 10px;
+            padding: 14px 18px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .formula-box .formula {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e3a8a;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+        }
+
+        .formula-box .hint {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+
+        .explanation {
+            background: #f9fafb;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            padding: 16px 18px;
+        }
+
+        .explanation h3 {
+            color: #1e3a8a;
+            font-size: 15px;
+            margin: 0 0 10px;
+        }
+
+        .explanation p {
+            color: #6b7280;
+            font-size: 13px;
+            margin: 6px 0;
+            line-height: 1.6;
+        }
+
+        .explanation strong {
+            color: #374151;
+        }
+
+        .point-hint {
+            font-size: 12px;
+            color: #9ca3af;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        #error {
+            color: #dc2626;
+            font-size: 13px;
+            margin-bottom: 8px;
+            display: none;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            .chart-wrap {
+                height: 240px;
+            }
+
+            .results {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+
+            .result-card .value {
+                font-size: 16px;
+            }
+
+            .formula-box .formula {
+                font-size: 15px;
+            }
+
+            .add-point input {
+                width: 65px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .container {
+                padding: 15px;
+            }
+
+            .results {
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 6px;
+            }
+
+            .result-card {
+                padding: 10px 6px;
+            }
+
+            .result-card .value {
+                font-size: 14px;
+            }
+
+            .result-card .label {
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Linear Regression</h2>
+        <p class="subtitle">Find the line of best fit through a set of data points</p>
+
+        <div class="chart-wrap">
+            <canvas id="chart" aria-label="Scatter plot with regression line"></canvas>
+        </div>
+
+        <p class="point-hint">Click the chart to add a point, or use the inputs below</p>
+
+        <div class="add-point">
+            <label for="xInput">x:</label>
+            <input type="number" id="xInput" placeholder="x" aria-label="X value" step="any">
+            <label for="yInput">y:</label>
+            <input type="number" id="yInput" placeholder="y" aria-label="Y value" step="any">
+            <button class="btn btn-primary" id="addBtn" aria-label="Add point">Add Point</button>
+            <button class="btn btn-danger" id="clearBtn" aria-label="Clear all points">Clear</button>
+        </div>
+
+        <div id="error" role="alert"></div>
+
+        <div class="formula-box">
+            <div class="formula" id="formula">y = — x + —</div>
+            <div class="hint">least-squares line of best fit</div>
+        </div>
+
+        <div class="results">
+            <div class="result-card">
+                <div class="label">Slope (m)</div>
+                <div class="value" id="slopeVal">—</div>
+            </div>
+            <div class="result-card">
+                <div class="label">Intercept (b)</div>
+                <div class="value" id="interceptVal">—</div>
+            </div>
+            <div class="result-card">
+                <div class="label">R² fit</div>
+                <div class="value" id="r2Val">—</div>
+            </div>
+        </div>
+
+        <div class="explanation">
+            <h3>How it works</h3>
+            <p>Linear regression finds the line <strong>y = mx + b</strong> that minimises the sum of squared vertical distances from each point to the line.</p>
+            <p><strong>Slope (m)</strong> — how much y changes for each unit increase in x.</p>
+            <p><strong>Intercept (b)</strong> — the value of y when x = 0.</p>
+            <p><strong>R²</strong> — goodness of fit (0–1). A value of 1 means all points lie exactly on the line; 0 means the line explains none of the variation.</p>
+        </div>
+    </div>
+
+    <script>
+        const DEFAULT_POINTS = [
+            {x: 1, y: 2.1}, {x: 2, y: 3.8}, {x: 3, y: 5.2},
+            {x: 4, y: 6.9}, {x: 5, y: 8.1}, {x: 6, y: 9.4},
+            {x: 7, y: 11.2}, {x: 8, y: 12.5}
+        ];
+
+        let points = [...DEFAULT_POINTS];
+
+        const errorEl = document.getElementById('error');
+        const formulaEl = document.getElementById('formula');
+        const slopeEl = document.getElementById('slopeVal');
+        const interceptEl = document.getElementById('interceptVal');
+        const r2El = document.getElementById('r2Val');
+
+        function regression(pts) {
+            const n = pts.length;
+            if (n < 2) return null;
+            const sumX = pts.reduce((s, p) => s + p.x, 0);
+            const sumY = pts.reduce((s, p) => s + p.y, 0);
+            const sumXY = pts.reduce((s, p) => s + p.x * p.y, 0);
+            const sumX2 = pts.reduce((s, p) => s + p.x * p.x, 0);
+            const denom = n * sumX2 - sumX * sumX;
+            if (denom === 0) return null;
+            const m = (n * sumXY - sumX * sumY) / denom;
+            const b = (sumY - m * sumX) / n;
+            const meanY = sumY / n;
+            const ssTot = pts.reduce((s, p) => s + (p.y - meanY) ** 2, 0);
+            const ssRes = pts.reduce((s, p) => s + (p.y - (m * p.x + b)) ** 2, 0);
+            const r2 = ssTot === 0 ? 1 : 1 - ssRes / ssTot;
+            return { m, b, r2 };
+        }
+
+        function fmt(n) {
+            return parseFloat(n.toPrecision(4)).toString();
+        }
+
+        function linePoints(reg) {
+            const xs = points.map(p => p.x);
+            const minX = Math.min(...xs);
+            const maxX = Math.max(...xs);
+            return [
+                { x: minX, y: reg.m * minX + reg.b },
+                { x: maxX, y: reg.m * maxX + reg.b }
+            ];
+        }
+
+        function updateResults() {
+            const reg = regression(points);
+            if (!reg) {
+                formulaEl.textContent = 'y = — x + —';
+                slopeEl.textContent = '—';
+                interceptEl.textContent = '—';
+                r2El.textContent = '—';
+                chart.data.datasets[1].data = [];
+                chart.update();
+                return;
+            }
+            const mStr = fmt(reg.m);
+            const bVal = reg.b;
+            const bStr = (bVal >= 0 ? '+ ' : '− ') + fmt(Math.abs(bVal));
+            formulaEl.textContent = `y = ${mStr}x ${bStr}`;
+            slopeEl.textContent = mStr;
+            interceptEl.textContent = fmt(bVal);
+            r2El.textContent = parseFloat(reg.r2.toPrecision(3)).toString();
+            chart.data.datasets[1].data = linePoints(reg);
+            chart.update();
+        }
+
+        function refreshScatter() {
+            chart.data.datasets[0].data = points.map(p => ({ x: p.x, y: p.y }));
+            updateResults();
+        }
+
+        const ctx = document.getElementById('chart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'scatter',
+            data: {
+                datasets: [
+                    {
+                        label: 'Data points',
+                        data: [],
+                        backgroundColor: '#3b82f6',
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                    },
+                    {
+                        label: 'Regression line',
+                        data: [],
+                        type: 'line',
+                        borderColor: '#1e3a8a',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        fill: false,
+                        tension: 0,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => `(${fmt(ctx.parsed.x)}, ${fmt(ctx.parsed.y)})`
+                        }
+                    }
+                },
+                scales: {
+                    x: { title: { display: true, text: 'x', color: '#6b7280' }, grid: { color: '#f3f4f6' } },
+                    y: { title: { display: true, text: 'y', color: '#6b7280' }, grid: { color: '#f3f4f6' } }
+                },
+                onClick(event, elements, chart) {
+                    const canvasPos = Chart.helpers.getRelativePosition(event, chart);
+                    const x = parseFloat(chart.scales.x.getValueForPixel(canvasPos.x).toPrecision(4));
+                    const y = parseFloat(chart.scales.y.getValueForPixel(canvasPos.y).toPrecision(4));
+                    points.push({ x, y });
+                    refreshScatter();
+                }
+            }
+        });
+
+        function showError(msg) {
+            errorEl.textContent = msg;
+            errorEl.style.display = 'block';
+        }
+
+        function clearError() {
+            errorEl.style.display = 'none';
+        }
+
+        document.getElementById('addBtn').addEventListener('click', () => {
+            clearError();
+            const x = parseFloat(document.getElementById('xInput').value);
+            const y = parseFloat(document.getElementById('yInput').value);
+            if (isNaN(x) || isNaN(y)) {
+                showError('Please enter valid numbers for x and y.');
+                return;
+            }
+            points.push({ x, y });
+            document.getElementById('xInput').value = '';
+            document.getElementById('yInput').value = '';
+            refreshScatter();
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            clearError();
+            points = [];
+            refreshScatter();
+        });
+
+        ['xInput', 'yInput'].forEach(id => {
+            document.getElementById(id).addEventListener('keypress', e => {
+                if (e.key === 'Enter') document.getElementById('addBtn').click();
+            });
+        });
+
+        refreshScatter();
+    </script>
+</body>
+</html>
