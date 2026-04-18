@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exponential Functions</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff, #f3f4f6);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            margin: 0;
+            padding: 20px 10px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 680px;
+            max-width: 100%;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            box-sizing: border-box;
+        }
+
+        h2 {
+            color: #1e3a8a;
+            text-align: center;
+            margin: 0 0 6px;
+            font-size: 24px;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .chart-wrap {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            margin-bottom: 24px;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .control-group label {
+            color: #4b5563;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .control-group label span {
+            color: #1e3a8a;
+            font-weight: 700;
+            min-width: 40px;
+            text-align: right;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            accent-color: #3b82f6;
+            cursor: pointer;
+        }
+
+        .formula-box {
+            background: #eff6ff;
+            border: 1px solid #dbeafe;
+            border-radius: 10px;
+            padding: 14px 18px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .formula-box .formula {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e3a8a;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+        }
+
+        .formula-box .hint {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+
+        .results {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .result-card {
+            background: #f0f4ff;
+            border: 1px solid #dbeafe;
+            border-radius: 10px;
+            padding: 14px 10px;
+            text-align: center;
+        }
+
+        .result-card .label {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .result-card .value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            width: 100%;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        .badge-growth {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+        }
+
+        .badge-decay {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+
+        .badge-neutral {
+            background: #f3f4f6;
+            color: #6b7280;
+            border: 1px solid #e5e7eb;
+        }
+
+        .explanation {
+            background: #f9fafb;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            padding: 16px 18px;
+        }
+
+        .explanation h3 {
+            color: #1e3a8a;
+            font-size: 15px;
+            margin: 0 0 10px;
+        }
+
+        .explanation p {
+            color: #6b7280;
+            font-size: 13px;
+            margin: 6px 0;
+            line-height: 1.6;
+        }
+
+        .explanation strong {
+            color: #374151;
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 20px; }
+            h2 { font-size: 20px; }
+            .chart-wrap { height: 240px; }
+            .controls { grid-template-columns: 1fr; gap: 12px; }
+            .formula-box .formula { font-size: 17px; }
+            .result-card .value { font-size: 15px; }
+        }
+
+        @media (max-width: 400px) {
+            .container { padding: 15px; }
+            .results { gap: 6px; }
+            .result-card { padding: 10px 6px; }
+            .result-card .value { font-size: 13px; }
+            .result-card .label { font-size: 11px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Exponential Functions</h2>
+        <p class="subtitle">Explore growth and decay with y = a · e<sup>bx</sup></p>
+
+        <div class="chart-wrap">
+            <canvas id="chart" aria-label="Exponential function curve"></canvas>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="aSlider">Initial value (a) <span id="aVal">1</span></label>
+                <input type="range" id="aSlider" min="0.1" max="10" step="0.1" value="1" aria-label="Initial value a">
+            </div>
+            <div class="control-group">
+                <label for="bSlider">Rate (b) <span id="bVal">0.3</span></label>
+                <input type="range" id="bSlider" min="-2" max="2" step="0.05" value="0.3" aria-label="Rate b">
+            </div>
+        </div>
+
+        <div class="formula-box">
+            <div class="formula" id="formula">y = 1 · e<sup>0.3x</sup></div>
+            <div class="hint">e ≈ 2.71828 (Euler's number)</div>
+        </div>
+
+        <div id="badge" class="badge badge-growth">Exponential Growth (b &gt; 0)</div>
+
+        <div class="results">
+            <div class="result-card">
+                <div class="label">y at x = 0</div>
+                <div class="value" id="y0Val">1</div>
+            </div>
+            <div class="result-card">
+                <div class="label" id="rateLabel">Doubling time</div>
+                <div class="value" id="rateVal">2.31</div>
+            </div>
+            <div class="result-card">
+                <div class="label">y at x = 10</div>
+                <div class="value" id="y10Val">20.09</div>
+            </div>
+        </div>
+
+        <div class="explanation">
+            <h3>How it works</h3>
+            <p><strong>a</strong> — the starting value at x = 0. Scales the curve up or down.</p>
+            <p><strong>b &gt; 0</strong> — exponential <strong>growth</strong>. The doubling time is <strong>ln(2) / b</strong>.</p>
+            <p><strong>b &lt; 0</strong> — exponential <strong>decay</strong>. The half-life is <strong>ln(2) / |b|</strong>.</p>
+            <p><strong>b = 0</strong> — flat line. No growth or decay; y = a everywhere.</p>
+            <p>Exponential functions model population growth, radioactive decay, compound interest, and viral spread.</p>
+        </div>
+    </div>
+
+    <script>
+        const aSlider = document.getElementById('aSlider');
+        const bSlider = document.getElementById('bSlider');
+        const aValEl = document.getElementById('aVal');
+        const bValEl = document.getElementById('bVal');
+        const formulaEl = document.getElementById('formula');
+        const badgeEl = document.getElementById('badge');
+        const y0El = document.getElementById('y0Val');
+        const rateLabelEl = document.getElementById('rateLabel');
+        const rateValEl = document.getElementById('rateVal');
+        const y10El = document.getElementById('y10Val');
+
+        function fmt(n) {
+            return parseFloat(n.toPrecision(4)).toString();
+        }
+
+        function buildCurve(a, b) {
+            const pts = [];
+            for (let x = -5; x <= 10; x += 0.25) {
+                const y = a * Math.exp(b * x);
+                if (isFinite(y) && y < 1e6 && y > -1e6) {
+                    pts.push({ x: parseFloat(x.toPrecision(4)), y: parseFloat(y.toPrecision(6)) });
+                }
+            }
+            return pts;
+        }
+
+        function update() {
+            const a = parseFloat(aSlider.value);
+            const b = parseFloat(bSlider.value);
+
+            aValEl.textContent = fmt(a);
+            bValEl.textContent = fmt(b);
+
+            const bSign = b >= 0 ? '+' : '−';
+            const bAbs = fmt(Math.abs(b));
+            formulaEl.innerHTML = `y = ${fmt(a)} · e<sup>${bSign === '+' ? '' : '−'}${bAbs}x</sup>`;
+
+            if (b > 0.01) {
+                badgeEl.className = 'badge badge-growth';
+                badgeEl.textContent = 'Exponential Growth (b > 0)';
+                rateLabelEl.textContent = 'Doubling time';
+                rateValEl.textContent = fmt(Math.LN2 / b);
+            } else if (b < -0.01) {
+                badgeEl.className = 'badge badge-decay';
+                badgeEl.textContent = 'Exponential Decay (b < 0)';
+                rateLabelEl.textContent = 'Half-life';
+                rateValEl.textContent = fmt(Math.LN2 / Math.abs(b));
+            } else {
+                badgeEl.className = 'badge badge-neutral';
+                badgeEl.textContent = 'No Growth or Decay (b = 0)';
+                rateLabelEl.textContent = 'Doubling time';
+                rateValEl.textContent = '∞';
+            }
+
+            y0El.textContent = fmt(a);
+            const y10 = a * Math.exp(b * 10);
+            y10El.textContent = isFinite(y10) && y10 < 1e6 ? fmt(y10) : '∞';
+
+            chart.data.datasets[0].data = buildCurve(a, b);
+            chart.update();
+        }
+
+        const ctx = document.getElementById('chart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                datasets: [{
+                    label: 'y = a·eᵇˣ',
+                    data: [],
+                    borderColor: '#3b82f6',
+                    borderWidth: 2.5,
+                    pointRadius: 0,
+                    fill: false,
+                    tension: 0,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                parsing: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => `y = ${fmt(ctx.parsed.y)}`
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        type: 'linear',
+                        title: { display: true, text: 'x', color: '#6b7280' },
+                        grid: { color: '#f3f4f6' }
+                    },
+                    y: {
+                        title: { display: true, text: 'y', color: '#6b7280' },
+                        grid: { color: '#f3f4f6' }
+                    }
+                }
+            }
+        });
+
+        aSlider.addEventListener('input', update);
+        bSlider.addEventListener('input', update);
+
+        update();
+    </script>
+</body>
+</html>
