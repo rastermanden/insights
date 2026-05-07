@@ -132,6 +132,33 @@
             margin-top: 0;
         }
 
+        .conclusion {
+            display: block !important;
+            margin-top: 14px !important;
+            padding: 12px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.5;
+            border-left: 4px solid #9ca3af;
+            background: #f3f4f6;
+            color: #1f2937;
+        }
+
+        .conclusion.favorable {
+            background: #ecfdf5;
+            border-left-color: #10b981;
+        }
+
+        .conclusion.mixed {
+            background: #fffbeb;
+            border-left-color: #f59e0b;
+        }
+
+        .conclusion.unfavorable {
+            background: #fef2f2;
+            border-left-color: #ef4444;
+        }
+
         #error {
             color: #dc2626;
             font-size: 13px;
@@ -241,6 +268,7 @@
             <p>Prevented hospitalizations per vaccinated (= hosp rate × VE): <span id="preventedRate"></span></p>
             <p>Number Needed to Vaccinate to prevent 1 hospitalization: <span id="nnv"></span></p>
             <p><strong>SAE per prevented hospitalization:</strong> <span id="saePerPrevented"></span></p>
+            <p id="conclusion" class="conclusion"></p>
         </div>
         
         <div class="instructions">
@@ -249,6 +277,7 @@
             <p>Use the arrows to adjust values or type directly; results update automatically.</p>
             <p>Example: If 30/100 controls and 20/100 treated had an event, enter 30, 100, 20, 100.</p>
             <p>To reset, type default values (e.g., 162, 21728, 8, 21720) — from the Pfizer–BioNTech BNT162b2 phase&nbsp;3 trial, Polack et&nbsp;al. <em>NEJM</em> 2020 (<a href="https://www.nejm.org/doi/full/10.1056/NEJMoa2034577" target="_blank" rel="noopener">NEJMoa2034577</a>, <a href="https://pubmed.ncbi.nlm.nih.gov/33301246" target="_blank" rel="noopener">PubMed 33301246</a>).</p>
+            <p><strong>What is an SAE?</strong> A <em>Serious Adverse Event</em> is a medical event during a trial that is fatal, life‑threatening, requires (or prolongs) hospitalization, causes persistent or significant disability, or results in a congenital anomaly — i.e., it is on roughly the same severity tier as a COVID‑19 hospitalization, which is what makes the two figures comparable.</p>
             <p><strong>Harm–Benefit:</strong> SAE rate defaults to 1 in 800 from Fraiman et&nbsp;al. (2022) reanalysis of mRNA COVID‑19 vaccine trials — <a href="https://pubmed.ncbi.nlm.nih.gov/36055877" target="_blank" rel="noopener">PubMed 36055877</a>. Hospitalization rate defaults to 1 in 10,000 (background risk without vaccine). The calculator multiplies that rate by the trial-derived VE to estimate prevented hospitalizations per vaccinated person, then divides the SAE rate by it.</p>
         </div>
     </div>
@@ -330,7 +359,8 @@
                     hospRate: document.getElementById('hospRate'),
                     preventedRate: document.getElementById('preventedRate'),
                     nnv: document.getElementById('nnv'),
-                    saePerPrevented: document.getElementById('saePerPrevented')
+                    saePerPrevented: document.getElementById('saePerPrevented'),
+                    conclusion: document.getElementById('conclusion')
                 };
 
                 for (const [key, element] of Object.entries(elements)) {
@@ -355,15 +385,57 @@
                 elements.saePerPrevented.textContent = results.saePerPrevented === Infinity
                     ? '∞'
                     : results.saePerPrevented.toFixed(2);
+
+                this.renderConclusion(elements.conclusion, results);
+            }
+
+            renderConclusion(el, results) {
+                el.classList.remove('favorable', 'mixed', 'unfavorable');
+                const ratio = results.saePerPrevented;
+                const nnv = results.nnv;
+                const saeDen = results.saeDenominator;
+
+                if (!isFinite(ratio)) {
+                    el.classList.add('unfavorable');
+                    el.innerHTML = `<strong>Conclusion:</strong> the vaccine prevents no hospitalizations at these inputs (VE = 0 or hospitalization rate = 0), so every SAE is pure harm with no offsetting benefit.`;
+                    return;
+                }
+
+                const nnvStr = isFinite(nnv) ? Math.round(nnv).toLocaleString() : '∞';
+                const ratioStr = ratio.toFixed(2);
+                let verdict, klass;
+
+                if (ratio < 0.5) {
+                    klass = 'favorable';
+                    verdict = `Far more hospitalizations are prevented than SAEs are caused — on these severity-matched terms the vaccine is a clear net benefit for this population.`;
+                } else if (ratio < 1) {
+                    klass = 'favorable';
+                    verdict = `Slightly more hospitalizations are prevented than SAEs are caused — a marginal net benefit that depends on how comparable the two event categories really are.`;
+                } else if (ratio < 2) {
+                    klass = 'mixed';
+                    verdict = `Roughly as many SAEs are caused as hospitalizations prevented — the harm-benefit balance is approximately a wash, and the answer hinges on which side the more severe events fall on.`;
+                } else {
+                    klass = 'unfavorable';
+                    verdict = `Many more SAEs are caused than hospitalizations prevented — at this background risk level, vaccinating this population looks like net harm on a severity-matched count.`;
+                }
+
+                el.classList.add(klass);
+                el.innerHTML = `<strong>Conclusion:</strong> you must vaccinate <strong>${nnvStr}</strong> people to prevent <strong>1</strong> hospitalization, but at a rate of 1 SAE per ${saeDen.toLocaleString()} vaccinated that same group will incur about <strong>${(nnvStr === '∞' ? '∞' : (results.nnv * results.saeRate).toFixed(2))}</strong> SAEs — i.e. <strong>${ratioStr} SAEs per prevented hospitalization</strong>. ${verdict} Note: SAE and hospitalization are both serious-tier events but not identical, and this comparison ignores other benefits (e.g. transmission reduction) and other harms (e.g. mild adverse events).`;
             }
 
             clearResults() {
                 this.errorDisplay.style.display = 'none';
                 const elements = ['cer', 'ter', 'arr', 'rr', 'nnt', 'efficacy',
-                    'saeRate', 'hospRate', 'preventedRate', 'nnv', 'saePerPrevented'];
+                    'saeRate', 'hospRate', 'preventedRate', 'nnv', 'saePerPrevented',
+                    'conclusion'];
                 elements.forEach(id => {
                     const element = document.getElementById(id);
-                    if (element) element.textContent = '';
+                    if (element) {
+                        element.textContent = '';
+                        if (id === 'conclusion') {
+                            element.classList.remove('favorable', 'mixed', 'unfavorable');
+                        }
+                    }
                 });
             }
 
