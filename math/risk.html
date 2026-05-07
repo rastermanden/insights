@@ -420,7 +420,7 @@
                 }
 
                 el.classList.add(klass);
-                el.innerHTML = `<strong>Conclusion:</strong> you must vaccinate <strong>${nnvStr}</strong> people to prevent <strong>1</strong> hospitalization, but at a rate of 1 SAE per ${saeDen.toLocaleString()} vaccinated that same group will incur about <strong>${(nnvStr === '∞' ? '∞' : (results.nnv * results.saeRate).toFixed(2))}</strong> SAEs — i.e. <strong>${ratioStr} SAEs per prevented hospitalization</strong>. ${verdict} Note: SAE and hospitalization are both serious-tier events but not identical, and this comparison ignores other benefits (e.g. transmission reduction) and other harms (e.g. mild adverse events).`;
+                el.innerHTML = `<strong>Conclusion:</strong> you must vaccinate <strong>${nnvStr}</strong> people to prevent <strong>1</strong> hospitalization, but at a rate of 1 SAE per ${saeDen.toLocaleString()} vaccinated that same group will incur about <strong>${(nnvStr === '∞' ? '∞' : (results.nnv * results.saeRate).toFixed(2))}</strong> SAEs — i.e. <strong>${ratioStr} SAEs per prevented hospitalization</strong>. ${verdict} Caveats: SAE and hospitalization are serious-tier events but not identical; this comparison ignores milder side-effects on the harm side. It does <em>not</em> credit the vaccine with reducing transmission — the mRNA COVID‑19 vaccines do not produce sterilizing immunity, and milder symptoms in vaccinated infected people can mean a false sense of safety: people who feel healthy still shed virus and may transmit asymptomatically.`;
             }
 
             clearResults() {
