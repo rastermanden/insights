@@ -16,12 +16,13 @@
         }
 
         .calculator {
-            width: 450px;
+            width: 520px;
             background: #ffffff;
             padding: 30px;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             border: 1px solid #e5e7eb;
+            margin: 30px 0;
         }
 
         h2 {
@@ -96,7 +97,7 @@
             transform: translateY(-2px);
         }
 
-        #results {
+        #results, #harmBenefit {
             margin-top: 25px;
             padding: 20px;
             background: #f9fafb;
@@ -104,17 +105,31 @@
             border: 1px solid #e5e7eb;
         }
 
-        #results p {
+        #results p, #harmBenefit p {
             margin: 10px 0;
             color: #374151;
             font-size: 14px;
             display: flex;
             justify-content: space-between;
+            gap: 10px;
         }
 
-        #results span {
+        #results span, #harmBenefit span {
             font-weight: 600;
             color: #1f2937;
+            text-align: right;
+        }
+
+        .subhead {
+            color: #1e3a8a;
+            font-size: 15px;
+            margin: 22px 0 8px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 6px;
+        }
+
+        #harmBenefit .subhead {
+            margin-top: 0;
         }
 
         #error {
@@ -189,9 +204,27 @@
                 <button class="arrow-btn down-btn" data-input="treatmentTotal" aria-label="Decrease treatment total" tabindex="0">↓</button>
             </div>
         </div>
-        
+
+        <h3 class="subhead">Harm–Benefit Inputs</h3>
+        <div class="input-group">
+            <label for="saeDenominator">Vaccine SAE rate — 1 in:</label>
+            <div class="value-container">
+                <input type="number" id="saeDenominator" min="1" value="800" required aria-label="Serious adverse event rate denominator">
+                <button class="arrow-btn up-btn" data-input="saeDenominator" aria-label="Increase SAE denominator" tabindex="0">↑</button>
+                <button class="arrow-btn down-btn" data-input="saeDenominator" aria-label="Decrease SAE denominator" tabindex="0">↓</button>
+            </div>
+        </div>
+        <div class="input-group">
+            <label for="hospDenominator">Hospitalization rate (no vaccine) — 1 in:</label>
+            <div class="value-container">
+                <input type="number" id="hospDenominator" min="1" value="10000" required aria-label="Hospitalization rate denominator">
+                <button class="arrow-btn up-btn" data-input="hospDenominator" aria-label="Increase hospitalization denominator" tabindex="0">↑</button>
+                <button class="arrow-btn down-btn" data-input="hospDenominator" aria-label="Decrease hospitalization denominator" tabindex="0">↓</button>
+            </div>
+        </div>
+
         <div id="error"></div>
-        
+
         <div id="results">
             <p>Control Event Rate (CER): <span id="cer"></span></p>
             <p>Treatment Event Rate (TER): <span id="ter"></span></p>
@@ -200,13 +233,23 @@
             <p>Number Needed to Treat (NNT): <span id="nnt"></span></p>
             <p>Efficacy (VE) = (CER - TER) / CER × 100%: <span id="efficacy"></span></p>
         </div>
+
+        <div id="harmBenefit">
+            <h3 class="subhead">Harm–Benefit Output</h3>
+            <p>SAE rate (absolute): <span id="saeRate"></span></p>
+            <p>Hospitalization rate without vaccine: <span id="hospRate"></span></p>
+            <p>Prevented hospitalizations per vaccinated (= hosp rate × VE): <span id="preventedRate"></span></p>
+            <p>Number Needed to Vaccinate to prevent 1 hospitalization: <span id="nnv"></span></p>
+            <p><strong>SAE per prevented hospitalization:</strong> <span id="saePerPrevented"></span></p>
+        </div>
         
         <div class="instructions">
             <h3>Instructions</h3>
             <p>Enter the number of events and total subjects in both control and treatment groups.</p>
             <p>Use the arrows to adjust values or type directly; results update automatically.</p>
             <p>Example: If 30/100 controls and 20/100 treated had an event, enter 30, 100, 20, 100.</p>
-            <p>To reset, type default values (e.g., 162, 21728, 8, 21720).</p>
+            <p>To reset, type default values (e.g., 162, 21728, 8, 21720) — from the Pfizer–BioNTech BNT162b2 phase&nbsp;3 trial, Polack et&nbsp;al. <em>NEJM</em> 2020 (<a href="https://www.nejm.org/doi/full/10.1056/NEJMoa2034577" target="_blank" rel="noopener">NEJMoa2034577</a>, <a href="https://pubmed.ncbi.nlm.nih.gov/33301246" target="_blank" rel="noopener">PubMed 33301246</a>).</p>
+            <p><strong>Harm–Benefit:</strong> SAE rate defaults to 1 in 800 from Fraiman et&nbsp;al. (2022) reanalysis of mRNA COVID‑19 vaccine trials — <a href="https://pubmed.ncbi.nlm.nih.gov/36055877" target="_blank" rel="noopener">PubMed 36055877</a>. Hospitalization rate defaults to 1 in 10,000 (background risk without vaccine). The calculator multiplies that rate by the trial-derived VE to estimate prevented hospitalizations per vaccinated person, then divides the SAE rate by it.</p>
         </div>
     </div>
 
@@ -217,19 +260,26 @@
                 this.clearResults();
             }
 
-            calculate(controlEvents, controlTotal, treatmentEvents, treatmentTotal) {
+            calculate(controlEvents, controlTotal, treatmentEvents, treatmentTotal, saeDenominator, hospDenominator) {
                 controlEvents = Number(controlEvents);
                 controlTotal = Number(controlTotal);
                 treatmentEvents = Number(treatmentEvents);
                 treatmentTotal = Number(treatmentTotal);
+                saeDenominator = Number(saeDenominator);
+                hospDenominator = Number(hospDenominator);
 
-                if (isNaN(controlEvents) || isNaN(controlTotal) || 
-                    isNaN(treatmentEvents) || isNaN(treatmentTotal)) {
+                if (isNaN(controlEvents) || isNaN(controlTotal) ||
+                    isNaN(treatmentEvents) || isNaN(treatmentTotal) ||
+                    isNaN(saeDenominator) || isNaN(hospDenominator)) {
                     throw new Error("All inputs must be valid numbers");
                 }
 
                 if (controlTotal <= 0 || treatmentTotal <= 0) {
                     throw new Error("Totals must be greater than zero");
+                }
+
+                if (saeDenominator <= 0 || hospDenominator <= 0) {
+                    throw new Error("Rate denominators must be greater than zero");
                 }
 
                 if (controlEvents > controlTotal || treatmentEvents > treatmentTotal ||
@@ -244,16 +294,28 @@
                 const nnt = arr === 0 ? Infinity : Math.abs(1 / arr);
                 const efficacy = cer === 0 ? 0 : ((cer - ter) / cer) * 100;
 
-                const results = {
+                const saeRate = 1 / saeDenominator;
+                const hospRate = 1 / hospDenominator;
+                const veFraction = efficacy / 100;
+                const preventedRate = hospRate * veFraction;
+                const nnv = preventedRate <= 0 ? Infinity : 1 / preventedRate;
+                const saePerPrevented = preventedRate <= 0 ? Infinity : saeRate / preventedRate;
+
+                return {
                     cer: cer.toFixed(5),
                     ter: ter.toFixed(5),
                     arr: arr.toFixed(5),
                     rr: rr.toFixed(5),
                     nnt: Math.round(nnt),
-                    efficacy: efficacy.toFixed(2)
+                    efficacy: efficacy.toFixed(2),
+                    saeRate,
+                    saeDenominator,
+                    hospRate,
+                    hospDenominator,
+                    preventedRate,
+                    nnv,
+                    saePerPrevented
                 };
-
-                return results;
             }
 
             displayResults(results) {
@@ -263,7 +325,12 @@
                     arr: document.getElementById('arr'),
                     rr: document.getElementById('rr'),
                     nnt: document.getElementById('nnt'),
-                    efficacy: document.getElementById('efficacy')
+                    efficacy: document.getElementById('efficacy'),
+                    saeRate: document.getElementById('saeRate'),
+                    hospRate: document.getElementById('hospRate'),
+                    preventedRate: document.getElementById('preventedRate'),
+                    nnv: document.getElementById('nnv'),
+                    saePerPrevented: document.getElementById('saePerPrevented')
                 };
 
                 for (const [key, element] of Object.entries(elements)) {
@@ -278,11 +345,22 @@
                 elements.rr.textContent = `${results.rr} (${(results.rr * 100).toFixed(2)}%)`;
                 elements.nnt.textContent = results.nnt === Infinity ? '∞' : results.nnt;
                 elements.efficacy.textContent = `${results.efficacy}%`;
+
+                elements.saeRate.textContent = `1 in ${results.saeDenominator} (${(results.saeRate * 100).toFixed(4)}%)`;
+                elements.hospRate.textContent = `1 in ${results.hospDenominator} (${(results.hospRate * 100).toFixed(4)}%)`;
+                elements.preventedRate.textContent = results.preventedRate <= 0
+                    ? '0'
+                    : `1 in ${Math.round(1 / results.preventedRate).toLocaleString()} (${(results.preventedRate * 100).toFixed(4)}%)`;
+                elements.nnv.textContent = results.nnv === Infinity ? '∞' : Math.round(results.nnv).toLocaleString();
+                elements.saePerPrevented.textContent = results.saePerPrevented === Infinity
+                    ? '∞'
+                    : results.saePerPrevented.toFixed(2);
             }
 
             clearResults() {
                 this.errorDisplay.style.display = 'none';
-                const elements = ['cer', 'ter', 'arr', 'rr', 'nnt', 'efficacy'];
+                const elements = ['cer', 'ter', 'arr', 'rr', 'nnt', 'efficacy',
+                    'saeRate', 'hospRate', 'preventedRate', 'nnv', 'saePerPrevented'];
                 elements.forEach(id => {
                     const element = document.getElementById(id);
                     if (element) element.textContent = '';
@@ -303,12 +381,16 @@
                 const controlTotal = document.getElementById('controlTotal').value;
                 const treatmentEvents = document.getElementById('treatmentEvents').value;
                 const treatmentTotal = document.getElementById('treatmentTotal').value;
+                const saeDenominator = document.getElementById('saeDenominator').value;
+                const hospDenominator = document.getElementById('hospDenominator').value;
 
                 const results = calculator.calculate(
                     controlEvents,
                     controlTotal,
                     treatmentEvents,
-                    treatmentTotal
+                    treatmentTotal,
+                    saeDenominator,
+                    hospDenominator
                 );
                 calculator.displayResults(results);
             } catch (error) {
@@ -342,7 +424,8 @@
         });
 
         // Add input event listeners for real-time updates
-        ['controlEvents', 'controlTotal', 'treatmentEvents', 'treatmentTotal'].forEach(id => {
+        ['controlEvents', 'controlTotal', 'treatmentEvents', 'treatmentTotal',
+         'saeDenominator', 'hospDenominator'].forEach(id => {
             document.getElementById(id).addEventListener('input', calculate);
         });
 
