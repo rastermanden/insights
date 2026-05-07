@@ -268,6 +268,7 @@
             <p>Hospitalization rate without vaccine: <span id="hospRate"></span></p>
             <p>Prevented hospitalizations per vaccinated (= hosp rate × VE): <span id="preventedRate"></span></p>
             <p>Number Needed to Vaccinate to prevent 1 hospitalization: <span id="nnv"></span></p>
+            <p>Number Needed to Harm (NNH) to cause 1 SAE: <span id="nnhPanel"></span></p>
             <p><strong>SAE per prevented hospitalization:</strong> <span id="saePerPrevented"></span></p>
             <p id="conclusion" class="conclusion"></p>
         </div>
@@ -364,6 +365,7 @@
                     hospRate: document.getElementById('hospRate'),
                     preventedRate: document.getElementById('preventedRate'),
                     nnv: document.getElementById('nnv'),
+                    nnhPanel: document.getElementById('nnhPanel'),
                     saePerPrevented: document.getElementById('saePerPrevented'),
                     conclusion: document.getElementById('conclusion')
                 };
@@ -388,6 +390,7 @@
                     ? '0'
                     : `1 in ${Math.round(1 / results.preventedRate).toLocaleString()} (${(results.preventedRate * 100).toFixed(4)}%)`;
                 elements.nnv.textContent = results.nnv === Infinity ? '∞' : Math.round(results.nnv).toLocaleString();
+                elements.nnhPanel.textContent = results.nnh === Infinity ? '∞' : Math.round(results.nnh).toLocaleString();
                 elements.saePerPrevented.textContent = results.saePerPrevented === Infinity
                     ? '∞'
                     : results.saePerPrevented.toFixed(2);
@@ -432,8 +435,8 @@
             clearResults() {
                 this.errorDisplay.style.display = 'none';
                 const elements = ['cer', 'ter', 'arr', 'rr', 'nnt', 'nnh', 'efficacy',
-                    'saeRate', 'hospRate', 'preventedRate', 'nnv', 'saePerPrevented',
-                    'conclusion'];
+                    'saeRate', 'hospRate', 'preventedRate', 'nnv', 'nnhPanel',
+                    'saePerPrevented', 'conclusion'];
                 elements.forEach(id => {
                     const element = document.getElementById(id);
                     if (element) {
