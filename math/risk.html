@@ -244,7 +244,7 @@
         <div class="input-group">
             <label for="hospDenominator">Hospitalization rate (no vaccine) — 1 in:</label>
             <div class="value-container">
-                <input type="number" id="hospDenominator" min="1" value="10000" required aria-label="Hospitalization rate denominator">
+                <input type="number" id="hospDenominator" min="1" value="50000" required aria-label="Hospitalization rate denominator">
                 <button class="arrow-btn up-btn" data-input="hospDenominator" aria-label="Increase hospitalization denominator" tabindex="0">↑</button>
                 <button class="arrow-btn down-btn" data-input="hospDenominator" aria-label="Decrease hospitalization denominator" tabindex="0">↓</button>
             </div>
@@ -278,7 +278,8 @@
             <p>Example: If 30/100 controls and 20/100 treated had an event, enter 30, 100, 20, 100.</p>
             <p>To reset, type default values (e.g., 162, 21728, 8, 21720) — from the Pfizer–BioNTech BNT162b2 phase&nbsp;3 trial, Polack et&nbsp;al. <em>NEJM</em> 2020 (<a href="https://www.nejm.org/doi/full/10.1056/NEJMoa2034577" target="_blank" rel="noopener">NEJMoa2034577</a>, <a href="https://pubmed.ncbi.nlm.nih.gov/33301246" target="_blank" rel="noopener">PubMed 33301246</a>).</p>
             <p><strong>What is an SAE?</strong> A <em>Serious Adverse Event</em> is a medical event during a trial that is fatal, life‑threatening, requires (or prolongs) hospitalization, causes persistent or significant disability, or results in a congenital anomaly — i.e., it is on roughly the same severity tier as a COVID‑19 hospitalization, which is what makes the two figures comparable.</p>
-            <p><strong>Harm–Benefit:</strong> SAE rate defaults to 1 in 800 from Fraiman et&nbsp;al. (2022) reanalysis of mRNA COVID‑19 vaccine trials — <a href="https://pubmed.ncbi.nlm.nih.gov/36055877" target="_blank" rel="noopener">PubMed 36055877</a>. Hospitalization rate defaults to 1 in 10,000 (background risk without vaccine). The calculator multiplies that rate by the trial-derived VE to estimate prevented hospitalizations per vaccinated person, then divides the SAE rate by it.</p>
+            <p><strong>Harm–Benefit:</strong> SAE rate defaults to 1 in 800 from Fraiman et&nbsp;al. (2022) reanalysis of mRNA COVID‑19 vaccine trials — <a href="https://pubmed.ncbi.nlm.nih.gov/36055877" target="_blank" rel="noopener">PubMed 36055877</a>. Hospitalization rate defaults to 1 in 50,000, a rough estimate for a healthy young-to-middle-aged adult per pandemic year. The calculator multiplies that rate by the trial-derived VE to estimate prevented hospitalizations per vaccinated person, then divides the SAE rate by it.</p>
+            <p><strong>Age stratification matters.</strong> Pre-vaccine COVID‑19 hospitalization rates spanned more than 100× by age and comorbidity. Rough per-year background rates: healthy 18–49 ≈ 1 in 10,000–50,000 · all 18–49 ≈ 1 in 1,000–2,000 · 65–74 ≈ 1 in 100–150 · 75–84 ≈ 1 in 50 · 85+ ≈ 1 in 30. Try entering 30 or 50 to see the harm-benefit balance for an elderly recipient versus 50,000 or 100,000 for a healthy young adult — the same vaccine flips between net benefit and net harm depending purely on baseline risk.</p>
         </div>
     </div>
 
