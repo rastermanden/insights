@@ -258,6 +258,7 @@
             <p>Absolute Risk Reduction (ARR): <span id="arr"></span></p>
             <p>Relative Risk (RR): <span id="rr"></span></p>
             <p>Number Needed to Treat (NNT): <span id="nnt"></span></p>
+            <p>Number Needed to Harm (NNH) = 1 / SAE rate: <span id="nnh"></span></p>
             <p>Efficacy (VE) = (CER - TER) / CER × 100%: <span id="efficacy"></span></p>
         </div>
 
@@ -330,6 +331,7 @@
                 const preventedRate = hospRate * veFraction;
                 const nnv = preventedRate <= 0 ? Infinity : 1 / preventedRate;
                 const saePerPrevented = preventedRate <= 0 ? Infinity : saeRate / preventedRate;
+                const nnh = saeRate <= 0 ? Infinity : 1 / saeRate;
 
                 return {
                     cer: cer.toFixed(5),
@@ -337,6 +339,7 @@
                     arr: arr.toFixed(5),
                     rr: rr.toFixed(5),
                     nnt: Math.round(nnt),
+                    nnh,
                     efficacy: efficacy.toFixed(2),
                     saeRate,
                     saeDenominator,
@@ -355,6 +358,7 @@
                     arr: document.getElementById('arr'),
                     rr: document.getElementById('rr'),
                     nnt: document.getElementById('nnt'),
+                    nnh: document.getElementById('nnh'),
                     efficacy: document.getElementById('efficacy'),
                     saeRate: document.getElementById('saeRate'),
                     hospRate: document.getElementById('hospRate'),
@@ -375,6 +379,7 @@
                 elements.arr.textContent = `${results.arr} (${(results.arr * 100).toFixed(2)}%)`;
                 elements.rr.textContent = `${results.rr} (${(results.rr * 100).toFixed(2)}%)`;
                 elements.nnt.textContent = results.nnt === Infinity ? '∞' : results.nnt;
+                elements.nnh.textContent = results.nnh === Infinity ? '∞' : Math.round(results.nnh).toLocaleString();
                 elements.efficacy.textContent = `${results.efficacy}%`;
 
                 elements.saeRate.textContent = `1 in ${results.saeDenominator} (${(results.saeRate * 100).toFixed(4)}%)`;
@@ -426,7 +431,7 @@
 
             clearResults() {
                 this.errorDisplay.style.display = 'none';
-                const elements = ['cer', 'ter', 'arr', 'rr', 'nnt', 'efficacy',
+                const elements = ['cer', 'ter', 'arr', 'rr', 'nnt', 'nnh', 'efficacy',
                     'saeRate', 'hospRate', 'preventedRate', 'nnv', 'saePerPrevented',
                     'conclusion'];
                 elements.forEach(id => {
