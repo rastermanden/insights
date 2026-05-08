@@ -84,7 +84,7 @@
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
+            transition: background-color 0.15s ease;
             min-width: 80px;
         }
 
@@ -95,17 +95,60 @@
 
         #enterBtn:hover {
             background: #0050e6;
-            transform: translateY(-2px);
         }
 
         #clearBtn {
-            background: #8c8c8c;
+            background: #161616;
             color: white;
         }
 
         #clearBtn:hover {
-            background: #525252;
-            transform: translateY(-2px);
+            background: #393939;
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            margin: 20px 0;
+            background: #e0e0e0;
+            border: 1px solid #e0e0e0;
+        }
+
+        .keypad button {
+            min-width: 0;
+            padding: 16px 0;
+            font-size: 16px;
+            font-weight: 400;
+            letter-spacing: 0.16px;
+            min-height: 48px;
+        }
+
+        .keypad .key-num {
+            background: #ffffff;
+            color: #161616;
+        }
+
+        .keypad .key-num:hover {
+            background: #f4f4f4;
+        }
+
+        .keypad .key-back {
+            background: #f4f4f4;
+            color: #161616;
+        }
+
+        .keypad .key-back:hover {
+            background: #e0e0e0;
+        }
+
+        .keypad .key-op {
+            background: #161616;
+            color: #ffffff;
+        }
+
+        .keypad .key-op:hover {
+            background: #393939;
         }
 
         #stackDisplay {
@@ -198,6 +241,12 @@
                 min-width: 70px;
             }
 
+            .keypad button {
+                padding: 14px 0;
+                font-size: 15px;
+                min-width: 0;
+            }
+
             #stackDisplay {
                 padding: 15px;
                 font-size: 13px;
@@ -245,6 +294,13 @@
                 min-width: 60px;
             }
 
+            .keypad button {
+                padding: 12px 0;
+                font-size: 14px;
+                min-width: 0;
+                min-height: 44px;
+            }
+
             #stackDisplay {
                 padding: 10px;
                 font-size: 12px;
@@ -288,7 +344,29 @@
             <label for="input">Enter number or operator:</label>
             <input type="text" id="input" placeholder="e.g., 3, +, -" aria-label="Enter number or operator">
         </div>
-        
+
+        <div class="keypad" role="group" aria-label="Calculator keypad">
+            <button type="button" class="key-num" data-digit="7">7</button>
+            <button type="button" class="key-num" data-digit="8">8</button>
+            <button type="button" class="key-num" data-digit="9">9</button>
+            <button type="button" class="key-op" data-op="+" aria-label="Add">+</button>
+
+            <button type="button" class="key-num" data-digit="4">4</button>
+            <button type="button" class="key-num" data-digit="5">5</button>
+            <button type="button" class="key-num" data-digit="6">6</button>
+            <button type="button" class="key-op" data-op="-" aria-label="Subtract">−</button>
+
+            <button type="button" class="key-num" data-digit="1">1</button>
+            <button type="button" class="key-num" data-digit="2">2</button>
+            <button type="button" class="key-num" data-digit="3">3</button>
+            <button type="button" class="key-op" data-op="*" aria-label="Multiply">×</button>
+
+            <button type="button" class="key-num" data-digit="0">0</button>
+            <button type="button" class="key-num" data-digit=".">.</button>
+            <button type="button" class="key-back" id="backBtn" aria-label="Backspace">⌫</button>
+            <button type="button" class="key-op" data-op="/" aria-label="Divide">÷</button>
+        </div>
+
         <div class="button-group">
             <button id="enterBtn" aria-label="Process input">Enter</button>
             <button id="clearBtn" aria-label="Clear stack">Clear</button>
@@ -395,6 +473,7 @@
 
         const enterBtn = document.getElementById('enterBtn');
         const clearBtn = document.getElementById('clearBtn');
+        const backBtn = document.getElementById('backBtn');
         const inputField = document.getElementById('input');
 
         enterBtn.addEventListener('click', processInput);
@@ -403,6 +482,31 @@
             if (e.key === 'Enter') {
                 processInput();
             }
+        });
+
+        document.querySelectorAll('.keypad [data-digit]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const d = btn.dataset.digit;
+                if (d === '.' && inputField.value.includes('.')) return;
+                inputField.value += d;
+                inputField.focus();
+            });
+        });
+
+        document.querySelectorAll('.keypad [data-op]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (inputField.value.trim() !== '') {
+                    calculator.process(inputField.value);
+                    inputField.value = '';
+                }
+                calculator.process(btn.dataset.op);
+                inputField.focus();
+            });
+        });
+
+        backBtn.addEventListener('click', () => {
+            inputField.value = inputField.value.slice(0, -1);
+            inputField.focus();
         });
     </script>
 </body>
