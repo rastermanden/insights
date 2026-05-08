@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Central Limit Theorem</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff, #f3f4f6);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            margin: 0;
+            padding: 20px 10px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 820px;
+            max-width: 100%;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            box-sizing: border-box;
+        }
+
+        h2 {
+            color: #1e3a8a;
+            text-align: center;
+            margin: 0 0 6px;
+            font-size: 24px;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 22px;
+        }
+
+        h3 {
+            color: #1e3a8a;
+            font-size: 16px;
+            margin: 24px 0 10px;
+        }
+
+        .scenarios {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .scenarios button {
+            flex: 1 1 auto;
+            min-width: 120px;
+            padding: 10px 12px;
+            border: 1px solid #dbeafe;
+            background: #eff6ff;
+            color: #1e3a8a;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.15s, box-shadow 0.2s;
+        }
+
+        .scenarios button:hover {
+            background: #dbeafe;
+            transform: translateY(-1px);
+        }
+
+        .scenarios button.active {
+            background: #1e3a8a;
+            color: white;
+            border-color: #1e3a8a;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px 22px;
+            margin-bottom: 22px;
+        }
+
+        .control-row {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .control-row .row-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .control-row label {
+            color: #4b5563;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .control-row .value {
+            color: #1f2937;
+            font-size: 13px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .control-row input[type="range"] {
+            width: 100%;
+            accent-color: #1e3a8a;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .actions button {
+            flex: 1 1 auto;
+            min-width: 60px;
+            padding: 8px 10px;
+            border: 1px solid #dbeafe;
+            background: #eff6ff;
+            color: #1e3a8a;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.15s;
+        }
+
+        .actions button:hover {
+            background: #dbeafe;
+        }
+
+        .actions button.reset {
+            background: #fef2f2;
+            color: #991b1b;
+            border-color: #fecaca;
+        }
+
+        .actions button.reset:hover {
+            background: #fee2e2;
+        }
+
+        .chart-wrap {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 14px 12px 8px;
+            margin-bottom: 14px;
+        }
+
+        .chart-title {
+            color: #374151;
+            font-size: 13px;
+            font-weight: 600;
+            margin: 0 4px 6px;
+        }
+
+        .chart-note {
+            color: #6b7280;
+            font-size: 12px;
+            margin: 4px 4px 0;
+        }
+
+        svg {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .results {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 16px 0 8px;
+        }
+
+        .stat {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 10px 12px;
+        }
+
+        .stat .label {
+            color: #6b7280;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .stat .num {
+            color: #1f2937;
+            font-size: 18px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            margin-top: 2px;
+        }
+
+        .stat .num.muted {
+            color: #9ca3af;
+        }
+
+        .explainer {
+            margin-top: 26px;
+            padding: 18px 20px;
+            background: #eff6ff;
+            border: 1px solid #dbeafe;
+            border-radius: 10px;
+        }
+
+        .explainer p {
+            color: #374151;
+            font-size: 13.5px;
+            line-height: 1.55;
+            margin: 0 0 10px;
+        }
+
+        .explainer p:last-child {
+            margin-bottom: 0;
+        }
+
+        .explainer code {
+            background: #dbeafe;
+            color: #1e3a8a;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 12.5px;
+        }
+
+        .explainer .tag {
+            display: inline-block;
+            background: #1e3a8a;
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-right: 6px;
+            vertical-align: 1px;
+        }
+
+        @media (max-width: 600px) {
+            .controls { grid-template-columns: 1fr; }
+            .results { grid-template-columns: 1fr 1fr; }
+            .container { padding: 18px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Central Limit Theorem</h2>
+        <p class="subtitle">No matter how strange the source distribution is, the average of many samples drifts toward a bell curve.</p>
+
+        <h3>Pick a population to draw from</h3>
+        <div class="scenarios" id="sources">
+            <button data-source="uniform">Uniform</button>
+            <button data-source="exponential" class="active">Exponential (skewed)</button>
+            <button data-source="bimodal">Bimodal</button>
+            <button data-source="dice">Single die</button>
+        </div>
+
+        <div class="controls">
+            <div class="control-row">
+                <div class="row-head">
+                    <label for="n">Sample size (n) — values averaged per draw</label>
+                    <span class="value" id="nVal">5</span>
+                </div>
+                <input type="range" id="n" min="1" max="100" step="1" value="5">
+            </div>
+            <div class="control-row">
+                <div class="row-head">
+                    <label>Draw sample means</label>
+                    <span class="value" id="drawnVal">0 drawn</span>
+                </div>
+                <div class="actions">
+                    <button id="draw1">+1</button>
+                    <button id="draw100">+100</button>
+                    <button id="draw1000">+1000</button>
+                    <button id="reset" class="reset">Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-wrap">
+            <p class="chart-title">Population — what each individual value is drawn from</p>
+            <svg id="popChart" viewBox="0 0 600 200" aria-label="Population distribution"></svg>
+            <p class="chart-note">Red dots show the most recent sample of <span id="nNote">n=5</span> values; the blue diamond is their mean.</p>
+        </div>
+
+        <div class="chart-wrap">
+            <p class="chart-title">Sampling distribution of the mean — one bar per observed sample mean</p>
+            <svg id="meanChart" viewBox="0 0 600 240" aria-label="Sampling distribution of the mean"></svg>
+            <p class="chart-note">Bars: histogram of all sample means drawn so far. Dashed curve: the theoretical normal <strong>N(μ, σ/√n)</strong> the CLT predicts.</p>
+        </div>
+
+        <div class="results">
+            <div class="stat">
+                <div class="label">Population μ</div>
+                <div class="num" id="muOut">—</div>
+            </div>
+            <div class="stat">
+                <div class="label">Population σ</div>
+                <div class="num" id="sigmaOut">—</div>
+            </div>
+            <div class="stat">
+                <div class="label">Predicted SE = σ/√n</div>
+                <div class="num" id="seOut">—</div>
+            </div>
+            <div class="stat">
+                <div class="label">Means drawn (k)</div>
+                <div class="num" id="kOut">0</div>
+            </div>
+            <div class="stat">
+                <div class="label">Observed mean of means</div>
+                <div class="num" id="meanOut">—</div>
+            </div>
+            <div class="stat">
+                <div class="label">Observed SD of means</div>
+                <div class="num" id="sdOut">—</div>
+            </div>
+        </div>
+
+        <div class="explainer">
+            <h3 style="margin-top:0">What you're seeing</h3>
+            <p><span class="tag">THE CLAIM</span>Pick any population with mean <code>μ</code> and finite SD <code>σ</code>. Draw <code>n</code> values, average them, and call that one sample mean. Repeat many times. The histogram of those sample means tends toward a normal distribution centred at <code>μ</code> with SD <code>σ/√n</code> — even when the population itself is skewed, bimodal, or discrete.</p>
+            <p><span class="tag">TRY n = 1</span>With sample size 1, the "average" is just one observation, so the second chart has the same shape as the population. No magic yet.</p>
+            <p><span class="tag">TRY n = 5</span>Already the exponential's long right tail starts pulling in. The bimodal's two peaks merge into one bump. The dice histogram becomes triangular.</p>
+            <p><span class="tag">TRY n = 30+</span>The histogram closely tracks the dashed normal curve in every case. Thirty is the rule-of-thumb threshold textbooks use for "the CLT has kicked in."</p>
+            <p><span class="tag">SHRINKAGE</span>The spread of the sample means is <code>σ/√n</code>. To halve the spread, you need <em>four times</em> the sample size. That's why precision is expensive — and why the bottom histogram becomes a tighter spike as you slide n upward.</p>
+            <p><span class="tag">WHY IT MATTERS</span>Confidence intervals, p-values, A/B tests, polling margins of error, and the <em>"± 1.96 standard errors"</em> recipe all rest on this theorem. The Bayes, Risk/NNT, and P-Value demos in this set quietly assume a normal sampling distribution — this is where it comes from.</p>
+        </div>
+    </div>
+
+    <script>
+        // --- RNG helpers ---
+        function randn() {
+            const u = Math.max(1e-12, Math.random());
+            const v = Math.random();
+            return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+        }
+        function normalPDF(x, mu, sigma) {
+            const z = (x - mu) / sigma;
+            return Math.exp(-0.5 * z * z) / (sigma * Math.sqrt(2 * Math.PI));
+        }
+
+        // --- Source distributions ---
+        // Bimodal: 0.5 N(2, 0.7^2) + 0.5 N(8, 0.7^2)
+        // E[X^2] = 0.5*(4 + 0.49) + 0.5*(64 + 0.49) = 34.49; var = 34.49 - 25 = 9.49
+        const SOURCES = {
+            uniform: {
+                label: 'Uniform [0, 10]',
+                mean: 5,
+                sd: 10 / Math.sqrt(12),
+                range: [0, 10],
+                sample: () => Math.random() * 10,
+                pdf: x => (x >= 0 && x <= 10) ? 0.1 : 0,
+                pdfMax: 0.13
+            },
+            exponential: {
+                label: 'Exponential (λ = 0.5)',
+                mean: 2,
+                sd: 2,
+                range: [0, 14],
+                sample: () => -Math.log(Math.max(1e-12, 1 - Math.random())) / 0.5,
+                pdf: x => x >= 0 ? 0.5 * Math.exp(-0.5 * x) : 0,
+                pdfMax: 0.55
+            },
+            bimodal: {
+                label: 'Bimodal (two peaks)',
+                mean: 5,
+                sd: Math.sqrt(9.49),
+                range: [-2, 12],
+                sample: () => {
+                    const z = randn();
+                    return Math.random() < 0.5 ? (2 + 0.7 * z) : (8 + 0.7 * z);
+                },
+                pdf: x => 0.5 * normalPDF(x, 2, 0.7) + 0.5 * normalPDF(x, 8, 0.7),
+                pdfMax: 0.32
+            },
+            dice: {
+                label: 'Single fair die (1–6)',
+                mean: 3.5,
+                sd: Math.sqrt(35 / 12),
+                range: [0.5, 6.5],
+                sample: () => Math.floor(Math.random() * 6) + 1,
+                discrete: true,
+                discreteValues: [1, 2, 3, 4, 5, 6].map(v => ({ x: v, p: 1 / 6 })),
+                pdfMax: 0.20
+            }
+        };
+
+        // --- State ---
+        const state = {
+            source: 'exponential',
+            n: 5,
+            means: [],
+            lastSample: []
+        };
+
+        // --- DOM ---
+        const els = {
+            sources: document.getElementById('sources'),
+            n: document.getElementById('n'),
+            nVal: document.getElementById('nVal'),
+            nNote: document.getElementById('nNote'),
+            drawnVal: document.getElementById('drawnVal'),
+            draw1: document.getElementById('draw1'),
+            draw100: document.getElementById('draw100'),
+            draw1000: document.getElementById('draw1000'),
+            reset: document.getElementById('reset'),
+            popChart: document.getElementById('popChart'),
+            meanChart: document.getElementById('meanChart'),
+            muOut: document.getElementById('muOut'),
+            sigmaOut: document.getElementById('sigmaOut'),
+            seOut: document.getElementById('seOut'),
+            kOut: document.getElementById('kOut'),
+            meanOut: document.getElementById('meanOut'),
+            sdOut: document.getElementById('sdOut')
+        };
+
+        // --- Helpers ---
+        function fmt(x, d = 2) {
+            if (!isFinite(x)) return '—';
+            return (+x.toFixed(d)).toString();
+        }
+
+        function niceStep(range) {
+            const rough = range / 6;
+            const mag = Math.pow(10, Math.floor(Math.log10(rough)));
+            const norm = rough / mag;
+            let step;
+            if (norm < 1.5) step = 1;
+            else if (norm < 3) step = 2;
+            else if (norm < 7) step = 5;
+            else step = 10;
+            return step * mag;
+        }
+
+        function xTicks(xmin, xmax, xS, yBase, m, pw) {
+            const step = niceStep(xmax - xmin);
+            const tStart = Math.ceil(xmin / step) * step;
+            const ticks = [];
+            for (let t = tStart; t <= xmax + 1e-9; t += step) ticks.push(+t.toFixed(6));
+            return ticks.map(t => {
+                const x = xS(t);
+                return `<line x1="${x}" y1="${yBase}" x2="${x}" y2="${yBase + 4}" stroke="#9ca3af"/>` +
+                       `<text x="${x}" y="${yBase + 16}" text-anchor="middle" font-size="11" fill="#6b7280">${t}</text>`;
+            }).join('');
+        }
+
+        // --- Population chart ---
+        function drawPopChart() {
+            const src = SOURCES[state.source];
+            const w = 600, h = 200;
+            const m = { l: 36, r: 18, t: 16, b: 38 };
+            const pw = w - m.l - m.r;
+            const ph = h - m.t - m.b;
+            const [xmin, xmax] = src.range;
+            const xS = v => m.l + (v - xmin) / (xmax - xmin) * pw;
+            const ymax = src.pdfMax;
+            const yS = v => m.t + ph - v / ymax * ph;
+
+            // Density: bars for discrete, curve+fill for continuous
+            let densityMarkup;
+            if (src.discrete) {
+                densityMarkup = src.discreteValues.map(({ x, p }) => {
+                    const barW = (xS(x + 0.5) - xS(x - 0.5)) * 0.86;
+                    const cx = xS(x);
+                    const y0 = yS(p);
+                    const y1 = yS(0);
+                    return `<rect x="${cx - barW / 2}" y="${y0}" width="${barW}" height="${(y1 - y0).toFixed(1)}" fill="#3b82f6" fill-opacity="0.45" stroke="#1e3a8a" stroke-width="1"/>`;
+                }).join('');
+            } else {
+                const N = 220;
+                const pts = [];
+                for (let i = 0; i <= N; i++) {
+                    const xv = xmin + (xmax - xmin) * i / N;
+                    pts.push([xS(xv), yS(src.pdf(xv))]);
+                }
+                const curvePath = pts.map((p, i) => (i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+                const fillPath = `M${pts[0][0].toFixed(1)} ${(m.t + ph).toFixed(1)} L` +
+                                 pts.map(p => p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' L') +
+                                 ` L${pts[pts.length - 1][0].toFixed(1)} ${(m.t + ph).toFixed(1)} Z`;
+                densityMarkup =
+                    `<path d="${fillPath}" fill="#3b82f6" fill-opacity="0.18" stroke="none"/>` +
+                    `<path d="${curvePath}" fill="none" stroke="#1e3a8a" stroke-width="2"/>`;
+            }
+
+            // Population mean line
+            const meanX = xS(src.mean);
+            const meanLine =
+                `<line x1="${meanX}" y1="${m.t}" x2="${meanX}" y2="${m.t + ph}" stroke="#1e3a8a" stroke-width="1.5" stroke-dasharray="4 3"/>` +
+                `<text x="${meanX}" y="${m.t + 12}" text-anchor="middle" font-size="11" font-weight="700" fill="#1e3a8a">μ = ${fmt(src.mean, 2)}</text>`;
+
+            // Last sample marks
+            let sampleMarkup = '';
+            if (state.lastSample.length > 0) {
+                const yDot = m.t + ph - 6;
+                sampleMarkup = state.lastSample.map(x => {
+                    const cx = xS(Math.max(xmin, Math.min(xmax, x)));
+                    return `<circle cx="${cx.toFixed(1)}" cy="${yDot}" r="3.6" fill="#dc2626" fill-opacity="0.75" stroke="white" stroke-width="1"/>`;
+                }).join('');
+                const sm = state.lastSample.reduce((s, v) => s + v, 0) / state.lastSample.length;
+                const cx = xS(Math.max(xmin, Math.min(xmax, sm))).toFixed(1);
+                const cy = (m.t + ph - 18).toFixed(1);
+                sampleMarkup += `<g transform="rotate(45 ${cx} ${cy})"><rect x="${cx - 6}" y="${cy - 6}" width="12" height="12" fill="#1e3a8a" stroke="white" stroke-width="1.5"/></g>`;
+            }
+
+            // Frame & ticks
+            const frame = `<rect x="${m.l}" y="${m.t}" width="${pw}" height="${ph}" fill="white" stroke="#e5e7eb"/>`;
+            const ticks = xTicks(xmin, xmax, xS, m.t + ph, m, pw);
+            const xLabel = `<text x="${m.l + pw / 2}" y="${h - 6}" text-anchor="middle" font-size="12" fill="#4b5563">value of an individual draw</text>`;
+
+            els.popChart.innerHTML = frame + densityMarkup + meanLine + sampleMarkup + ticks + xLabel;
+        }
+
+        // --- Sampling distribution chart ---
+        function drawMeanChart() {
+            const src = SOURCES[state.source];
+            const w = 600, h = 240;
+            const m = { l: 36, r: 18, t: 18, b: 38 };
+            const pw = w - m.l - m.r;
+            const ph = h - m.t - m.b;
+            const [xmin, xmax] = src.range;
+            const xS = v => m.l + (v - xmin) / (xmax - xmin) * pw;
+
+            const numBins = 60;
+            const binW = (xmax - xmin) / numBins;
+            const counts = new Array(numBins).fill(0);
+            for (const mv of state.means) {
+                const idx = Math.floor((mv - xmin) / binW);
+                if (idx >= 0 && idx < numBins) counts[idx]++;
+            }
+            const total = state.means.length;
+            const densities = counts.map(c => total > 0 ? c / (total * binW) : 0);
+
+            const se = src.sd / Math.sqrt(state.n);
+            const theoMax = 1 / (se * Math.sqrt(2 * Math.PI));
+            const observedMax = densities.reduce((a, b) => Math.max(a, b), 0);
+            const ymax = Math.max(theoMax, observedMax) * 1.18;
+            const yS = v => m.t + ph - v / ymax * ph;
+
+            // Bars
+            let bars = '';
+            for (let i = 0; i < numBins; i++) {
+                if (densities[i] > 0) {
+                    const x0 = xS(xmin + i * binW);
+                    const x1 = xS(xmin + (i + 1) * binW);
+                    const y0 = yS(densities[i]);
+                    const y1 = yS(0);
+                    bars += `<rect x="${x0.toFixed(1)}" y="${y0.toFixed(1)}" width="${(x1 - x0).toFixed(1)}" height="${(y1 - y0).toFixed(1)}" fill="#3b82f6" fill-opacity="0.55" stroke="#1e3a8a" stroke-width="0.4"/>`;
+                }
+            }
+
+            // Theoretical normal curve
+            const N = 240;
+            const pts = [];
+            for (let i = 0; i <= N; i++) {
+                const xv = xmin + (xmax - xmin) * i / N;
+                pts.push([xS(xv), yS(normalPDF(xv, src.mean, se))]);
+            }
+            const curvePath = pts.map((p, i) => (i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+
+            // Mean line
+            const meanX = xS(src.mean);
+            const meanLine =
+                `<line x1="${meanX}" y1="${m.t}" x2="${meanX}" y2="${m.t + ph}" stroke="#1e3a8a" stroke-width="1.5" stroke-dasharray="4 3"/>` +
+                `<text x="${meanX}" y="${m.t + 12}" text-anchor="middle" font-size="11" font-weight="700" fill="#1e3a8a">μ = ${fmt(src.mean, 2)}</text>`;
+
+            // SE bracket: μ ± 2·SE around the predicted normal
+            const lo = src.mean - 2 * se;
+            const hi = src.mean + 2 * se;
+            const yBracket = m.t + ph + 22;
+            const seBracket =
+                `<line x1="${xS(lo)}" y1="${yBracket}" x2="${xS(hi)}" y2="${yBracket}" stroke="#dc2626" stroke-width="2"/>` +
+                `<line x1="${xS(lo)}" y1="${yBracket - 4}" x2="${xS(lo)}" y2="${yBracket + 4}" stroke="#dc2626" stroke-width="2"/>` +
+                `<line x1="${xS(hi)}" y1="${yBracket - 4}" x2="${xS(hi)}" y2="${yBracket + 4}" stroke="#dc2626" stroke-width="2"/>` +
+                `<text x="${xS(src.mean)}" y="${yBracket - 6}" text-anchor="middle" font-size="10" fill="#991b1b">μ ± 2·σ/√n</text>`;
+
+            // Frame & ticks
+            const frame = `<rect x="${m.l}" y="${m.t}" width="${pw}" height="${ph}" fill="white" stroke="#e5e7eb"/>`;
+            const ticks = xTicks(xmin, xmax, xS, m.t + ph, m, pw);
+            const xLabel = `<text x="${m.l + pw / 2}" y="${h - 4}" text-anchor="middle" font-size="12" fill="#4b5563">sample mean (average of n draws)</text>`;
+
+            const theoCurve = `<path d="${curvePath}" fill="none" stroke="#dc2626" stroke-width="2.2" stroke-dasharray="6 4"/>`;
+
+            els.meanChart.innerHTML = frame + bars + theoCurve + meanLine + seBracket + ticks + xLabel;
+        }
+
+        // --- Stats panel ---
+        function updateStats() {
+            const src = SOURCES[state.source];
+            els.muOut.textContent = fmt(src.mean, 2);
+            els.sigmaOut.textContent = fmt(src.sd, 2);
+            els.seOut.textContent = fmt(src.sd / Math.sqrt(state.n), 3);
+            els.kOut.textContent = state.means.length.toString();
+
+            if (state.means.length === 0) {
+                els.meanOut.textContent = '—';
+                els.sdOut.textContent = '—';
+                els.meanOut.classList.add('muted');
+                els.sdOut.classList.add('muted');
+            } else {
+                const k = state.means.length;
+                const mean = state.means.reduce((s, v) => s + v, 0) / k;
+                let sumSq = 0;
+                for (const m of state.means) sumSq += (m - mean) * (m - mean);
+                const sd = k > 1 ? Math.sqrt(sumSq / (k - 1)) : 0;
+                els.meanOut.textContent = fmt(mean, 3);
+                els.sdOut.textContent = k > 1 ? fmt(sd, 3) : '—';
+                els.meanOut.classList.remove('muted');
+                els.sdOut.classList.remove('muted');
+            }
+        }
+
+        // --- Drawing samples ---
+        function drawSamples(k) {
+            const src = SOURCES[state.source];
+            const n = state.n;
+            let lastSample = [];
+            for (let i = 0; i < k; i++) {
+                let sum = 0;
+                const isLast = (i === k - 1);
+                if (isLast) lastSample = new Array(n);
+                for (let j = 0; j < n; j++) {
+                    const x = src.sample();
+                    sum += x;
+                    if (isLast) lastSample[j] = x;
+                }
+                state.means.push(sum / n);
+            }
+            state.lastSample = lastSample;
+            render();
+        }
+
+        function reset() {
+            state.means = [];
+            state.lastSample = [];
+            render();
+        }
+
+        // --- Render ---
+        function render() {
+            els.nVal.textContent = state.n.toString();
+            els.nNote.textContent = 'n=' + state.n;
+            els.drawnVal.textContent = state.means.length.toLocaleString() + ' drawn';
+            drawPopChart();
+            drawMeanChart();
+            updateStats();
+        }
+
+        // --- Wire up ---
+        els.sources.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                els.sources.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.source = btn.dataset.source;
+                state.means = [];
+                state.lastSample = [];
+                render();
+            });
+        });
+
+        els.n.addEventListener('input', () => {
+            state.n = +els.n.value;
+            // Changing n invalidates accumulated means (they were averages of a different size)
+            state.means = [];
+            state.lastSample = [];
+            render();
+        });
+
+        els.draw1.addEventListener('click', () => drawSamples(1));
+        els.draw100.addEventListener('click', () => drawSamples(100));
+        els.draw1000.addEventListener('click', () => drawSamples(1000));
+        els.reset.addEventListener('click', reset);
+
+        // Initial paint
+        render();
+    </script>
+</body>
+</html>
