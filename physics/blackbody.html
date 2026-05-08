@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blackbody Spectrum (Planck's Law)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff, #f3f4f6);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .calculator {
+            width: 520px;
+            max-width: 100%;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: #1e3a8a;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 22px;
+            letter-spacing: 0.5px;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        label {
+            flex: 1;
+            color: #4b5563;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        input[type="range"] {
+            width: 140px;
+            -webkit-appearance: none;
+            background: #d1d5db;
+            border-radius: 8px;
+            height: 6px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #3b82f6;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: #3b82f6;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .value-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .arrow-btn {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            background: #1e3a8a;
+            color: white;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .arrow-btn.down {
+            background: #9ca3af;
+        }
+
+        .arrow-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .preset-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin: 10px 0 5px;
+        }
+
+        .preset-row button {
+            flex: 1 1 auto;
+            padding: 6px 8px;
+            font-size: 12px;
+            border: 1px solid #dbeafe;
+            border-radius: 6px;
+            background: #eff6ff;
+            color: #1e3a8a;
+            cursor: pointer;
+        }
+
+        .preset-row button:hover {
+            background: #dbeafe;
+        }
+
+        .results {
+            margin-top: 20px;
+            padding: 15px 20px;
+            background: #f9fafb;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .results .row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+        }
+
+        .results .row span:last-child {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .swatch {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            vertical-align: middle;
+            border-radius: 3px;
+            margin-left: 6px;
+            border: 1px solid #d1d5db;
+        }
+
+        canvas {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .explanation {
+            margin-top: 20px;
+            padding: 15px;
+            background: #eff6ff;
+            border-radius: 10px;
+            border: 1px solid #dbeafe;
+        }
+
+        .explanation h2 {
+            color: #1e3a8a;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .explanation p, .explanation ul {
+            color: #6b7280;
+            font-size: 13px;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h1>Blackbody Spectrum (Planck's Law)</h1>
+        <div class="slider-container">
+            <label for="tempSlider">Temperature (K):</label>
+            <input type="range" id="tempSlider" min="500" max="12000" step="50" value="5778" aria-label="Adjust temperature in Kelvin">
+            <div class="value-container">
+                <span id="tempValue">5778</span>
+                <button id="upBtn" class="arrow-btn" aria-label="Increase temperature">↑</button>
+                <button id="downBtn" class="arrow-btn down" aria-label="Decrease temperature">↓</button>
+            </div>
+        </div>
+        <div class="preset-row" id="presetRow"></div>
+        <div class="results">
+            <div class="row"><span>Peak wavelength (Wien)</span><span id="peakDisplay">501 nm</span></div>
+            <div class="row"><span>Total radiated power (Stefan-Boltzmann)</span><span id="powerDisplay">— W/m²</span></div>
+            <div class="row"><span>Approximate visible color</span><span><span id="colorName">white</span><span id="colorSwatch" class="swatch"></span></span></div>
+        </div>
+        <canvas id="spectrumChart" height="220"></canvas>
+        <div class="explanation">
+            <h2>Formula</h2>
+            <p>Planck's law gives the spectral radiance \( B_\lambda \) of a blackbody at temperature \( T \) per unit wavelength:</p>
+            \[ B_\lambda(T) = \frac{2 h c^2}{\lambda^5} \cdot \frac{1}{e^{hc/(\lambda k_B T)} - 1} \]
+            <p>Two consequences fall out by integrating or differentiating:</p>
+            <ul>
+                <li><b>Wien's displacement law:</b> \( \lambda_\text{max} = b / T \), with \( b \approx 2.898\times10^{-3}\,\text{m·K} \). Hotter objects peak at shorter wavelengths.</li>
+                <li><b>Stefan-Boltzmann law:</b> \( P = \sigma T^4 \). Total radiated power per unit area scales as \( T^4 \).</li>
+            </ul>
+            <p>The Sun's surface (~5778 K) peaks in the visible green-blue (~500 nm). Incandescent bulbs (~2800 K) peak in infrared, which is why most of their energy becomes heat, not light.</p>
+        </div>
+    </div>
+
+    <script>
+        // Constants (SI)
+        const h = 6.62607015e-34;     // Planck constant J·s
+        const c = 2.99792458e8;       // speed of light m/s
+        const kB = 1.380649e-23;      // Boltzmann constant J/K
+        const sigma = 5.670374419e-8; // Stefan-Boltzmann W/m²/K⁴
+        const wienB = 2.897771955e-3; // Wien displacement m·K
+
+        const tempSlider = document.getElementById('tempSlider');
+        const tempValue = document.getElementById('tempValue');
+        const peakDisplay = document.getElementById('peakDisplay');
+        const powerDisplay = document.getElementById('powerDisplay');
+        const colorName = document.getElementById('colorName');
+        const colorSwatch = document.getElementById('colorSwatch');
+
+        // Spectral radiance per nm (W·sr⁻¹·m⁻²·nm⁻¹)
+        function planck(lambdaNm, T) {
+            const lambda = lambdaNm * 1e-9;
+            const exponent = (h * c) / (lambda * kB * T);
+            const denom = Math.exp(exponent) - 1;
+            const B = (2 * h * c * c) / Math.pow(lambda, 5) / denom; // per metre
+            return B * 1e-9; // convert to per nm for friendlier numbers
+        }
+
+        // Sample wavelengths logarithmically from 100 nm (UV) to 5000 nm (mid-IR)
+        const wavelengths = [];
+        const logMin = Math.log10(100);
+        const logMax = Math.log10(5000);
+        const steps = 240;
+        for (let i = 0; i <= steps; i++) {
+            const lambda = Math.pow(10, logMin + (logMax - logMin) * i / steps);
+            wavelengths.push(lambda);
+        }
+
+        // CIE-ish wavelength → approximate sRGB (Bruton's algorithm)
+        function wavelengthToRGB(lambda) {
+            let r = 0, g = 0, b = 0;
+            if (lambda >= 380 && lambda < 440) { r = -(lambda - 440) / 60; b = 1; }
+            else if (lambda < 490) { g = (lambda - 440) / 50; b = 1; }
+            else if (lambda < 510) { g = 1; b = -(lambda - 510) / 20; }
+            else if (lambda < 580) { r = (lambda - 510) / 70; g = 1; }
+            else if (lambda < 645) { r = 1; g = -(lambda - 645) / 65; }
+            else if (lambda <= 780) { r = 1; }
+            let factor = 0;
+            if (lambda >= 380 && lambda < 420) factor = 0.3 + 0.7 * (lambda - 380) / 40;
+            else if (lambda < 700) factor = 1;
+            else if (lambda <= 780) factor = 0.3 + 0.7 * (780 - lambda) / 80;
+            const gamma = 0.8;
+            const toByte = x => Math.round(255 * Math.pow(x * factor, gamma));
+            return [toByte(r), toByte(g), toByte(b)];
+        }
+
+        // Approximate blackbody color via summing visible spectrum × emission
+        function blackbodyColor(T) {
+            let R = 0, G = 0, Bv = 0, total = 0;
+            for (let lam = 380; lam <= 780; lam += 5) {
+                const e = planck(lam, T);
+                const [r, g, b] = wavelengthToRGB(lam);
+                R += r * e; G += g * e; Bv += b * e; total += e;
+            }
+            if (total === 0) return [0, 0, 0];
+            const max = Math.max(R, G, Bv) || 1;
+            return [
+                Math.min(255, Math.round(255 * R / max)),
+                Math.min(255, Math.round(255 * G / max)),
+                Math.min(255, Math.round(255 * Bv / max))
+            ];
+        }
+
+        function colorLabel(T) {
+            if (T < 1500) return 'deep red';
+            if (T < 2500) return 'red-orange';
+            if (T < 3500) return 'warm yellow';
+            if (T < 5000) return 'pale yellow';
+            if (T < 6500) return 'near-white';
+            if (T < 9000) return 'cool white / blue-white';
+            return 'blue';
+        }
+
+        const ctx = document.getElementById('spectrumChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                datasets: [{
+                    label: 'Spectral radiance',
+                    data: wavelengths.map(l => ({ x: l, y: planck(l, 5778) })),
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.15)',
+                    fill: true,
+                    pointRadius: 0,
+                    borderWidth: 2
+                }, {
+                    label: 'Visible band (380–780 nm)',
+                    data: [{ x: 380, y: 0 }, { x: 780, y: 0 }],
+                    borderColor: 'rgba(0,0,0,0)',
+                    backgroundColor: 'rgba(220, 38, 38, 0.08)',
+                    fill: true,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                animation: false,
+                scales: {
+                    x: {
+                        type: 'logarithmic',
+                        position: 'bottom',
+                        min: 100,
+                        max: 5000,
+                        title: { display: true, text: 'Wavelength (nm, log)', color: '#1f2937', font: { size: 13 } },
+                        grid: { color: '#e5e7eb' },
+                        ticks: {
+                            callback: v => [100, 200, 500, 1000, 2000, 5000].includes(v) ? v : ''
+                        }
+                    },
+                    y: {
+                        title: { display: true, text: 'Spectral radiance (W·sr⁻¹·m⁻²·nm⁻¹)', color: '#1f2937', font: { size: 12 } },
+                        grid: { color: '#e5e7eb' }
+                    }
+                },
+                plugins: {
+                    legend: { labels: { color: '#1f2937' } },
+                    title: { display: true, text: 'Planck Spectrum', color: '#1e3a8a', font: { size: 15 } }
+                }
+            }
+        });
+
+        function update() {
+            const T = parseFloat(tempSlider.value);
+            tempValue.textContent = T.toFixed(0);
+
+            const lambdaMaxNm = (wienB / T) * 1e9;
+            peakDisplay.textContent = lambdaMaxNm < 1000
+                ? `${lambdaMaxNm.toFixed(0)} nm`
+                : `${(lambdaMaxNm / 1000).toFixed(2)} µm`;
+
+            const power = sigma * Math.pow(T, 4);
+            powerDisplay.textContent = power >= 1e6
+                ? `${(power / 1e6).toFixed(2)} MW/m²`
+                : `${power.toFixed(0)} W/m²`;
+
+            const data = wavelengths.map(l => ({ x: l, y: planck(l, T) }));
+            chart.data.datasets[0].data = data;
+
+            const peakY = Math.max(...data.map(d => d.y));
+            chart.data.datasets[1].data = [{ x: 380, y: peakY * 1.05 }, { x: 780, y: peakY * 1.05 }];
+            chart.options.scales.y.suggestedMax = peakY * 1.1;
+            chart.update('none');
+
+            const [r, g, b] = blackbodyColor(T);
+            colorSwatch.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+            colorName.textContent = colorLabel(T);
+        }
+
+        function step(dir) {
+            const s = 50;
+            let T = parseFloat(tempSlider.value);
+            T = dir === 'up' ? Math.min(12000, T + s) : Math.max(500, T - s);
+            tempSlider.value = T;
+            update();
+        }
+
+        const presets = [
+            { name: 'Candle 1900 K', T: 1900 },
+            { name: 'Bulb 2800 K', T: 2800 },
+            { name: 'Sun 5778 K', T: 5778 },
+            { name: 'Sirius 9940 K', T: 9940 }
+        ];
+        const presetRow = document.getElementById('presetRow');
+        presets.forEach(p => {
+            const btn = document.createElement('button');
+            btn.textContent = p.name;
+            btn.addEventListener('click', () => { tempSlider.value = p.T; update(); });
+            presetRow.appendChild(btn);
+        });
+
+        tempSlider.addEventListener('input', update);
+        document.getElementById('upBtn').addEventListener('click', () => step('up'));
+        document.getElementById('downBtn').addEventListener('click', () => step('down'));
+
+        update();
+    </script>
+</body>
+</html>
