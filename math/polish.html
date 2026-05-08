@@ -274,6 +274,22 @@
             }
         }
 
+        .keypad button.key-pressed,
+        #enterBtn.key-pressed {
+            background: #0f62fe;
+            color: #ffffff;
+            transform: scale(0.94);
+            transition: background-color 60ms ease-out, color 60ms ease-out, transform 60ms ease-out;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .keypad button.key-pressed,
+            #enterBtn.key-pressed {
+                transform: none;
+                transition: none;
+            }
+        }
+
         .instructions {
             margin-top: 20px;
             padding: 15px;
@@ -955,6 +971,13 @@
         let exampleRunning = false;
         const sleep = ms => new Promise(r => setTimeout(r, ms));
 
+        function flashKey(selector) {
+            const btn = document.querySelector(selector);
+            if (!btn) return;
+            btn.classList.add('key-pressed');
+            setTimeout(() => btn.classList.remove('key-pressed'), 180);
+        }
+
         async function runExample(presses) {
             if (exampleRunning) return;
             exampleRunning = true;
@@ -968,10 +991,12 @@
                 if (p === '↵') {
                     if (calculator.buffer !== '') {
                         await sleep(300);
+                        flashKey('#enterBtn');
                         await calculator.enter();
                     }
                 } else if (/[0-9.]/.test(p)) {
                     await sleep(280);
+                    flashKey(`.keypad [data-digit="${p}"]`);
                     calculator.inputDigit(p);
                 } else {
                     if (calculator.buffer !== '') {
@@ -979,6 +1004,7 @@
                     } else {
                         await sleep(280);
                     }
+                    flashKey(`.keypad [data-op="${p}"]`);
                     await calculator.applyOp(p);
                 }
             }
