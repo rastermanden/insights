@@ -36,39 +36,6 @@
             letter-spacing: 1px;
         }
 
-        .input-group {
-            display: flex;
-            align-items: center;
-            margin: 15px 0;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        label {
-            flex: 1;
-            color: #525252;
-            font-size: 14px;
-            font-weight: 500;
-            min-width: 120px;
-        }
-
-        input {
-            width: 100px;
-            padding: 8px 12px;
-            border: 1px solid #c6c6c6;
-            border-radius: 0;
-            font-size: 14px;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-            flex-grow: 1;
-            max-width: 200px;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: #0f62fe;
-            box-shadow: none;
-        }
-
         .button-group {
             display: flex;
             justify-content: center;
@@ -219,6 +186,38 @@
             color: #6f6f6f;
             font-size: 12px;
             font-family: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+        }
+
+        .stack-entry {
+            font-family: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+            font-size: 15px;
+            padding: 8px 12px;
+            text-align: right;
+            color: #ffffff;
+            background: #262626;
+            border-bottom: 2px solid #0f62fe;
+            min-height: 20px;
+            flex: 0 0 auto;
+        }
+
+        .stack-entry.empty {
+            color: #6f6f6f;
+        }
+
+        .entry-cursor {
+            display: inline-block;
+            color: #0f62fe;
+            animation: entryBlink 1s step-end infinite;
+        }
+
+        @keyframes entryBlink {
+            50% { opacity: 0; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .entry-cursor {
+                animation: none;
+            }
         }
 
         .stack-item.anim-push {
@@ -442,24 +441,6 @@
                 font-size: 20px;
             }
 
-            .input-group {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 8px;
-            }
-
-            label {
-                font-size: 13px;
-                min-width: unset;
-            }
-
-            input {
-                width: 100%;
-                max-width: unset;
-                font-size: 13px;
-                padding: 6px 10px;
-            }
-
             .button-group {
                 gap: 10px;
             }
@@ -514,19 +495,6 @@
             h2 {
                 font-size: 18px;
                 margin-bottom: 15px;
-            }
-
-            .input-group {
-                margin: 10px 0;
-            }
-
-            label {
-                font-size: 12px;
-            }
-
-            input {
-                font-size: 12px;
-                padding: 5px 8px;
             }
 
             button {
@@ -626,11 +594,6 @@
 <body>
     <div class="calculator">
         <h2>RPN Calculator</h2>
-        
-        <div class="input-group">
-            <label for="input">Enter number or operator:</label>
-            <input type="text" id="input" inputmode="none" placeholder="e.g., 3, +, -" aria-label="Enter number or operator">
-        </div>
 
         <div class="calc-body">
             <div class="keypad" role="group" aria-label="Calculator keypad">
@@ -657,12 +620,13 @@
 
             <div id="stackDisplay" aria-live="polite">
                 <div class="stack-label">Stack</div>
+                <div class="stack-entry empty" id="stackEntry" aria-label="Current entry"><span class="entry-cursor">▏</span></div>
                 <ol class="stack-list" id="stackList"></ol>
             </div>
         </div>
 
         <div class="button-group">
-            <button id="enterBtn" aria-label="Process input">Enter</button>
+            <button id="enterBtn" aria-label="Push entry to stack">Enter</button>
             <button id="clearBtn" aria-label="Clear stack">Clear</button>
         </div>
 
@@ -670,9 +634,9 @@
         
         <div class="instructions">
             <h3>How to Use</h3>
-            <p>Enter numbers or operators (+, -, *, /) one at a time and press Enter or click the Enter button.</p>
-            <p>Example: To calculate 3 + 4, enter: 3 [Enter], 4 [Enter], + [Enter].</p>
-            <p>Results are shown in the stack below. Use the Clear button to reset the stack.</p>
+            <p>Tap digits to build a number — it appears in the highlighted entry slot at the top of the stack.</p>
+            <p>Press <strong>Enter</strong> to push the entry onto the stack. Operator keys (+, −, ×, ÷) push the entry first, then apply.</p>
+            <p>Example: 3 + 4 → tap <code>3</code> <code>Enter</code> <code>4</code> <code>+</code>. Use <strong>Clear</strong> to reset.</p>
         </div>
 
         <div class="examples">
@@ -768,11 +732,44 @@
         class RPNCalculator {
             constructor() {
                 this.stack = [];
+                this.buffer = '';
                 this.errorDisplay = document.getElementById('error');
                 this.stackList = document.getElementById('stackList');
+                this.entryEl = document.getElementById('stackEntry');
                 this.queue = [];
                 this.processing = false;
+                this.renderEntry();
                 this.renderStack();
+            }
+
+            inputDigit(d) {
+                this.errorDisplay.style.display = 'none';
+                if (d === '.' && this.buffer.includes('.')) return;
+                this.buffer += d;
+                this.renderEntry();
+            }
+
+            backspace() {
+                if (this.buffer === '') return;
+                this.buffer = this.buffer.slice(0, -1);
+                this.renderEntry();
+            }
+
+            commitBuffer() {
+                if (this.buffer === '' || this.buffer === '.') return null;
+                const value = this.buffer;
+                this.buffer = '';
+                this.renderEntry();
+                return this.process(value);
+            }
+
+            async enter() {
+                await this.commitBuffer();
+            }
+
+            async applyOp(op) {
+                await this.commitBuffer();
+                await this.process(op);
             }
 
             process(token) {
@@ -799,10 +796,7 @@
                 this.errorDisplay.style.display = 'none';
                 token = (token ?? '').toString().trim();
 
-                if (!token) {
-                    this.showError("Input cannot be empty");
-                    return;
-                }
+                if (!token) return;
 
                 if (!isNaN(Number(token))) {
                     this.stack.push(Number(token));
@@ -850,9 +844,21 @@
 
             clear() {
                 this.stack = [];
+                this.buffer = '';
                 this.queue = [];
                 this.errorDisplay.style.display = 'none';
+                this.renderEntry();
                 this.renderStack();
+            }
+
+            renderEntry() {
+                if (this.buffer === '') {
+                    this.entryEl.classList.add('empty');
+                    this.entryEl.innerHTML = '<span class="entry-cursor">▏</span>';
+                } else {
+                    this.entryEl.classList.remove('empty');
+                    this.entryEl.textContent = this.buffer;
+                }
             }
 
             renderStack({ animateTop = null } = {}) {
@@ -891,52 +897,43 @@
 
         const calculator = new RPNCalculator();
 
-        function processInput() {
-            const input = document.getElementById('input').value;
-            calculator.process(input);
-            document.getElementById('input').value = '';
-        }
-
-        function clearStack() {
-            calculator.clear();
-        }
-
         const enterBtn = document.getElementById('enterBtn');
         const clearBtn = document.getElementById('clearBtn');
         const backBtn = document.getElementById('backBtn');
-        const inputField = document.getElementById('input');
 
-        enterBtn.addEventListener('click', processInput);
-        clearBtn.addEventListener('click', clearStack);
-        inputField.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                processInput();
-            }
-        });
+        enterBtn.addEventListener('click', () => calculator.enter());
+        clearBtn.addEventListener('click', () => calculator.clear());
 
         document.querySelectorAll('.keypad [data-digit]').forEach(btn => {
             btn.addEventListener('click', () => {
-                const d = btn.dataset.digit;
-                if (d === '.' && inputField.value.includes('.')) return;
-                inputField.value += d;
-                inputField.focus();
+                calculator.inputDigit(btn.dataset.digit);
             });
         });
 
         document.querySelectorAll('.keypad [data-op]').forEach(btn => {
             btn.addEventListener('click', () => {
-                if (inputField.value.trim() !== '') {
-                    calculator.process(inputField.value);
-                    inputField.value = '';
-                }
-                calculator.process(btn.dataset.op);
-                inputField.focus();
+                calculator.applyOp(btn.dataset.op);
             });
         });
 
-        backBtn.addEventListener('click', () => {
-            inputField.value = inputField.value.slice(0, -1);
-            inputField.focus();
+        backBtn.addEventListener('click', () => calculator.backspace());
+
+        document.addEventListener('keydown', e => {
+            if (e.target.matches('input, textarea, [contenteditable]')) return;
+            const k = e.key;
+            if (/^[0-9.]$/.test(k)) {
+                calculator.inputDigit(k);
+            } else if (k === 'Enter' || k === '=') {
+                e.preventDefault();
+                calculator.enter();
+            } else if (k === 'Backspace') {
+                e.preventDefault();
+                calculator.backspace();
+            } else if (k === '+' || k === '-' || k === '*' || k === '/') {
+                calculator.applyOp(k);
+            } else if (k === 'Escape') {
+                calculator.clear();
+            }
         });
 
         let exampleRunning = false;
@@ -949,27 +946,24 @@
             runBtns.forEach(b => b.disabled = true);
 
             calculator.clear();
-            inputField.value = '';
             await sleep(300);
 
             for (const p of presses) {
                 if (p === '↵') {
-                    if (inputField.value.trim() !== '') {
+                    if (calculator.buffer !== '') {
                         await sleep(300);
-                        await calculator.process(inputField.value);
-                        inputField.value = '';
+                        await calculator.enter();
                     }
                 } else if (/[0-9.]/.test(p)) {
                     await sleep(280);
-                    inputField.value += p;
+                    calculator.inputDigit(p);
                 } else {
-                    if (inputField.value.trim() !== '') {
+                    if (calculator.buffer !== '') {
                         await sleep(300);
-                        await calculator.process(inputField.value);
-                        inputField.value = '';
+                    } else {
+                        await sleep(280);
                     }
-                    await sleep(280);
-                    await calculator.process(p);
+                    await calculator.applyOp(p);
                 }
             }
 
