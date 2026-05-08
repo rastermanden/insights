@@ -432,6 +432,15 @@
 
         /* Responsive adjustments */
         @media (max-width: 600px) {
+            /* Override shared styles.css which sets overflow-x: hidden on
+               body for slider-drag safety. That makes body a scroll
+               container in Chrome Android and breaks position: sticky on
+               .calc-body below. This page has no range sliders, so it's
+               safe to let body overflow back to the document scroll. */
+            html, body {
+                overflow-x: visible !important;
+            }
+
             .calculator {
                 width: 90%;
                 padding: 20px;
