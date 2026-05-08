@@ -202,6 +202,124 @@
             text-align: center;
         }
 
+        .examples {
+            margin-top: 20px;
+            padding: 20px;
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+        }
+
+        .examples h3 {
+            color: #161616;
+            font-size: 16px;
+            font-weight: 400;
+            margin: 0 0 8px 0;
+            letter-spacing: 0;
+        }
+
+        .examples-intro {
+            color: #525252;
+            font-size: 13px;
+            line-height: 1.5;
+            margin: 0 0 8px 0;
+            letter-spacing: 0.16px;
+        }
+
+        .example {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 14px 0;
+            border-top: 1px solid #e0e0e0;
+            flex-wrap: wrap;
+        }
+
+        .example-pair {
+            flex: 1;
+            min-width: 180px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .ex-row {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .ex-label {
+            font-size: 11px;
+            color: #8c8c8c;
+            letter-spacing: 0.32px;
+            text-transform: uppercase;
+            min-width: 56px;
+            flex-shrink: 0;
+        }
+
+        .ex-classic,
+        .ex-rpn {
+            font-family: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+            font-size: 14px;
+            color: #161616;
+            letter-spacing: 0;
+        }
+
+        .ex-rpn kbd {
+            display: inline-block;
+            background: #f4f4f4;
+            border: 1px solid #e0e0e0;
+            padding: 1px 6px;
+            margin: 0 1px;
+            font-family: inherit;
+            font-size: 12px;
+            color: #161616;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        .ex-rpn kbd.kbd-op {
+            background: #161616;
+            border-color: #161616;
+            color: #ffffff;
+        }
+
+        .ex-rpn kbd.kbd-enter {
+            color: #0f62fe;
+            border-color: #0f62fe;
+            background: #ffffff;
+        }
+
+        .ex-run {
+            background: #161616;
+            color: #ffffff;
+            padding: 8px 14px;
+            font-size: 12px;
+            font-weight: 400;
+            letter-spacing: 0.16px;
+            min-width: 64px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+        }
+
+        .ex-run:hover {
+            background: #393939;
+        }
+
+        .ex-run:disabled {
+            background: #c6c6c6;
+            cursor: not-allowed;
+        }
+
+        .ex-note {
+            font-size: 12px;
+            color: #525252;
+            margin-top: 4px;
+            letter-spacing: 0.16px;
+        }
+
         /* Responsive adjustments */
         @media (max-width: 600px) {
             .calculator {
@@ -319,6 +437,34 @@
             .instructions p {
                 font-size: 11px;
             }
+
+            .examples {
+                padding: 12px;
+            }
+
+            .examples h3 {
+                font-size: 14px;
+            }
+
+            .examples-intro {
+                font-size: 12px;
+            }
+
+            .ex-classic,
+            .ex-rpn {
+                font-size: 13px;
+            }
+
+            .ex-label {
+                min-width: 48px;
+                font-size: 10px;
+            }
+
+            .ex-run {
+                padding: 6px 12px;
+                font-size: 11px;
+                min-width: 56px;
+            }
         }
     </style>
     <link rel="stylesheet" href="../styles.css">
@@ -383,6 +529,56 @@
             <p>Enter numbers or operators (+, -, *, /) one at a time and press Enter or click the Enter button.</p>
             <p>Example: To calculate 3 + 4, enter: 3 [Enter], 4 [Enter], + [Enter].</p>
             <p>Results are shown in the stack below. Use the Clear button to reset the stack.</p>
+        </div>
+
+        <div class="examples">
+            <h3>From classic to RPN</h3>
+            <p class="examples-intro">A classic calculator forces you to track parentheses and operator precedence. RPN evaluates onto a stack — left to right, no parentheses, no precedence rules. Press <strong>Run</strong> on each example to watch the stack do the work.</p>
+
+            <div class="example">
+                <div class="example-pair">
+                    <div class="ex-row"><span class="ex-label">Classic</span><code class="ex-classic">3 + 4 = 7</code></div>
+                    <div class="ex-row"><span class="ex-label">RPN</span><code class="ex-rpn"><kbd>3</kbd><kbd class="kbd-enter">↵</kbd><kbd>4</kbd><kbd class="kbd-op">+</kbd></code></div>
+                    <p class="ex-note">Push 3, push 4, then add the top two.</p>
+                </div>
+                <button type="button" class="ex-run" data-presses="3↵4+" aria-label="Run example: three plus four">Run</button>
+            </div>
+
+            <div class="example">
+                <div class="example-pair">
+                    <div class="ex-row"><span class="ex-label">Classic</span><code class="ex-classic">2 + 3 × 4 = 14</code></div>
+                    <div class="ex-row"><span class="ex-label">RPN</span><code class="ex-rpn"><kbd>3</kbd><kbd class="kbd-enter">↵</kbd><kbd>4</kbd><kbd class="kbd-op">×</kbd><kbd>2</kbd><kbd class="kbd-op">+</kbd></code></div>
+                    <p class="ex-note">No precedence rules — multiply first because you keyed it first.</p>
+                </div>
+                <button type="button" class="ex-run" data-presses="3↵4*2+" aria-label="Run example: two plus three times four">Run</button>
+            </div>
+
+            <div class="example">
+                <div class="example-pair">
+                    <div class="ex-row"><span class="ex-label">Classic</span><code class="ex-classic">(3 + 4) × 5 = 35</code></div>
+                    <div class="ex-row"><span class="ex-label">RPN</span><code class="ex-rpn"><kbd>3</kbd><kbd class="kbd-enter">↵</kbd><kbd>4</kbd><kbd class="kbd-op">+</kbd><kbd>5</kbd><kbd class="kbd-op">×</kbd></code></div>
+                    <p class="ex-note">Parentheses disappear — the stack remembers the intermediate 7.</p>
+                </div>
+                <button type="button" class="ex-run" data-presses="3↵4+5*" aria-label="Run example: three plus four, times five">Run</button>
+            </div>
+
+            <div class="example">
+                <div class="example-pair">
+                    <div class="ex-row"><span class="ex-label">Classic</span><code class="ex-classic">(3 + 4) × (5 − 2) = 21</code></div>
+                    <div class="ex-row"><span class="ex-label">RPN</span><code class="ex-rpn"><kbd>3</kbd><kbd class="kbd-enter">↵</kbd><kbd>4</kbd><kbd class="kbd-op">+</kbd><kbd>5</kbd><kbd class="kbd-enter">↵</kbd><kbd>2</kbd><kbd class="kbd-op">−</kbd><kbd class="kbd-op">×</kbd></code></div>
+                    <p class="ex-note">Two sub-results sit on the stack. The final × pops both.</p>
+                </div>
+                <button type="button" class="ex-run" data-presses="3↵4+5↵2-*" aria-label="Run example: three plus four, times five minus two">Run</button>
+            </div>
+
+            <div class="example">
+                <div class="example-pair">
+                    <div class="ex-row"><span class="ex-label">Classic</span><code class="ex-classic">((1 + 2) × 3) + ((4 + 5) × 6) = 63</code></div>
+                    <div class="ex-row"><span class="ex-label">RPN</span><code class="ex-rpn"><kbd>1</kbd><kbd class="kbd-enter">↵</kbd><kbd>2</kbd><kbd class="kbd-op">+</kbd><kbd>3</kbd><kbd class="kbd-op">×</kbd><kbd>4</kbd><kbd class="kbd-enter">↵</kbd><kbd>5</kbd><kbd class="kbd-op">+</kbd><kbd>6</kbd><kbd class="kbd-op">×</kbd><kbd class="kbd-op">+</kbd></code></div>
+                    <p class="ex-note">Deep nesting collapses to a flat sequence. No paren-counting, no ambiguity.</p>
+                </div>
+                <button type="button" class="ex-run" data-presses="1↵2+3*4↵5+6*+" aria-label="Run example: nested expression">Run</button>
+            </div>
         </div>
     </div>
 
@@ -507,6 +703,50 @@
         backBtn.addEventListener('click', () => {
             inputField.value = inputField.value.slice(0, -1);
             inputField.focus();
+        });
+
+        let exampleRunning = false;
+        const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+        async function runExample(presses) {
+            if (exampleRunning) return;
+            exampleRunning = true;
+            const runBtns = document.querySelectorAll('.ex-run');
+            runBtns.forEach(b => b.disabled = true);
+
+            calculator.clear();
+            inputField.value = '';
+            await sleep(300);
+
+            for (const p of presses) {
+                if (p === '↵') {
+                    if (inputField.value.trim() !== '') {
+                        await sleep(350);
+                        calculator.process(inputField.value);
+                        inputField.value = '';
+                    }
+                } else if (/[0-9.]/.test(p)) {
+                    await sleep(300);
+                    inputField.value += p;
+                } else {
+                    if (inputField.value.trim() !== '') {
+                        await sleep(350);
+                        calculator.process(inputField.value);
+                        inputField.value = '';
+                    }
+                    await sleep(350);
+                    calculator.process(p);
+                }
+            }
+
+            exampleRunning = false;
+            runBtns.forEach(b => b.disabled = false);
+        }
+
+        document.querySelectorAll('.ex-run').forEach(btn => {
+            btn.addEventListener('click', () => {
+                runExample(btn.dataset.presses);
+            });
         });
     </script>
 </body>
