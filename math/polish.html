@@ -985,24 +985,24 @@
             runBtns.forEach(b => b.disabled = true);
 
             calculator.clear();
-            await sleep(300);
+            await sleep(500);
 
             for (const p of presses) {
                 if (p === '↵') {
                     if (calculator.buffer !== '') {
-                        await sleep(300);
+                        await sleep(600);
                         flashKey('#enterBtn');
                         await calculator.enter();
                     }
                 } else if (/[0-9.]/.test(p)) {
-                    await sleep(280);
+                    await sleep(500);
                     flashKey(`.keypad [data-digit="${p}"]`);
                     calculator.inputDigit(p);
                 } else {
                     if (calculator.buffer !== '') {
-                        await sleep(300);
+                        await sleep(700);
                     } else {
-                        await sleep(280);
+                        await sleep(550);
                     }
                     flashKey(`.keypad [data-op="${p}"]`);
                     await calculator.applyOp(p);
