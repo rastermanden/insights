@@ -159,6 +159,7 @@
             flex: 1 1 auto;
             display: flex;
             flex-direction: column;
+            justify-content: flex-end;
             overflow: hidden;
         }
 
@@ -166,18 +167,40 @@
             font-family: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
             font-size: 15px;
             padding: 8px 12px;
-            text-align: right;
             border-top: 1px solid #262626;
             color: #c6c6c6;
             background: transparent;
             transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 12px;
         }
 
         .stack-item:first-child {
             border-top: none;
+        }
+
+        .stack-item:last-child {
             color: #ffffff;
             background: #262626;
             font-weight: 600;
+        }
+
+        .stack-reg {
+            font-size: 11px;
+            letter-spacing: 0.32px;
+            text-transform: uppercase;
+            color: #8d8d8d;
+        }
+
+        .stack-item:last-child .stack-reg {
+            color: #c6c6c6;
+        }
+
+        .stack-val {
+            text-align: right;
+            flex: 1 1 auto;
         }
 
         .stack-empty {
@@ -195,7 +218,7 @@
             text-align: right;
             color: #ffffff;
             background: #262626;
-            border-bottom: 2px solid #0f62fe;
+            border-top: 2px solid #0f62fe;
             min-height: 20px;
             flex: 0 0 auto;
         }
@@ -236,7 +259,7 @@
 
         @keyframes stackPushIn {
             from {
-                transform: translateY(-14px);
+                transform: translateY(14px);
                 opacity: 0;
             }
             to {
@@ -651,9 +674,9 @@
             </div>
 
             <div id="stackDisplay" aria-live="polite">
-                <div class="stack-label">Stack</div>
-                <div class="stack-entry empty" id="stackEntry" aria-label="Current entry"><span class="entry-cursor">▏</span></div>
+                <div class="stack-label">Stack — X at bottom</div>
                 <ol class="stack-list" id="stackList"></ol>
+                <div class="stack-entry empty" id="stackEntry" aria-label="Current entry"><span class="entry-cursor">▏</span></div>
             </div>
         </div>
 
@@ -666,8 +689,8 @@
         
         <div class="instructions">
             <h3>How to Use</h3>
-            <p>Tap digits to build a number — it appears in the highlighted entry slot at the top of the stack.</p>
-            <p>Press <strong>Enter</strong> to push the entry onto the stack. Operator keys (+, −, ×, ÷) push the entry first, then apply.</p>
+            <p>Tap digits to build a number — it appears in the highlighted entry slot below the stack (HP-style: <strong>X</strong> at the bottom, <strong>Y</strong>/<strong>Z</strong>/<strong>T</strong> stacking upward).</p>
+            <p>Press <strong>Enter</strong> to push the entry onto the stack. Operator keys (+, −, ×, ÷) push the entry first, then apply: top of stack (X) is the right-hand operand, the value below (Y) is the left.</p>
             <p>Example: 3 + 4 → tap <code>3</code> <code>Enter</code> <code>4</code> <code>+</code>. Use <strong>Clear</strong> to reset.</p>
         </div>
 
@@ -863,8 +886,9 @@
                 }
 
                 const items = this.stackList.querySelectorAll('.stack-item');
-                if (items[0]) items[0].classList.add('shake');
-                if (items[1]) items[1].classList.add('shake');
+                const n = items.length;
+                if (n >= 1) items[n - 1].classList.add('shake');
+                if (n >= 2) items[n - 2].classList.add('shake');
                 await this._sleep(440);
 
                 this.stack.pop();
@@ -902,15 +926,31 @@
                     this.stackList.appendChild(li);
                     return;
                 }
-                for (let i = this.stack.length - 1; i >= 0; i--) {
+                const len = this.stack.length;
+                for (let i = 0; i < len; i++) {
                     const li = document.createElement('li');
                     li.className = 'stack-item';
-                    if (i === this.stack.length - 1 && animateTop) {
+                    if (i === len - 1 && animateTop) {
                         li.classList.add(animateTop === 'flash' ? 'anim-flash' : 'anim-push');
                     }
-                    li.textContent = this._format(this.stack[i]);
+                    const reg = document.createElement('span');
+                    reg.className = 'stack-reg';
+                    reg.textContent = this._regLabel(len - 1 - i);
+                    const val = document.createElement('span');
+                    val.className = 'stack-val';
+                    val.textContent = this._format(this.stack[i]);
+                    li.appendChild(reg);
+                    li.appendChild(val);
                     this.stackList.appendChild(li);
                 }
+            }
+
+            _regLabel(depth) {
+                if (depth === 0) return 'X';
+                if (depth === 1) return 'Y';
+                if (depth === 2) return 'Z';
+                if (depth === 3) return 'T';
+                return String(depth + 1);
             }
 
             _format(n) {
