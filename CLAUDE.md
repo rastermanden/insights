@@ -38,3 +38,7 @@ Key tokens (mirrored as CSS variables in `styles.css`):
 - Geometry: square corners (`border-radius: 0`) on every button, card, input, container. No drop shadows.
 
 `styles.css` provides shared base styles, `.ibm-*` utility classes (top-nav, page shell, tile grid, hero, footer, buttons, inputs), and mobile safety rules that prevent horizontal page scroll so range sliders capture touch drags correctly.
+
+## Branching policy
+
+When starting any new change request, first run `git fetch origin main` and check whether the current branch's PR is already merged. If it is — or if the new change is logically independent from the open PR — create a fresh branch off `origin/main` with a `claude/<short-topic>` name before editing. Continue on the existing branch only for follow-ups that genuinely belong to the open PR (e.g. fixing a bug just introduced, addressing review feedback). One PR per logical change.
