@@ -7,8 +7,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #e0e7ff, #f3f4f6);
+            font-family: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
+            background: #ffffff;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -23,14 +23,14 @@
             max-width: 100%;
             background: #ffffff;
             padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e5e7eb;
+            border-radius: 0;
+            box-shadow: none;
+            border: 1px solid #e0e0e0;
             box-sizing: border-box;
         }
 
         h2 {
-            color: #1e3a8a;
+            color: #0f62fe;
             text-align: center;
             margin: 0 0 6px;
             font-size: 24px;
@@ -39,7 +39,7 @@
 
         .subtitle {
             text-align: center;
-            color: #6b7280;
+            color: #525252;
             font-size: 14px;
             margin-bottom: 28px;
         }
@@ -48,7 +48,7 @@
             display: flex;
             gap: 8px;
             margin-bottom: 24px;
-            border-bottom: 2px solid #e5e7eb;
+            border-bottom: 2px solid #e0e0e0;
             padding-bottom: 0;
         }
 
@@ -59,18 +59,18 @@
             cursor: pointer;
             font-size: 14px;
             font-weight: 600;
-            color: #6b7280;
+            color: #525252;
             border-bottom: 3px solid transparent;
             margin-bottom: -2px;
-            border-radius: 4px 4px 0 0;
+            border-radius: 0;
             transition: color 0.15s, border-color 0.15s;
         }
 
-        .tab:hover { color: #1e3a8a; }
+        .tab:hover { color: #0f62fe; }
 
         .tab.active {
-            color: #1e3a8a;
-            border-bottom-color: #3b82f6;
+            color: #0f62fe;
+            border-bottom-color: #0f62fe;
         }
 
         .section { display: none; }
@@ -101,7 +101,7 @@
         }
 
         .control-group label {
-            color: #4b5563;
+            color: #525252;
             font-size: 13px;
             font-weight: 600;
             display: flex;
@@ -109,7 +109,7 @@
         }
 
         .control-group label span {
-            color: #1e3a8a;
+            color: #0f62fe;
             font-weight: 700;
             min-width: 40px;
             text-align: right;
@@ -117,14 +117,14 @@
 
         input[type="range"] {
             width: 100%;
-            accent-color: #3b82f6;
+            accent-color: #0f62fe;
             cursor: pointer;
         }
 
         .formula-box {
-            background: #eff6ff;
-            border: 1px solid #dbeafe;
-            border-radius: 10px;
+            background: #f4f4f4;
+            border: 1px solid #edf5ff;
+            border-radius: 0;
             padding: 14px 18px;
             margin-bottom: 18px;
             text-align: center;
@@ -133,7 +133,7 @@
         .formula-box .formula {
             font-size: 22px;
             font-weight: 700;
-            color: #1e3a8a;
+            color: #0f62fe;
             font-family: 'Courier New', monospace;
             letter-spacing: 1px;
         }
@@ -147,45 +147,45 @@
 
         .result-card {
             background: #f0f4ff;
-            border: 1px solid #dbeafe;
-            border-radius: 10px;
+            border: 1px solid #edf5ff;
+            border-radius: 0;
             padding: 12px 8px;
             text-align: center;
         }
 
         .result-card .label {
             font-size: 12px;
-            color: #6b7280;
+            color: #525252;
             margin-bottom: 4px;
         }
 
         .result-card .value {
             font-size: 17px;
             font-weight: 700;
-            color: #1e3a8a;
+            color: #0f62fe;
         }
 
         .explanation {
-            background: #f9fafb;
-            border-radius: 10px;
-            border: 1px solid #e5e7eb;
+            background: #ffffff;
+            border-radius: 0;
+            border: 1px solid #e0e0e0;
             padding: 16px 18px;
         }
 
         .explanation h3 {
-            color: #1e3a8a;
+            color: #0f62fe;
             font-size: 15px;
             margin: 0 0 10px;
         }
 
         .explanation p {
-            color: #6b7280;
+            color: #525252;
             font-size: 13px;
             margin: 6px 0;
             line-height: 1.6;
         }
 
-        .explanation strong { color: #374151; }
+        .explanation strong { color: #161616; }
 
         /* Solver styles */
         .solver-grid {
@@ -196,14 +196,14 @@
         }
 
         .solver-block {
-            background: #f9fafb;
-            border: 1px solid #e5e7eb;
-            border-radius: 10px;
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 0;
             padding: 16px;
         }
 
         .solver-block h3 {
-            color: #1e3a8a;
+            color: #0f62fe;
             font-size: 14px;
             margin: 0 0 12px;
         }
@@ -215,29 +215,29 @@
             margin-bottom: 10px;
             font-size: 15px;
             font-family: 'Courier New', monospace;
-            color: #374151;
+            color: #161616;
             flex-wrap: wrap;
         }
 
         .input-row input[type="number"] {
             width: 54px;
             padding: 5px 6px;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
+            border: 1px solid #c6c6c6;
+            border-radius: 0;
             font-size: 14px;
             font-family: 'Courier New', monospace;
             text-align: center;
-            color: #1e3a8a;
+            color: #0f62fe;
             font-weight: 700;
         }
 
         .solve-btn {
             width: 100%;
             padding: 9px;
-            background: #3b82f6;
+            background: #0f62fe;
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 0;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
@@ -245,12 +245,12 @@
             margin-top: 6px;
         }
 
-        .solve-btn:hover { background: #2563eb; }
+        .solve-btn:hover { background: #0043ce; }
 
         .answer-box {
             margin-top: 10px;
             padding: 10px 14px;
-            border-radius: 8px;
+            border-radius: 0;
             font-size: 15px;
             font-weight: 600;
             text-align: center;
@@ -260,7 +260,7 @@
 
         .answer-ok { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
         .answer-err { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
-        .answer-empty { background: #f3f4f6; color: #9ca3af; border: 1px solid #e5e7eb; }
+        .answer-empty { background: #f4f4f4; color: #8c8c8c; border: 1px solid #e0e0e0; }
 
         @media (max-width: 600px) {
             .container { padding: 18px; }
@@ -281,13 +281,14 @@
             .result-card { padding: 9px 5px; }
         }
     </style>
+    <link rel="stylesheet" href="../styles.css">
     <!-- pwa-install-marker -->
     <link rel="icon" type="image/svg+xml" href="../icons/icon.svg">
     <link rel="icon" type="image/png" sizes="32x32" href="../icons/favicon-32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="../icons/favicon-16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon.png">
     <link rel="manifest" href="../manifest.webmanifest">
-    <meta name="theme-color" content="#1e3a8a">
+    <meta name="theme-color" content="#0f62fe">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Insights">
@@ -466,13 +467,13 @@
     // ── Linear chart ──────────────────────────────────────────────────────────
     const linearChart = new Chart(document.getElementById('linearChart').getContext('2d'), {
         type: 'line',
-        data: { datasets: [{ label: 'y = mx + b', data: [], borderColor: '#3b82f6', borderWidth: 2.5, pointRadius: 0, fill: false, tension: 0 }] },
+        data: { datasets: [{ label: 'y = mx + b', data: [], borderColor: '#0f62fe', borderWidth: 2.5, pointRadius: 0, fill: false, tension: 0 }] },
         options: {
             responsive: true, maintainAspectRatio: false, parsing: false,
             plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `y = ${fmt(c.parsed.y)}` } } },
             scales: {
-                x: { type: 'linear', min: -10, max: 10, title: { display: true, text: 'x', color: '#6b7280' }, grid: { color: '#f3f4f6' } },
-                y: { min: -15, max: 15, title: { display: true, text: 'y', color: '#6b7280' }, grid: { color: '#f3f4f6' } }
+                x: { type: 'linear', min: -10, max: 10, title: { display: true, text: 'x', color: '#525252' }, grid: { color: '#f4f4f4' } },
+                y: { min: -15, max: 15, title: { display: true, text: 'y', color: '#525252' }, grid: { color: '#f4f4f4' } }
             }
         }
     });
@@ -504,13 +505,13 @@
     // ── Quadratic chart ───────────────────────────────────────────────────────
     const quadChart = new Chart(document.getElementById('quadChart').getContext('2d'), {
         type: 'line',
-        data: { datasets: [{ label: 'y = ax²+bx+c', data: [], borderColor: '#3b82f6', borderWidth: 2.5, pointRadius: 0, fill: false, tension: 0 }] },
+        data: { datasets: [{ label: 'y = ax²+bx+c', data: [], borderColor: '#0f62fe', borderWidth: 2.5, pointRadius: 0, fill: false, tension: 0 }] },
         options: {
             responsive: true, maintainAspectRatio: false, parsing: false,
             plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `y = ${fmt(c.parsed.y)}` } } },
             scales: {
-                x: { type: 'linear', min: -8, max: 8, title: { display: true, text: 'x', color: '#6b7280' }, grid: { color: '#f3f4f6' } },
-                y: { min: -15, max: 20, title: { display: true, text: 'y', color: '#6b7280' }, grid: { color: '#f3f4f6' } }
+                x: { type: 'linear', min: -8, max: 8, title: { display: true, text: 'x', color: '#525252' }, grid: { color: '#f4f4f4' } },
+                y: { min: -15, max: 20, title: { display: true, text: 'y', color: '#525252' }, grid: { color: '#f4f4f4' } }
             }
         }
     });

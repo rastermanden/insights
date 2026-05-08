@@ -7,8 +7,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #e0e7ff, #f3f4f6);
+            font-family: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
+            background: #ffffff;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -23,14 +23,14 @@
             max-width: 100%;
             background: #ffffff;
             padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e5e7eb;
+            border-radius: 0;
+            box-shadow: none;
+            border: 1px solid #e0e0e0;
             box-sizing: border-box;
         }
 
         h2 {
-            color: #1e3a8a;
+            color: #0f62fe;
             text-align: center;
             margin: 0 0 6px;
             font-size: 24px;
@@ -39,7 +39,7 @@
 
         .subtitle {
             text-align: center;
-            color: #6b7280;
+            color: #525252;
             font-size: 14px;
             margin-bottom: 24px;
         }
@@ -61,7 +61,7 @@
         }
 
         .add-point label {
-            color: #4b5563;
+            color: #525252;
             font-size: 14px;
             font-weight: 500;
             white-space: nowrap;
@@ -70,22 +70,22 @@
         .add-point input {
             width: 80px;
             padding: 7px 10px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
+            border: 1px solid #c6c6c6;
+            border-radius: 0;
             font-size: 14px;
             transition: border-color 0.2s, box-shadow 0.2s;
         }
 
         .add-point input:focus {
             outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 5px rgba(59, 130, 246, 0.4);
+            border-color: #0f62fe;
+            box-shadow: none;
         }
 
         .btn {
             padding: 8px 16px;
             border: none;
-            border-radius: 8px;
+            border-radius: 0;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
@@ -93,22 +93,22 @@
         }
 
         .btn-primary {
-            background: #1e3a8a;
+            background: #0f62fe;
             color: white;
         }
 
         .btn-primary:hover {
-            background: #1e40af;
+            background: #0050e6;
             transform: translateY(-1px);
         }
 
         .btn-danger {
-            background: #9ca3af;
+            background: #8c8c8c;
             color: white;
         }
 
         .btn-danger:hover {
-            background: #6b7280;
+            background: #525252;
             transform: translateY(-1px);
         }
 
@@ -121,28 +121,28 @@
 
         .result-card {
             background: #f0f4ff;
-            border: 1px solid #dbeafe;
-            border-radius: 10px;
+            border: 1px solid #edf5ff;
+            border-radius: 0;
             padding: 14px 10px;
             text-align: center;
         }
 
         .result-card .label {
             font-size: 12px;
-            color: #6b7280;
+            color: #525252;
             margin-bottom: 4px;
         }
 
         .result-card .value {
             font-size: 20px;
             font-weight: 700;
-            color: #1e3a8a;
+            color: #0f62fe;
         }
 
         .formula-box {
-            background: #eff6ff;
-            border: 1px solid #dbeafe;
-            border-radius: 10px;
+            background: #f4f4f4;
+            border: 1px solid #edf5ff;
+            border-radius: 0;
             padding: 14px 18px;
             margin-bottom: 20px;
             text-align: center;
@@ -151,50 +151,50 @@
         .formula-box .formula {
             font-size: 18px;
             font-weight: 600;
-            color: #1e3a8a;
+            color: #0f62fe;
             font-family: 'Courier New', monospace;
             letter-spacing: 1px;
         }
 
         .formula-box .hint {
             font-size: 12px;
-            color: #6b7280;
+            color: #525252;
             margin-top: 4px;
         }
 
         .explanation {
-            background: #f9fafb;
-            border-radius: 10px;
-            border: 1px solid #e5e7eb;
+            background: #ffffff;
+            border-radius: 0;
+            border: 1px solid #e0e0e0;
             padding: 16px 18px;
         }
 
         .explanation h3 {
-            color: #1e3a8a;
+            color: #0f62fe;
             font-size: 15px;
             margin: 0 0 10px;
         }
 
         .explanation p {
-            color: #6b7280;
+            color: #525252;
             font-size: 13px;
             margin: 6px 0;
             line-height: 1.6;
         }
 
         .explanation strong {
-            color: #374151;
+            color: #161616;
         }
 
         .point-hint {
             font-size: 12px;
-            color: #9ca3af;
+            color: #8c8c8c;
             text-align: center;
             margin-bottom: 10px;
         }
 
         #error {
-            color: #dc2626;
+            color: #da1e28;
             font-size: 13px;
             margin-bottom: 8px;
             display: none;
@@ -255,13 +255,14 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="../styles.css">
     <!-- pwa-install-marker -->
     <link rel="icon" type="image/svg+xml" href="../icons/icon.svg">
     <link rel="icon" type="image/png" sizes="32x32" href="../icons/favicon-32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="../icons/favicon-16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon.png">
     <link rel="manifest" href="../manifest.webmanifest">
-    <meta name="theme-color" content="#1e3a8a">
+    <meta name="theme-color" content="#0f62fe">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Insights">
@@ -402,7 +403,7 @@
                     {
                         label: 'Data points',
                         data: [],
-                        backgroundColor: '#3b82f6',
+                        backgroundColor: '#0f62fe',
                         pointRadius: 6,
                         pointHoverRadius: 8,
                     },
@@ -410,7 +411,7 @@
                         label: 'Regression line',
                         data: [],
                         type: 'line',
-                        borderColor: '#1e3a8a',
+                        borderColor: '#0f62fe',
                         borderWidth: 2,
                         pointRadius: 0,
                         fill: false,
@@ -430,8 +431,8 @@
                     }
                 },
                 scales: {
-                    x: { title: { display: true, text: 'x', color: '#6b7280' }, grid: { color: '#f3f4f6' } },
-                    y: { title: { display: true, text: 'y', color: '#6b7280' }, grid: { color: '#f3f4f6' } }
+                    x: { title: { display: true, text: 'x', color: '#525252' }, grid: { color: '#f4f4f4' } },
+                    y: { title: { display: true, text: 'y', color: '#525252' }, grid: { color: '#f4f4f4' } }
                 },
                 onClick(event, elements, chart) {
                     const canvasPos = Chart.helpers.getRelativePosition(event, chart);
