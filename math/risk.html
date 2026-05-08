@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Risk, NNT, and Efficacy Calculator</title>
+    <title>Risk, NNT, and NNH Calculator</title>
     <style>
         body {
             font-family: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
@@ -16,7 +16,7 @@
         }
 
         .calculator {
-            width: 520px;
+            width: 560px;
             background: #ffffff;
             padding: 30px;
             border-radius: 0;
@@ -97,7 +97,7 @@
             transform: translateY(-2px);
         }
 
-        #results, #harmBenefit {
+        #results {
             margin-top: 25px;
             padding: 20px;
             background: #ffffff;
@@ -105,19 +105,21 @@
             border: 1px solid #e0e0e0;
         }
 
-        #results p, #harmBenefit p {
-            margin: 10px 0;
+        #results p {
+            margin: 6px 0;
             color: #161616;
             font-size: 14px;
             display: flex;
             justify-content: space-between;
             gap: 10px;
+            padding: 8px 12px;
         }
 
-        #results span, #harmBenefit span {
+        #results span {
             font-weight: 600;
             color: #161616;
             text-align: right;
+            font-family: 'IBM Plex Mono', 'SF Mono', Consolas, monospace;
         }
 
         .subhead {
@@ -128,36 +130,47 @@
             padding-bottom: 6px;
         }
 
-        #harmBenefit .subhead {
+        #results .subhead:first-child {
             margin-top: 0;
         }
 
-        .conclusion {
-            display: block !important;
-            margin-top: 14px !important;
-            padding: 12px 14px;
-            border-radius: 0;
-            font-size: 13px;
-            line-height: 1.5;
-            border-left: 4px solid #8c8c8c;
-            background: #f4f4f4;
-            color: #161616;
+        .metric-raw {
+            background: #ffffff;
         }
 
-        .conclusion.favorable {
-            background: #ecfdf5;
-            border-left-color: #24a148;
+        .metric-relative {
+            background: #fff8e1;
+            border-left: 3px solid #f1c21b;
         }
 
-        .conclusion.mixed {
-            background: #fffbeb;
-            border-left-color: #f1c21b;
+        .metric-absolute {
+            background: #edf5ff;
+            border-left: 3px solid #0f62fe;
         }
 
-        .conclusion.unfavorable {
-            background: #fef2f2;
-            border-left-color: #da1e28;
+        .metric-headline {
+            font-weight: 600;
         }
+
+        .legend {
+            display: flex;
+            gap: 14px;
+            font-size: 12px;
+            color: #525252;
+            margin: 6px 0 12px;
+            flex-wrap: wrap;
+        }
+
+        .legend .swatch {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+
+        .swatch.rel { background: #fff8e1; border-left: 3px solid #f1c21b; }
+        .swatch.abs { background: #edf5ff; border-left: 3px solid #0f62fe; }
 
         #error {
             color: #da1e28;
@@ -187,7 +200,7 @@
             margin: 5px 0;
         }
 
-        @media (max-width: 500px) {
+        @media (max-width: 600px) {
             .calculator {
                 width: 90%;
                 padding: 20px;
@@ -211,8 +224,9 @@
 </head>
 <body>
     <div class="calculator">
-        <h2>Risk, NNT, and Efficacy Calculator</h2>
-        
+        <h2>Risk, NNT, and NNH Calculator</h2>
+
+        <h3 class="subhead">Primary endpoint (e.g. COVID-19 cases)</h3>
         <div class="input-group">
             <label for="controlEvents">Control Group Events:</label>
             <div class="value-container">
@@ -246,7 +260,7 @@
             </div>
         </div>
 
-        <h3 class="subhead">Harm–Benefit Inputs</h3>
+        <h3 class="subhead">Serious adverse events (SAE)</h3>
         <div class="input-group">
             <label for="controlSAE">Control SAE Events:</label>
             <div class="value-container">
@@ -263,50 +277,38 @@
                 <button class="arrow-btn down-btn" data-input="treatmentSAE" aria-label="Decrease treatment SAE" tabindex="0">↓</button>
             </div>
         </div>
-        <div class="input-group">
-            <label for="hospDenominator">Hospitalization rate (no vaccine) — 1 in:</label>
-            <div class="value-container">
-                <input type="number" id="hospDenominator" min="1" value="50000" required aria-label="Hospitalization rate denominator">
-                <button class="arrow-btn up-btn" data-input="hospDenominator" aria-label="Increase hospitalization denominator" tabindex="0">↑</button>
-                <button class="arrow-btn down-btn" data-input="hospDenominator" aria-label="Decrease hospitalization denominator" tabindex="0">↓</button>
-            </div>
-        </div>
 
         <div id="error"></div>
 
         <div id="results">
-            <p>Control Event Rate (CER): <span id="cer"></span></p>
-            <p>Treatment Event Rate (TER): <span id="ter"></span></p>
-            <p>Absolute Risk Reduction (ARR): <span id="arr"></span></p>
-            <p>Relative Risk (RR): <span id="rr"></span></p>
-            <p>Number Needed to Treat (NNT): <span id="nnt"></span></p>
-            <p>SAE Control Rate (CER<sub>SAE</sub>): <span id="cerSae"></span></p>
-            <p>SAE Treatment Rate (TER<sub>SAE</sub>): <span id="terSae"></span></p>
-            <p>Absolute Risk Increase (ARI<sub>SAE</sub>) = TER − CER: <span id="ariSae"></span></p>
-            <p>Number Needed to Harm (NNH) = 1 / ARI<sub>SAE</sub>: <span id="nnh"></span></p>
-            <p>Efficacy (VE) = (CER - TER) / CER × 100%: <span id="efficacy"></span></p>
+            <h3 class="subhead">Benefit — primary endpoint</h3>
+            <div class="legend">
+                <span><span class="swatch rel"></span>Relative measure</span>
+                <span><span class="swatch abs"></span>Absolute measure</span>
+            </div>
+            <p class="metric-raw">Control event rate (CER): <span id="cer"></span></p>
+            <p class="metric-raw">Treatment event rate (TER): <span id="ter"></span></p>
+            <p class="metric-relative">Relative Risk (RR = TER ÷ CER): <span id="rr"></span></p>
+            <p class="metric-relative metric-headline">Relative Risk Reduction (RRR = 1 − RR): <span id="rrr"></span></p>
+            <p class="metric-absolute metric-headline">Absolute Risk Reduction (ARR = CER − TER): <span id="arr"></span></p>
+            <p class="metric-absolute metric-headline">Number Needed to Treat (NNT = 1 ÷ ARR): <span id="nnt"></span></p>
+
+            <h3 class="subhead">Harm — serious adverse events</h3>
+            <p class="metric-raw">Control SAE rate (CER<sub>SAE</sub>): <span id="cerSae"></span></p>
+            <p class="metric-raw">Treatment SAE rate (TER<sub>SAE</sub>): <span id="terSae"></span></p>
+            <p class="metric-relative">Relative Risk (RR<sub>SAE</sub> = TER<sub>SAE</sub> ÷ CER<sub>SAE</sub>): <span id="rrSae"></span></p>
+            <p class="metric-relative metric-headline">Relative Risk Increase (RRI = RR<sub>SAE</sub> − 1): <span id="rri"></span></p>
+            <p class="metric-absolute metric-headline">Absolute Risk Increase (ARI = TER<sub>SAE</sub> − CER<sub>SAE</sub>): <span id="ariSae"></span></p>
+            <p class="metric-absolute metric-headline">Number Needed to Harm (NNH = 1 ÷ ARI): <span id="nnh"></span></p>
         </div>
 
-        <div id="harmBenefit">
-            <h3 class="subhead">Harm–Benefit Output</h3>
-            <p>SAE rate (absolute): <span id="saeRate"></span></p>
-            <p>Hospitalization rate without vaccine: <span id="hospRate"></span></p>
-            <p>Prevented hospitalizations per vaccinated (= hosp rate × VE): <span id="preventedRate"></span></p>
-            <p>Number Needed to Vaccinate to prevent 1 hospitalization: <span id="nnv"></span></p>
-            <p>Number Needed to Harm (NNH) to cause 1 SAE: <span id="nnhPanel"></span></p>
-            <p><strong>SAE per prevented hospitalization:</strong> <span id="saePerPrevented"></span></p>
-            <p id="conclusion" class="conclusion"></p>
-        </div>
-        
         <div class="instructions">
             <h3>Instructions</h3>
-            <p>Enter the number of events and total subjects in both control and treatment groups.</p>
-            <p>Use the arrows to adjust values or type directly; results update automatically.</p>
-            <p>Example: If 30/100 controls and 20/100 treated had an event, enter 30, 100, 20, 100.</p>
-            <p>To reset, type default values (e.g., 162, 21728, 8, 21720) — from the Pfizer–BioNTech BNT162b2 phase&nbsp;3 trial, Polack et&nbsp;al. <em>NEJM</em> 2020 (<a href="https://www.nejm.org/doi/full/10.1056/NEJMoa2034577" target="_blank" rel="noopener">NEJMoa2034577</a>, <a href="https://pubmed.ncbi.nlm.nih.gov/33301246" target="_blank" rel="noopener">PubMed 33301246</a>).</p>
-            <p><strong>What is an SAE?</strong> A <em>Serious Adverse Event</em> is a medical event during a trial that is fatal, life‑threatening, requires (or prolongs) hospitalization, causes persistent or significant disability, or results in a congenital anomaly — i.e., it is on roughly the same severity tier as a COVID‑19 hospitalization, which is what makes the two figures comparable.</p>
-            <p><strong>Harm–Benefit:</strong> NNH is now computed from <em>trial-arm SAE counts</em> (parallel to NNT): NNH = 1 / (TER<sub>SAE</sub> − CER<sub>SAE</sub>). Default arm counts (33 control, 60 treatment on the same 21,728/21,720 totals) reproduce the headline ~1 in 800 excess SAE rate from Fraiman et&nbsp;al. (2022) reanalysis of mRNA COVID‑19 vaccine trials — <a href="https://pubmed.ncbi.nlm.nih.gov/36055877" target="_blank" rel="noopener">PubMed 36055877</a>. Hospitalization rate defaults to 1 in 50,000, a rough estimate for a healthy young-to-middle-aged adult per pandemic year. The harm-benefit panel multiplies that rate by the trial-derived VE to estimate prevented hospitalizations per vaccinated person, then divides the SAE rate by it.</p>
-            <p><strong>Age stratification matters.</strong> Pre-vaccine COVID‑19 hospitalization rates spanned more than 100× by age and comorbidity. Rough per-year background rates: healthy 18–49 ≈ 1 in 10,000–50,000 · all 18–49 ≈ 1 in 1,000–2,000 · 65–74 ≈ 1 in 100–150 · 75–84 ≈ 1 in 50 · 85+ ≈ 1 in 30. Try entering 30 or 50 to see the harm-benefit balance for an elderly recipient versus 50,000 or 100,000 for a healthy young adult — the same vaccine flips between net benefit and net harm depending purely on baseline risk.</p>
+            <p>Enter event counts and totals for control and treatment groups for both the primary endpoint and serious adverse events (SAE). Results update automatically.</p>
+            <p>Default values (162 / 21,728 control, 8 / 21,720 treatment for the primary endpoint; 33 / 60 SAE) come from the Pfizer–BioNTech BNT162b2 phase&nbsp;3 trial — Polack et&nbsp;al. <em>NEJM</em> 2020 (<a href="https://www.nejm.org/doi/full/10.1056/NEJMoa2034577" target="_blank" rel="noopener">NEJMoa2034577</a>) — combined with the SAE arm counts from Fraiman et&nbsp;al. (2022) reanalysis (<a href="https://pubmed.ncbi.nlm.nih.gov/36055877" target="_blank" rel="noopener">PubMed 36055877</a>).</p>
+            <p><strong>Relative vs absolute.</strong> Relative measures (RR, RRR, RRI) describe how risk changes <em>proportionally</em> between groups — they ignore how common the event is. Absolute measures (ARR, ARI, NNT, NNH) describe how risk changes for an individual <em>in real terms</em>. The two can diverge dramatically when the baseline rate is small: a 95% relative risk reduction may correspond to a &lt;1% absolute risk reduction.</p>
+            <p><strong>NNT</strong> = number of people who must be treated for one to benefit. <strong>NNH</strong> = number who must be treated for one to be harmed (here, suffer an SAE). Both are derived from absolute differences.</p>
+            <p><strong>SAE</strong> = serious adverse event: fatal, life-threatening, requires/prolongs hospitalization, causes persistent disability, or congenital anomaly.</p>
         </div>
     </div>
 
@@ -317,28 +319,22 @@
                 this.clearResults();
             }
 
-            calculate(controlEvents, controlTotal, treatmentEvents, treatmentTotal, controlSAE, treatmentSAE, hospDenominator) {
+            calculate(controlEvents, controlTotal, treatmentEvents, treatmentTotal, controlSAE, treatmentSAE) {
                 controlEvents = Number(controlEvents);
                 controlTotal = Number(controlTotal);
                 treatmentEvents = Number(treatmentEvents);
                 treatmentTotal = Number(treatmentTotal);
                 controlSAE = Number(controlSAE);
                 treatmentSAE = Number(treatmentSAE);
-                hospDenominator = Number(hospDenominator);
 
                 if (isNaN(controlEvents) || isNaN(controlTotal) ||
                     isNaN(treatmentEvents) || isNaN(treatmentTotal) ||
-                    isNaN(controlSAE) || isNaN(treatmentSAE) ||
-                    isNaN(hospDenominator)) {
+                    isNaN(controlSAE) || isNaN(treatmentSAE)) {
                     throw new Error("All inputs must be valid numbers");
                 }
 
                 if (controlTotal <= 0 || treatmentTotal <= 0) {
                     throw new Error("Totals must be greater than zero");
-                }
-
-                if (hospDenominator <= 0) {
-                    throw new Error("Hospitalization rate denominator must be greater than zero");
                 }
 
                 if (controlEvents > controlTotal || treatmentEvents > treatmentTotal ||
@@ -354,152 +350,79 @@
                 const cer = controlEvents / controlTotal;
                 const ter = treatmentEvents / treatmentTotal;
                 const arr = cer - ter;
-                const rr = cer === 0 ? 0 : ter / cer;
-                const nnt = arr === 0 ? Infinity : Math.abs(1 / arr);
-                const efficacy = cer === 0 ? 0 : ((cer - ter) / cer) * 100;
+                const rr = cer === 0 ? NaN : ter / cer;
+                const rrr = cer === 0 ? NaN : 1 - rr;
+                const nnt = arr === 0 ? Infinity : 1 / arr;
 
                 const cerSae = controlSAE / controlTotal;
                 const terSae = treatmentSAE / treatmentTotal;
                 const ariSae = terSae - cerSae;
-                const saeRate = ariSae;
-                const nnh = ariSae <= 0 ? Infinity : 1 / ariSae;
-
-                const hospRate = 1 / hospDenominator;
-                const veFraction = efficacy / 100;
-                const preventedRate = hospRate * veFraction;
-                const nnv = preventedRate <= 0 ? Infinity : 1 / preventedRate;
-                const saePerPrevented = preventedRate <= 0 || ariSae <= 0
-                    ? Infinity
-                    : saeRate / preventedRate;
+                const rrSae = cerSae === 0 ? NaN : terSae / cerSae;
+                const rri = cerSae === 0 ? NaN : rrSae - 1;
+                const nnh = ariSae === 0 ? Infinity : 1 / ariSae;
 
                 return {
-                    cer: cer.toFixed(5),
-                    ter: ter.toFixed(5),
-                    arr: arr.toFixed(5),
-                    rr: rr.toFixed(5),
-                    nnt: Math.round(nnt),
-                    cerSae,
-                    terSae,
-                    ariSae,
-                    nnh,
-                    efficacy: efficacy.toFixed(2),
-                    saeRate,
-                    hospRate,
-                    hospDenominator,
-                    preventedRate,
-                    nnv,
-                    saePerPrevented
+                    controlEvents, controlTotal, treatmentEvents, treatmentTotal,
+                    controlSAE, treatmentSAE,
+                    cer, ter, arr, rr, rrr, nnt,
+                    cerSae, terSae, ariSae, rrSae, rri, nnh
                 };
             }
 
-            displayResults(results) {
-                const elements = {
-                    cer: document.getElementById('cer'),
-                    ter: document.getElementById('ter'),
-                    arr: document.getElementById('arr'),
-                    rr: document.getElementById('rr'),
-                    nnt: document.getElementById('nnt'),
-                    cerSae: document.getElementById('cerSae'),
-                    terSae: document.getElementById('terSae'),
-                    ariSae: document.getElementById('ariSae'),
-                    nnh: document.getElementById('nnh'),
-                    efficacy: document.getElementById('efficacy'),
-                    saeRate: document.getElementById('saeRate'),
-                    hospRate: document.getElementById('hospRate'),
-                    preventedRate: document.getElementById('preventedRate'),
-                    nnv: document.getElementById('nnv'),
-                    nnhPanel: document.getElementById('nnhPanel'),
-                    saePerPrevented: document.getElementById('saePerPrevented'),
-                    conclusion: document.getElementById('conclusion')
-                };
+            displayResults(r) {
+                const set = (id, text) => { document.getElementById(id).textContent = text; };
 
-                for (const [key, element] of Object.entries(elements)) {
-                    if (!element) {
-                        throw new Error(`DOM element for ${key} not found`);
-                    }
-                }
+                set('cer', this.fmtRate(r.controlEvents, r.controlTotal, r.cer));
+                set('ter', this.fmtRate(r.treatmentEvents, r.treatmentTotal, r.ter));
+                set('rr', this.fmtRatio(r.rr));
+                set('rrr', this.fmtPercent(r.rrr));
+                set('arr', this.fmtAbsolute(r.arr));
+                set('nnt', this.fmtNN(r.nnt, r.arr));
 
-                elements.cer.textContent = results.cer;
-                elements.ter.textContent = results.ter;
-                elements.arr.textContent = `${results.arr} (${(results.arr * 100).toFixed(2)}%)`;
-                elements.rr.textContent = `${results.rr} (${(results.rr * 100).toFixed(2)}%)`;
-                elements.nnt.textContent = results.nnt === Infinity ? '∞' : results.nnt;
-                elements.cerSae.textContent = results.cerSae.toFixed(5);
-                elements.terSae.textContent = results.terSae.toFixed(5);
-                elements.ariSae.textContent = `${results.ariSae.toFixed(5)} (${(results.ariSae * 100).toFixed(4)}%)`;
-                elements.nnh.textContent = results.nnh === Infinity ? '∞' : Math.round(results.nnh).toLocaleString();
-                elements.efficacy.textContent = `${results.efficacy}%`;
-
-                const saeRateLabel = results.saeRate <= 0
-                    ? '0 (no excess)'
-                    : `1 in ${Math.round(1 / results.saeRate).toLocaleString()} (${(results.saeRate * 100).toFixed(4)}%)`;
-                elements.saeRate.textContent = saeRateLabel;
-                elements.hospRate.textContent = `1 in ${results.hospDenominator} (${(results.hospRate * 100).toFixed(4)}%)`;
-                elements.preventedRate.textContent = results.preventedRate <= 0
-                    ? '0'
-                    : `1 in ${Math.round(1 / results.preventedRate).toLocaleString()} (${(results.preventedRate * 100).toFixed(4)}%)`;
-                elements.nnv.textContent = results.nnv === Infinity ? '∞' : Math.round(results.nnv).toLocaleString();
-                elements.nnhPanel.textContent = results.nnh === Infinity ? '∞' : Math.round(results.nnh).toLocaleString();
-                elements.saePerPrevented.textContent = results.saePerPrevented === Infinity
-                    ? '∞'
-                    : results.saePerPrevented.toFixed(2);
-
-                this.renderConclusion(elements.conclusion, results);
+                set('cerSae', this.fmtRate(r.controlSAE, r.controlTotal, r.cerSae));
+                set('terSae', this.fmtRate(r.treatmentSAE, r.treatmentTotal, r.terSae));
+                set('rrSae', this.fmtRatio(r.rrSae));
+                set('rri', this.fmtPercent(r.rri));
+                set('ariSae', this.fmtAbsolute(r.ariSae));
+                set('nnh', this.fmtNN(r.nnh, r.ariSae));
             }
 
-            renderConclusion(el, results) {
-                el.classList.remove('favorable', 'mixed', 'unfavorable');
-                const ratio = results.saePerPrevented;
-                const nnv = results.nnv;
-                const nnh = results.nnh;
-                const nnhStr = isFinite(nnh) ? Math.round(nnh).toLocaleString() : '∞';
+            fmtRate(events, total, rate) {
+                if (!isFinite(rate)) return '—';
+                const pct = (rate * 100).toFixed(3);
+                return `${events.toLocaleString()} / ${total.toLocaleString()} = ${pct}%`;
+            }
 
-                if (!isFinite(ratio)) {
-                    el.classList.add('unfavorable');
-                    if (results.ariSae <= 0) {
-                        el.innerHTML = `<strong>Conclusion:</strong> the trial-arm SAE counts show no excess harm in the treatment group (ARI<sub>SAE</sub> ≤ 0), so the harm-benefit ratio is undefined. Adjust the SAE arm counts to see the comparison.`;
-                    } else {
-                        el.innerHTML = `<strong>Conclusion:</strong> the vaccine prevents no hospitalizations at these inputs (VE = 0 or hospitalization rate = 0), so every SAE is pure harm with no offsetting benefit.`;
-                    }
-                    return;
-                }
+            fmtRatio(rr) {
+                if (!isFinite(rr) || isNaN(rr)) return '—';
+                return rr.toFixed(4);
+            }
 
-                const nnvStr = isFinite(nnv) ? Math.round(nnv).toLocaleString() : '∞';
-                const ratioStr = ratio.toFixed(2);
-                let verdict, klass;
+            fmtPercent(x) {
+                if (!isFinite(x) || isNaN(x)) return '—';
+                return `${(x * 100).toFixed(2)}%`;
+            }
 
-                if (ratio < 0.5) {
-                    klass = 'favorable';
-                    verdict = `Far more hospitalizations are prevented than SAEs are caused — on these severity-matched terms the vaccine is a clear net benefit for this population.`;
-                } else if (ratio < 1) {
-                    klass = 'favorable';
-                    verdict = `Slightly more hospitalizations are prevented than SAEs are caused — a marginal net benefit that depends on how comparable the two event categories really are.`;
-                } else if (ratio < 2) {
-                    klass = 'mixed';
-                    verdict = `Roughly as many SAEs are caused as hospitalizations prevented — the harm-benefit balance is approximately a wash, and the answer hinges on which side the more severe events fall on.`;
-                } else {
-                    klass = 'unfavorable';
-                    verdict = `Many more SAEs are caused than hospitalizations prevented — at this background risk level, vaccinating this population looks like net harm on a severity-matched count.`;
-                }
+            fmtAbsolute(x) {
+                if (!isFinite(x) || isNaN(x)) return '—';
+                const pct = (x * 100).toFixed(3);
+                const pp = `${pct} percentage points`;
+                return `${x.toFixed(5)} (${pp})`;
+            }
 
-                el.classList.add(klass);
-                el.innerHTML = `<strong>Conclusion:</strong> you must vaccinate <strong>${nnvStr}</strong> people to prevent <strong>1</strong> hospitalization, but at the trial-derived NNH of <strong>${nnhStr}</strong> (1 SAE per ${nnhStr} vaccinated) that same group will incur about <strong>${(nnvStr === '∞' ? '∞' : (results.nnv * results.saeRate).toFixed(2))}</strong> SAEs — i.e. <strong>${ratioStr} SAEs per prevented hospitalization</strong>. ${verdict} Caveats: SAE and hospitalization are serious-tier events but not identical; this comparison ignores milder side-effects on the harm side. It does <em>not</em> credit the vaccine with reducing transmission — the mRNA COVID‑19 vaccines do not produce sterilizing immunity, and milder symptoms in vaccinated infected people can mean a false sense of safety: people who feel healthy still shed virus and may transmit asymptomatically.`;
+            fmtNN(n, delta) {
+                if (!isFinite(n)) return '∞ (no difference)';
+                const rounded = Math.round(Math.abs(n));
+                const sign = delta < 0 ? '−' : '';
+                return `${sign}${rounded.toLocaleString()}`;
             }
 
             clearResults() {
                 this.errorDisplay.style.display = 'none';
-                const elements = ['cer', 'ter', 'arr', 'rr', 'nnt',
-                    'cerSae', 'terSae', 'ariSae', 'nnh', 'efficacy',
-                    'saeRate', 'hospRate', 'preventedRate', 'nnv', 'nnhPanel',
-                    'saePerPrevented', 'conclusion'];
-                elements.forEach(id => {
-                    const element = document.getElementById(id);
-                    if (element) {
-                        element.textContent = '';
-                        if (id === 'conclusion') {
-                            element.classList.remove('favorable', 'mixed', 'unfavorable');
-                        }
-                    }
+                ['cer', 'ter', 'rr', 'rrr', 'arr', 'nnt',
+                 'cerSae', 'terSae', 'rrSae', 'rri', 'ariSae', 'nnh'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = '';
                 });
             }
 
@@ -513,22 +436,13 @@
 
         function calculate() {
             try {
-                const controlEvents = document.getElementById('controlEvents').value;
-                const controlTotal = document.getElementById('controlTotal').value;
-                const treatmentEvents = document.getElementById('treatmentEvents').value;
-                const treatmentTotal = document.getElementById('treatmentTotal').value;
-                const controlSAE = document.getElementById('controlSAE').value;
-                const treatmentSAE = document.getElementById('treatmentSAE').value;
-                const hospDenominator = document.getElementById('hospDenominator').value;
-
                 const results = calculator.calculate(
-                    controlEvents,
-                    controlTotal,
-                    treatmentEvents,
-                    treatmentTotal,
-                    controlSAE,
-                    treatmentSAE,
-                    hospDenominator
+                    document.getElementById('controlEvents').value,
+                    document.getElementById('controlTotal').value,
+                    document.getElementById('treatmentEvents').value,
+                    document.getElementById('treatmentTotal').value,
+                    document.getElementById('controlSAE').value,
+                    document.getElementById('treatmentSAE').value
                 );
                 calculator.displayResults(results);
             } catch (error) {
@@ -551,23 +465,18 @@
             calculate();
         }
 
-        const upButtons = document.querySelectorAll('.up-btn');
-        const downButtons = document.querySelectorAll('.down-btn');
-
-        upButtons.forEach(btn => {
+        document.querySelectorAll('.up-btn').forEach(btn => {
             btn.addEventListener('click', () => adjustValue(btn.dataset.input, 'up'));
         });
-        downButtons.forEach(btn => {
+        document.querySelectorAll('.down-btn').forEach(btn => {
             btn.addEventListener('click', () => adjustValue(btn.dataset.input, 'down'));
         });
 
-        // Add input event listeners for real-time updates
         ['controlEvents', 'controlTotal', 'treatmentEvents', 'treatmentTotal',
-         'controlSAE', 'treatmentSAE', 'hospDenominator'].forEach(id => {
+         'controlSAE', 'treatmentSAE'].forEach(id => {
             document.getElementById(id).addEventListener('input', calculate);
         });
 
-        // Initial calculation
         calculate();
     </script>
 </body>
