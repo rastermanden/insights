@@ -72,9 +72,9 @@
     <header class="ibm-top-nav" role="banner">
         <div class="ibm-wordmark"><a href="index.html">Insights</a></div>
         <nav aria-label="Primary">
-            <a href="#topics">Topics</a>
-            <a href="#math">Math</a>
-            <a href="#physics">Physics</a>
+            <a href="#topics" data-nav-filter="all">Topics</a>
+            <a href="#topics" data-nav-filter="math">Math</a>
+            <a href="#topics" data-nav-filter="physics">Physics</a>
         </nav>
     </header>
 
@@ -150,12 +150,19 @@
 
         render('all');
 
-        document.querySelectorAll('.topic-filter button').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.topic-filter button').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                render(btn.dataset.filter);
+        function setFilter(filter) {
+            document.querySelectorAll('.topic-filter button').forEach(b => {
+                b.classList.toggle('active', b.dataset.filter === filter);
             });
+            render(filter);
+        }
+
+        document.querySelectorAll('.topic-filter button').forEach(btn => {
+            btn.addEventListener('click', () => setFilter(btn.dataset.filter));
+        });
+
+        document.querySelectorAll('[data-nav-filter]').forEach(link => {
+            link.addEventListener('click', () => setFilter(link.dataset.navFilter));
         });
     </script>
 </body>
