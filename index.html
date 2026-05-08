@@ -71,11 +71,6 @@
     </div>
     <header class="ibm-top-nav" role="banner">
         <div class="ibm-wordmark"><a href="index.html">Insights</a></div>
-        <nav aria-label="Primary">
-            <a href="#topics" data-nav-filter="all">Topics</a>
-            <a href="#topics" data-nav-filter="math">Math</a>
-            <a href="#topics" data-nav-filter="physics">Physics</a>
-        </nav>
     </header>
 
     <main class="ibm-page">
@@ -159,10 +154,6 @@
 
         document.querySelectorAll('.topic-filter button').forEach(btn => {
             btn.addEventListener('click', () => setFilter(btn.dataset.filter));
-        });
-
-        document.querySelectorAll('[data-nav-filter]').forEach(link => {
-            link.addEventListener('click', () => setFilter(link.dataset.navFilter));
         });
     </script>
 </body>
