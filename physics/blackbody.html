@@ -210,15 +210,28 @@
         </div>
         <canvas id="spectrumChart" height="220"></canvas>
         <div class="explanation">
+            <h2>What is a blackbody?</h2>
+            <p>An idealised object that absorbs all incident radiation and re-emits a thermal spectrum that depends <i>only</i> on its temperature — not on its material, chemistry, or surface texture. Stars, glowing embers, tungsten filaments, and even human skin are well-approximated as blackbodies (scaled by an emissivity \( \varepsilon \le 1 \)).</p>
+
             <h2>Formula</h2>
             <p>Planck's law gives the spectral radiance \( B_\lambda \) of a blackbody at temperature \( T \) per unit wavelength:</p>
             \[ B_\lambda(T) = \frac{2 h c^2}{\lambda^5} \cdot \frac{1}{e^{hc/(\lambda k_B T)} - 1} \]
             <p>Two consequences fall out by integrating or differentiating:</p>
             <ul>
                 <li><b>Wien's displacement law:</b> \( \lambda_\text{max} = b / T \), with \( b \approx 2.898\times10^{-3}\,\text{m·K} \). Hotter objects peak at shorter wavelengths.</li>
-                <li><b>Stefan-Boltzmann law:</b> \( P = \sigma T^4 \). Total radiated power per unit area scales as \( T^4 \).</li>
+                <li><b>Stefan-Boltzmann law:</b> \( P = \sigma T^4 \). Total radiated power per unit area scales as \( T^4 \) — double the temperature, get sixteen times the power.</li>
             </ul>
-            <p>The Sun's surface (~5778 K) peaks in the visible green-blue (~500 nm). Incandescent bulbs (~2800 K) peak in infrared, which is why most of their energy becomes heat, not light.</p>
+
+            <h2>Why it matters</h2>
+            <ul>
+                <li><b>It launched quantum mechanics.</b> Classical physics predicted infinite radiation at short wavelengths — the "ultraviolet catastrophe". In 1900 Planck resolved it by postulating that energy is exchanged in discrete quanta \( E = h\nu \). Every later quantum theory traces back to this curve.</li>
+                <li><b>It tells us the temperature of stars.</b> We cannot put a thermometer on the Sun, but fitting its spectrum (or just its peak wavelength) to Planck's law gives \( T \approx 5778 \) K. The same method dates cool red dwarfs (~3000 K) and hot blue giants (~30,000 K). Stellar classification (O B A F G K M) is essentially a temperature ranking.</li>
+                <li><b>It is the fingerprint of the Big Bang.</b> The most perfect blackbody ever measured is the cosmic microwave background at \( T = 2.725 \) K — a faint relic glow filling all of space. Its near-perfect Planck shape, mapped by the COBE, WMAP and Planck satellites, is the strongest evidence we have for a hot, dense early universe.</li>
+                <li><b>It sets Earth's climate.</b> Our planet's equilibrium temperature comes from balancing absorbed sunlight against thermal re-emission \( \propto T^4 \). The greenhouse effect is just selective absorption of that outgoing infrared blackbody radiation; every climate model is built on this energy budget.</li>
+                <li><b>It explains why incandescent bulbs are inefficient.</b> A 2800 K filament peaks deep in the infrared, so roughly 95% of its radiated power leaves as heat instead of visible light. LEDs win by sidestepping thermal emission entirely. The same physics imposes the Shockley-Queisser limit on solar-cell efficiency, tied to the Sun's 5778 K spectrum.</li>
+                <li><b>It enables non-contact thermometry.</b> Infrared ear thermometers, thermal cameras, and industrial pyrometers all invert Planck's law — measure the spectrum, recover the temperature — to read fevers, find heat leaks in buildings, or monitor furnaces from a safe distance.</li>
+            </ul>
+            <p>Try the presets above: a candle glows red because its spectrum peaks well past 700 nm; the Sun looks white because its peak sits in the middle of the visible band; Sirius appears blue-white because its peak is pushed into the near-UV.</p>
         </div>
     </div>
 
