@@ -422,7 +422,7 @@
             mValue.textContent = `${m.toFixed(2)} M☉`;
 
             const T = periodYears(a, m);
-            periodDisplay.textContent = T < 1 ? `${(T * 365.25).toFixed(1)} days` : `${T.toFixed(2)} yr`;
+            periodDisplay.textContent = T < 0.995 ? `${(T * 365.25).toFixed(1)} days` : `${T.toFixed(2)} yr`;
             apsisDisplay.textContent = `${(a * (1 - e)).toFixed(3)} / ${(a * (1 + e)).toFixed(3)} AU`;
             speedDisplay.textContent = `${meanSpeed(a, m).toFixed(2)} km/s`;
 
