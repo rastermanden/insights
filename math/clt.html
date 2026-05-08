@@ -6,8 +6,8 @@
     <title>Central Limit Theorem</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #e0e7ff, #f3f4f6);
+            font-family: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
+            background: #ffffff;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -22,14 +22,14 @@
             max-width: 100%;
             background: #ffffff;
             padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e5e7eb;
+            border-radius: 0;
+            box-shadow: none;
+            border: 1px solid #e0e0e0;
             box-sizing: border-box;
         }
 
         h2 {
-            color: #1e3a8a;
+            color: #0f62fe;
             text-align: center;
             margin: 0 0 6px;
             font-size: 24px;
@@ -38,13 +38,13 @@
 
         .subtitle {
             text-align: center;
-            color: #6b7280;
+            color: #525252;
             font-size: 14px;
             margin-bottom: 22px;
         }
 
         h3 {
-            color: #1e3a8a;
+            color: #0f62fe;
             font-size: 16px;
             margin: 24px 0 10px;
         }
@@ -60,10 +60,10 @@
             flex: 1 1 auto;
             min-width: 120px;
             padding: 10px 12px;
-            border: 1px solid #dbeafe;
-            background: #eff6ff;
-            color: #1e3a8a;
-            border-radius: 8px;
+            border: 1px solid #edf5ff;
+            background: #f4f4f4;
+            color: #0f62fe;
+            border-radius: 0;
             font-size: 13px;
             font-weight: 600;
             cursor: pointer;
@@ -71,14 +71,14 @@
         }
 
         .scenarios button:hover {
-            background: #dbeafe;
+            background: #edf5ff;
             transform: translateY(-1px);
         }
 
         .scenarios button.active {
-            background: #1e3a8a;
+            background: #0f62fe;
             color: white;
-            border-color: #1e3a8a;
+            border-color: #0f62fe;
         }
 
         .controls {
@@ -101,20 +101,20 @@
         }
 
         .control-row label {
-            color: #4b5563;
+            color: #525252;
             font-size: 13px;
             font-weight: 600;
         }
 
         .control-row .value {
-            color: #1f2937;
+            color: #161616;
             font-size: 13px;
             font-variant-numeric: tabular-nums;
         }
 
         .control-row input[type="range"] {
             width: 100%;
-            accent-color: #1e3a8a;
+            accent-color: #0f62fe;
         }
 
         .actions {
@@ -127,10 +127,10 @@
             flex: 1 1 auto;
             min-width: 60px;
             padding: 8px 10px;
-            border: 1px solid #dbeafe;
-            background: #eff6ff;
-            color: #1e3a8a;
-            border-radius: 6px;
+            border: 1px solid #edf5ff;
+            background: #f4f4f4;
+            color: #0f62fe;
+            border-radius: 0;
             font-size: 13px;
             font-weight: 600;
             cursor: pointer;
@@ -138,7 +138,7 @@
         }
 
         .actions button:hover {
-            background: #dbeafe;
+            background: #edf5ff;
         }
 
         .actions button.reset {
@@ -152,22 +152,22 @@
         }
 
         .chart-wrap {
-            background: #f9fafb;
-            border: 1px solid #e5e7eb;
-            border-radius: 10px;
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 0;
             padding: 14px 12px 8px;
             margin-bottom: 14px;
         }
 
         .chart-title {
-            color: #374151;
+            color: #161616;
             font-size: 13px;
             font-weight: 600;
             margin: 0 4px 6px;
         }
 
         .chart-note {
-            color: #6b7280;
+            color: #525252;
             font-size: 12px;
             margin: 4px 4px 0;
         }
@@ -186,14 +186,14 @@
         }
 
         .stat {
-            background: #f9fafb;
-            border: 1px solid #e5e7eb;
-            border-radius: 10px;
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 0;
             padding: 10px 12px;
         }
 
         .stat .label {
-            color: #6b7280;
+            color: #525252;
             font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -201,7 +201,7 @@
         }
 
         .stat .num {
-            color: #1f2937;
+            color: #161616;
             font-size: 18px;
             font-weight: 700;
             font-variant-numeric: tabular-nums;
@@ -209,19 +209,19 @@
         }
 
         .stat .num.muted {
-            color: #9ca3af;
+            color: #8c8c8c;
         }
 
         .explainer {
             margin-top: 26px;
             padding: 18px 20px;
-            background: #eff6ff;
-            border: 1px solid #dbeafe;
-            border-radius: 10px;
+            background: #f4f4f4;
+            border: 1px solid #edf5ff;
+            border-radius: 0;
         }
 
         .explainer p {
-            color: #374151;
+            color: #161616;
             font-size: 13.5px;
             line-height: 1.55;
             margin: 0 0 10px;
@@ -232,22 +232,22 @@
         }
 
         .explainer code {
-            background: #dbeafe;
-            color: #1e3a8a;
+            background: #edf5ff;
+            color: #0f62fe;
             padding: 1px 6px;
-            border-radius: 4px;
+            border-radius: 0;
             font-size: 12.5px;
         }
 
         .explainer .tag {
             display: inline-block;
-            background: #1e3a8a;
+            background: #0f62fe;
             color: white;
             font-size: 11px;
             font-weight: 700;
             letter-spacing: 0.5px;
             padding: 2px 8px;
-            border-radius: 4px;
+            border-radius: 0;
             margin-right: 6px;
             vertical-align: 1px;
         }
@@ -258,13 +258,14 @@
             .container { padding: 18px; }
         }
     </style>
+    <link rel="stylesheet" href="../styles.css">
     <!-- pwa-install-marker -->
     <link rel="icon" type="image/svg+xml" href="../icons/icon.svg">
     <link rel="icon" type="image/png" sizes="32x32" href="../icons/favicon-32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="../icons/favicon-16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon.png">
     <link rel="manifest" href="../manifest.webmanifest">
-    <meta name="theme-color" content="#1e3a8a">
+    <meta name="theme-color" content="#0f62fe">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Insights">
@@ -469,8 +470,8 @@
             for (let t = tStart; t <= xmax + 1e-9; t += step) ticks.push(+t.toFixed(6));
             return ticks.map(t => {
                 const x = xS(t);
-                return `<line x1="${x}" y1="${yBase}" x2="${x}" y2="${yBase + 4}" stroke="#9ca3af"/>` +
-                       `<text x="${x}" y="${yBase + 16}" text-anchor="middle" font-size="11" fill="#6b7280">${t}</text>`;
+                return `<line x1="${x}" y1="${yBase}" x2="${x}" y2="${yBase + 4}" stroke="#8c8c8c"/>` +
+                       `<text x="${x}" y="${yBase + 16}" text-anchor="middle" font-size="11" fill="#525252">${t}</text>`;
             }).join('');
         }
 
@@ -494,7 +495,7 @@
                     const cx = xS(x);
                     const y0 = yS(p);
                     const y1 = yS(0);
-                    return `<rect x="${cx - barW / 2}" y="${y0}" width="${barW}" height="${(y1 - y0).toFixed(1)}" fill="#3b82f6" fill-opacity="0.45" stroke="#1e3a8a" stroke-width="1"/>`;
+                    return `<rect x="${cx - barW / 2}" y="${y0}" width="${barW}" height="${(y1 - y0).toFixed(1)}" fill="#0f62fe" fill-opacity="0.45" stroke="#0f62fe" stroke-width="1"/>`;
                 }).join('');
             } else {
                 const N = 220;
@@ -508,15 +509,15 @@
                                  pts.map(p => p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' L') +
                                  ` L${pts[pts.length - 1][0].toFixed(1)} ${(m.t + ph).toFixed(1)} Z`;
                 densityMarkup =
-                    `<path d="${fillPath}" fill="#3b82f6" fill-opacity="0.18" stroke="none"/>` +
-                    `<path d="${curvePath}" fill="none" stroke="#1e3a8a" stroke-width="2"/>`;
+                    `<path d="${fillPath}" fill="#0f62fe" fill-opacity="0.18" stroke="none"/>` +
+                    `<path d="${curvePath}" fill="none" stroke="#0f62fe" stroke-width="2"/>`;
             }
 
             // Population mean line
             const meanX = xS(src.mean);
             const meanLine =
-                `<line x1="${meanX}" y1="${m.t}" x2="${meanX}" y2="${m.t + ph}" stroke="#1e3a8a" stroke-width="1.5" stroke-dasharray="4 3"/>` +
-                `<text x="${meanX}" y="${m.t + 12}" text-anchor="middle" font-size="11" font-weight="700" fill="#1e3a8a">μ = ${fmt(src.mean, 2)}</text>`;
+                `<line x1="${meanX}" y1="${m.t}" x2="${meanX}" y2="${m.t + ph}" stroke="#0f62fe" stroke-width="1.5" stroke-dasharray="4 3"/>` +
+                `<text x="${meanX}" y="${m.t + 12}" text-anchor="middle" font-size="11" font-weight="700" fill="#0f62fe">μ = ${fmt(src.mean, 2)}</text>`;
 
             // Last sample marks
             let sampleMarkup = '';
@@ -524,18 +525,18 @@
                 const yDot = m.t + ph - 6;
                 sampleMarkup = state.lastSample.map(x => {
                     const cx = xS(Math.max(xmin, Math.min(xmax, x)));
-                    return `<circle cx="${cx.toFixed(1)}" cy="${yDot}" r="3.6" fill="#dc2626" fill-opacity="0.75" stroke="white" stroke-width="1"/>`;
+                    return `<circle cx="${cx.toFixed(1)}" cy="${yDot}" r="3.6" fill="#da1e28" fill-opacity="0.75" stroke="white" stroke-width="1"/>`;
                 }).join('');
                 const sm = state.lastSample.reduce((s, v) => s + v, 0) / state.lastSample.length;
                 const cx = xS(Math.max(xmin, Math.min(xmax, sm))).toFixed(1);
                 const cy = (m.t + ph - 18).toFixed(1);
-                sampleMarkup += `<g transform="rotate(45 ${cx} ${cy})"><rect x="${cx - 6}" y="${cy - 6}" width="12" height="12" fill="#1e3a8a" stroke="white" stroke-width="1.5"/></g>`;
+                sampleMarkup += `<g transform="rotate(45 ${cx} ${cy})"><rect x="${cx - 6}" y="${cy - 6}" width="12" height="12" fill="#0f62fe" stroke="white" stroke-width="1.5"/></g>`;
             }
 
             // Frame & ticks
-            const frame = `<rect x="${m.l}" y="${m.t}" width="${pw}" height="${ph}" fill="white" stroke="#e5e7eb"/>`;
+            const frame = `<rect x="${m.l}" y="${m.t}" width="${pw}" height="${ph}" fill="white" stroke="#e0e0e0"/>`;
             const ticks = xTicks(xmin, xmax, xS, m.t + ph, m, pw);
-            const xLabel = `<text x="${m.l + pw / 2}" y="${h - 6}" text-anchor="middle" font-size="12" fill="#4b5563">value of an individual draw</text>`;
+            const xLabel = `<text x="${m.l + pw / 2}" y="${h - 6}" text-anchor="middle" font-size="12" fill="#525252">value of an individual draw</text>`;
 
             els.popChart.innerHTML = frame + densityMarkup + meanLine + sampleMarkup + ticks + xLabel;
         }
@@ -574,7 +575,7 @@
                     const x1 = xS(xmin + (i + 1) * binW);
                     const y0 = yS(densities[i]);
                     const y1 = yS(0);
-                    bars += `<rect x="${x0.toFixed(1)}" y="${y0.toFixed(1)}" width="${(x1 - x0).toFixed(1)}" height="${(y1 - y0).toFixed(1)}" fill="#3b82f6" fill-opacity="0.55" stroke="#1e3a8a" stroke-width="0.4"/>`;
+                    bars += `<rect x="${x0.toFixed(1)}" y="${y0.toFixed(1)}" width="${(x1 - x0).toFixed(1)}" height="${(y1 - y0).toFixed(1)}" fill="#0f62fe" fill-opacity="0.55" stroke="#0f62fe" stroke-width="0.4"/>`;
                 }
             }
 
@@ -590,25 +591,25 @@
             // Mean line
             const meanX = xS(src.mean);
             const meanLine =
-                `<line x1="${meanX}" y1="${m.t}" x2="${meanX}" y2="${m.t + ph}" stroke="#1e3a8a" stroke-width="1.5" stroke-dasharray="4 3"/>` +
-                `<text x="${meanX}" y="${m.t + 12}" text-anchor="middle" font-size="11" font-weight="700" fill="#1e3a8a">μ = ${fmt(src.mean, 2)}</text>`;
+                `<line x1="${meanX}" y1="${m.t}" x2="${meanX}" y2="${m.t + ph}" stroke="#0f62fe" stroke-width="1.5" stroke-dasharray="4 3"/>` +
+                `<text x="${meanX}" y="${m.t + 12}" text-anchor="middle" font-size="11" font-weight="700" fill="#0f62fe">μ = ${fmt(src.mean, 2)}</text>`;
 
             // SE bracket: μ ± 2·SE around the predicted normal
             const lo = src.mean - 2 * se;
             const hi = src.mean + 2 * se;
             const yBracket = m.t + ph + 22;
             const seBracket =
-                `<line x1="${xS(lo)}" y1="${yBracket}" x2="${xS(hi)}" y2="${yBracket}" stroke="#dc2626" stroke-width="2"/>` +
-                `<line x1="${xS(lo)}" y1="${yBracket - 4}" x2="${xS(lo)}" y2="${yBracket + 4}" stroke="#dc2626" stroke-width="2"/>` +
-                `<line x1="${xS(hi)}" y1="${yBracket - 4}" x2="${xS(hi)}" y2="${yBracket + 4}" stroke="#dc2626" stroke-width="2"/>` +
+                `<line x1="${xS(lo)}" y1="${yBracket}" x2="${xS(hi)}" y2="${yBracket}" stroke="#da1e28" stroke-width="2"/>` +
+                `<line x1="${xS(lo)}" y1="${yBracket - 4}" x2="${xS(lo)}" y2="${yBracket + 4}" stroke="#da1e28" stroke-width="2"/>` +
+                `<line x1="${xS(hi)}" y1="${yBracket - 4}" x2="${xS(hi)}" y2="${yBracket + 4}" stroke="#da1e28" stroke-width="2"/>` +
                 `<text x="${xS(src.mean)}" y="${yBracket - 6}" text-anchor="middle" font-size="10" fill="#991b1b">μ ± 2·σ/√n</text>`;
 
             // Frame & ticks
-            const frame = `<rect x="${m.l}" y="${m.t}" width="${pw}" height="${ph}" fill="white" stroke="#e5e7eb"/>`;
+            const frame = `<rect x="${m.l}" y="${m.t}" width="${pw}" height="${ph}" fill="white" stroke="#e0e0e0"/>`;
             const ticks = xTicks(xmin, xmax, xS, m.t + ph, m, pw);
-            const xLabel = `<text x="${m.l + pw / 2}" y="${h - 4}" text-anchor="middle" font-size="12" fill="#4b5563">sample mean (average of n draws)</text>`;
+            const xLabel = `<text x="${m.l + pw / 2}" y="${h - 4}" text-anchor="middle" font-size="12" fill="#525252">sample mean (average of n draws)</text>`;
 
-            const theoCurve = `<path d="${curvePath}" fill="none" stroke="#dc2626" stroke-width="2.2" stroke-dasharray="6 4"/>`;
+            const theoCurve = `<path d="${curvePath}" fill="none" stroke="#da1e28" stroke-width="2.2" stroke-dasharray="6 4"/>`;
 
             els.meanChart.innerHTML = frame + bars + theoCurve + meanLine + seBracket + ticks + xLabel;
         }

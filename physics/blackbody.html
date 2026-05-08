@@ -9,8 +9,8 @@
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #e0e7ff, #f3f4f6);
+            font-family: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
+            background: #ffffff;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -25,14 +25,14 @@
             max-width: 100%;
             background: #ffffff;
             padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e5e7eb;
+            border-radius: 0;
+            box-shadow: none;
+            border: 1px solid #e0e0e0;
             box-sizing: border-box;
         }
 
         h1 {
-            color: #1e3a8a;
+            color: #0f62fe;
             text-align: center;
             margin-bottom: 25px;
             font-size: 22px;
@@ -49,7 +49,7 @@
 
         label {
             flex: 1;
-            color: #4b5563;
+            color: #525252;
             font-size: 14px;
             font-weight: 500;
         }
@@ -57,8 +57,8 @@
         input[type="range"] {
             width: 140px;
             -webkit-appearance: none;
-            background: #d1d5db;
-            border-radius: 8px;
+            background: #c6c6c6;
+            border-radius: 0;
             height: 6px;
             outline: none;
         }
@@ -67,17 +67,17 @@
             -webkit-appearance: none;
             width: 16px;
             height: 16px;
-            background: #3b82f6;
-            border-radius: 50%;
+            background: #0f62fe;
+            border-radius: 0;
             cursor: pointer;
         }
 
         input[type="range"]::-moz-range-thumb {
             width: 16px;
             height: 16px;
-            background: #3b82f6;
+            background: #0f62fe;
             border: none;
-            border-radius: 50%;
+            border-radius: 0;
             cursor: pointer;
         }
 
@@ -90,17 +90,17 @@
         .arrow-btn {
             padding: 6px 10px;
             border: none;
-            border-radius: 6px;
+            border-radius: 0;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            background: #1e3a8a;
+            background: #0f62fe;
             color: white;
             transition: background-color 0.3s ease, transform 0.2s ease;
         }
 
         .arrow-btn.down {
-            background: #9ca3af;
+            background: #8c8c8c;
         }
 
         .arrow-btn:hover {
@@ -118,24 +118,24 @@
             flex: 1 1 auto;
             padding: 6px 8px;
             font-size: 12px;
-            border: 1px solid #dbeafe;
-            border-radius: 6px;
-            background: #eff6ff;
-            color: #1e3a8a;
+            border: 1px solid #edf5ff;
+            border-radius: 0;
+            background: #f4f4f4;
+            color: #0f62fe;
             cursor: pointer;
         }
 
         .preset-row button:hover {
-            background: #dbeafe;
+            background: #edf5ff;
         }
 
         .results {
             margin-top: 20px;
             padding: 15px 20px;
-            background: #f9fafb;
-            border-radius: 10px;
-            border: 1px solid #e5e7eb;
-            color: #374151;
+            background: #ffffff;
+            border-radius: 0;
+            border: 1px solid #e0e0e0;
+            color: #161616;
             font-size: 14px;
         }
 
@@ -147,7 +147,7 @@
 
         .results .row span:last-child {
             font-weight: 600;
-            color: #1f2937;
+            color: #161616;
         }
 
         .swatch {
@@ -155,39 +155,40 @@
             width: 16px;
             height: 16px;
             vertical-align: middle;
-            border-radius: 3px;
+            border-radius: 0;
             margin-left: 6px;
-            border: 1px solid #d1d5db;
+            border: 1px solid #c6c6c6;
         }
 
         canvas {
             margin-top: 20px;
             padding: 15px;
-            background: #f9fafb;
-            border-radius: 10px;
-            border: 1px solid #e5e7eb;
+            background: #ffffff;
+            border-radius: 0;
+            border: 1px solid #e0e0e0;
         }
 
         .explanation {
             margin-top: 20px;
             padding: 15px;
-            background: #eff6ff;
-            border-radius: 10px;
-            border: 1px solid #dbeafe;
+            background: #f4f4f4;
+            border-radius: 0;
+            border: 1px solid #edf5ff;
         }
 
         .explanation h2 {
-            color: #1e3a8a;
+            color: #0f62fe;
             font-size: 16px;
             margin-bottom: 10px;
         }
 
         .explanation p, .explanation ul {
-            color: #6b7280;
+            color: #525252;
             font-size: 13px;
             margin: 5px 0;
         }
     </style>
+    <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
     <div class="calculator">
@@ -307,7 +308,7 @@
                 datasets: [{
                     label: 'Spectral radiance',
                     data: wavelengths.map(l => ({ x: l, y: planck(l, 5778) })),
-                    borderColor: '#3b82f6',
+                    borderColor: '#0f62fe',
                     backgroundColor: 'rgba(59, 130, 246, 0.15)',
                     fill: true,
                     pointRadius: 0,
@@ -329,20 +330,20 @@
                         position: 'bottom',
                         min: 100,
                         max: 5000,
-                        title: { display: true, text: 'Wavelength (nm, log)', color: '#1f2937', font: { size: 13 } },
-                        grid: { color: '#e5e7eb' },
+                        title: { display: true, text: 'Wavelength (nm, log)', color: '#161616', font: { size: 13 } },
+                        grid: { color: '#e0e0e0' },
                         ticks: {
                             callback: v => [100, 200, 500, 1000, 2000, 5000].includes(v) ? v : ''
                         }
                     },
                     y: {
-                        title: { display: true, text: 'Spectral radiance (W·sr⁻¹·m⁻²·nm⁻¹)', color: '#1f2937', font: { size: 12 } },
-                        grid: { color: '#e5e7eb' }
+                        title: { display: true, text: 'Spectral radiance (W·sr⁻¹·m⁻²·nm⁻¹)', color: '#161616', font: { size: 12 } },
+                        grid: { color: '#e0e0e0' }
                     }
                 },
                 plugins: {
-                    legend: { labels: { color: '#1f2937' } },
-                    title: { display: true, text: 'Planck Spectrum', color: '#1e3a8a', font: { size: 15 } }
+                    legend: { labels: { color: '#161616' } },
+                    title: { display: true, text: 'Planck Spectrum', color: '#0f62fe', font: { size: 15 } }
                 }
             }
         });
