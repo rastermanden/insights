@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Milankovitch Cycles &amp; Ice-Albedo Feedback</title>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        body {
+            font-family: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
+            background: #ffffff;
+            margin: 0;
+            color: #161616;
+        }
+
+        .demo-container {
+            max-width: 940px;
+            margin: 0 auto;
+            padding: 40px 24px 64px;
+        }
+
+        .page-eyebrow {
+            font-size: 12px;
+            letter-spacing: 0.32px;
+            text-transform: uppercase;
+            color: #525252;
+            margin: 0 0 8px;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 400;
+            color: #161616;
+            margin: 0 0 10px;
+            line-height: 1.2;
+        }
+
+        .lead {
+            font-size: 14px;
+            color: #525252;
+            margin: 0 0 32px;
+            max-width: 640px;
+            line-height: 1.6;
+        }
+
+        /* ── Two-column layout ── */
+        .demo-layout {
+            display: flex;
+            gap: 32px;
+            align-items: flex-start;
+        }
+
+        .globe-panel {
+            flex: 0 0 400px;
+        }
+
+        #globeCanvas {
+            display: block;
+            width: 400px;
+            height: 400px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .globe-caption {
+            font-size: 11px;
+            color: #8c8c8c;
+            text-align: center;
+            margin-top: 8px;
+            line-height: 1.5;
+            min-height: 32px;
+        }
+
+        .controls-panel {
+            flex: 1;
+            min-width: 260px;
+        }
+
+        /* ── Sliders ── */
+        .slider-block {
+            margin-bottom: 22px;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 7px;
+        }
+
+        .slider-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #161616;
+        }
+
+        .slider-val {
+            font-size: 13px;
+            font-family: 'IBM Plex Mono', monospace;
+            color: #0f62fe;
+            font-weight: 600;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            -webkit-appearance: none;
+            background: #c6c6c6;
+            height: 4px;
+            border-radius: 0;
+            outline: none;
+            cursor: pointer;
+            touch-action: pan-y;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #0f62fe;
+            border-radius: 0;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: #0f62fe;
+            border: none;
+            border-radius: 0;
+            cursor: pointer;
+        }
+
+        .slider-range-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #8c8c8c;
+            margin-top: 3px;
+        }
+
+        /* ── Buttons ── */
+        .btn-row {
+            display: flex;
+            gap: 8px;
+            margin: 4px 0 24px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: #0f62fe;
+            color: #ffffff;
+            border: none;
+            padding: 10px 18px;
+            font-size: 14px;
+            font-family: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 0;
+            letter-spacing: 0.16px;
+        }
+
+        .btn-primary:hover { background: #0050e6; }
+        .btn-primary.animating { background: #da1e28; }
+        .btn-primary.animating:hover { background: #b01621; }
+
+        .btn-ghost {
+            background: transparent;
+            color: #0f62fe;
+            border: 1px solid #0f62fe;
+            padding: 10px 18px;
+            font-size: 14px;
+            font-family: inherit;
+            cursor: pointer;
+            border-radius: 0;
+            letter-spacing: 0.16px;
+        }
+
+        .btn-ghost:hover { background: #edf5ff; }
+
+        /* ── Results box ── */
+        .results-box {
+            border: 1px solid #e0e0e0;
+        }
+
+        .results-title {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.32px;
+            text-transform: uppercase;
+            color: #525252;
+            padding: 10px 14px;
+            border-bottom: 1px solid #e0e0e0;
+            background: #e8e8e8;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 14px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 13px;
+            background: #f4f4f4;
+        }
+
+        .result-row:last-child { border-bottom: none; }
+        .result-label { color: #525252; }
+
+        .result-value {
+            font-weight: 600;
+            font-family: 'IBM Plex Mono', monospace;
+            color: #161616;
+        }
+
+        .result-value.hot  { color: #da1e28; }
+        .result-value.cold { color: #0f62fe; }
+
+        /* ── Explanation ── */
+        .explanation {
+            margin-top: 40px;
+            padding: 24px;
+            background: #f4f4f4;
+            border: 1px solid #e0e0e0;
+        }
+
+        .explanation h2 {
+            color: #0f62fe;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0 0 12px;
+        }
+
+        .explanation h3 {
+            color: #161616;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 18px 0 6px;
+        }
+
+        .explanation p,
+        .explanation li {
+            color: #525252;
+            font-size: 13px;
+            line-height: 1.6;
+            margin: 4px 0;
+        }
+
+        .explanation ul {
+            margin: 6px 0 6px 18px;
+            padding: 0;
+        }
+
+        /* ── Mobile ── */
+        @media (max-width: 768px) {
+            .demo-layout {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .globe-panel {
+                flex: unset;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            #globeCanvas {
+                width: 100%;
+                max-width: 400px;
+                height: auto;
+                aspect-ratio: 1;
+            }
+        }
+    </style>
+    <!-- pwa-install-marker -->
+    <link rel="icon" type="image/svg+xml" href="../icons/icon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="../icons/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../icons/favicon-16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon.png">
+    <link rel="manifest" href="../manifest.webmanifest">
+    <meta name="theme-color" content="#0f62fe">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Insights">
+    <meta name="mobile-web-app-capable" content="yes">
+    <script src="../pwa.js" defer></script>
+</head>
+<body>
+<div class="demo-container">
+    <p class="page-eyebrow">Physics · Orbital Mechanics &amp; Climate</p>
+    <h1>Milankovitch Cycles &amp; Ice-Albedo Feedback</h1>
+    <p class="lead">
+        Adjust Earth's orbital parameters to see how they reshape the polar ice caps,
+        effective albedo, and global equilibrium temperature through the Stefan-Boltzmann law.
+    </p>
+
+    <div class="demo-layout">
+
+        <!-- ── Globe ── -->
+        <div class="globe-panel">
+            <canvas id="globeCanvas" width="400" height="400"></canvas>
+            <p class="globe-caption" id="globeCaption">Tilt: 23.4° · Ice N: 74° · Ice S: 74°</p>
+            <p class="globe-caption" style="margin-top:2px;color:#525252">Scroll to zoom · drag to orbit</p>
+        </div>
+
+        <!-- ── Controls + Results ── -->
+        <div class="controls-panel">
+
+            <!-- Obliquity -->
+            <div class="slider-block">
+                <div class="slider-header">
+                    <span class="slider-name">Obliquity (axial tilt)</span>
+                    <span class="slider-val" id="obliquityVal">23.44°</span>
+                </div>
+                <input type="range" id="obliquitySlider" min="22.1" max="24.5" step="0.01" value="23.44">
+                <div class="slider-range-labels"><span>22.1°</span><span>24.5°</span></div>
+            </div>
+
+            <!-- Eccentricity -->
+            <div class="slider-block">
+                <div class="slider-header">
+                    <span class="slider-name">Eccentricity</span>
+                    <span class="slider-val" id="eccentricityVal">0.0167</span>
+                </div>
+                <input type="range" id="eccentricitySlider" min="0" max="0.06" step="0.0001" value="0.0167">
+                <div class="slider-range-labels"><span>0.000</span><span>0.060</span></div>
+            </div>
+
+            <!-- Precession -->
+            <div class="slider-block">
+                <div class="slider-header">
+                    <span class="slider-name">Precession angle</span>
+                    <span class="slider-val" id="precessionVal">102°</span>
+                </div>
+                <input type="range" id="precessionSlider" min="0" max="360" step="0.5" value="102">
+                <div class="slider-range-labels"><span>0°</span><span>360°</span></div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="btn-row">
+                <button class="btn-primary" id="animBtn">&#9654; Animate Precession</button>
+                <button class="btn-ghost" id="resetBtn">Reset to Today</button>
+            </div>
+
+            <!-- Results -->
+            <div class="results-box">
+                <div class="results-title">Computed Values</div>
+                <div class="result-row">
+                    <span class="result-label">Ice cap boundary N</span>
+                    <span class="result-value" id="r-ice-n">–</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Ice cap boundary S</span>
+                    <span class="result-value" id="r-ice-s">–</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Ice-covered fraction</span>
+                    <span class="result-value" id="r-ice-frac">–</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Effective albedo</span>
+                    <span class="result-value" id="r-albedo">–</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Mean insolation</span>
+                    <span class="result-value" id="r-insol">–</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Global temperature</span>
+                    <span class="result-value" id="r-temp">–</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">&#916;T from today</span>
+                    <span class="result-value" id="r-dt">–</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Explanation ── -->
+    <div class="explanation">
+        <h2>How Milankovitch Cycles Drive Ice Ages</h2>
+        <p>
+            Serbian mathematician Milutin Milanković showed that slow, periodic changes
+            in Earth's orbit alter how much solar energy reaches each latitude — and when.
+            Three cycles interact:
+        </p>
+        <ul>
+            <li>
+                <strong>Obliquity (41 kyr cycle, 22.1°–24.5°)</strong> — the tilt of Earth's axis.
+                Lower tilt means weaker summers at high latitudes: less seasonal melt, so ice
+                sheets advance toward the equator.
+            </li>
+            <li>
+                <strong>Eccentricity (100 kyr / 400 kyr)</strong> — how elliptical the orbit is.
+                Higher eccentricity amplifies the insolation difference between perihelion and
+                aphelion, making seasons in one hemisphere more extreme than the other.
+            </li>
+            <li>
+                <strong>Precession (26 kyr)</strong> — the wobble of Earth's spin axis, which
+                determines <em>which</em> solstice falls near perihelion. When the Northern
+                Hemisphere's summer coincides with perihelion, it gets extra-warm summers and
+                the northern ice cap retreats; the southern cap correspondingly grows.
+            </li>
+        </ul>
+
+        <h3>Ice-Albedo Feedback</h3>
+        <p>
+            Ice reflects ~75 % of incoming sunlight; open ocean and land reflect only ~10–30 %.
+            As ice expands, more solar energy is returned to space, cooling the planet further
+            and causing more ice growth — a runaway positive feedback that amplifies the weak
+            orbital forcing into full glacial cycles.
+        </p>
+        <p>This model computes an effective planetary albedo:</p>
+        \[ \alpha_\text{eff} = 0.30 + f_\text{ice} \times 0.45 \]
+        <p>
+            where \( f_\text{ice} \) is the fraction of Earth's surface covered by polar ice,
+            and 0.45 is the extra reflectivity contribution of ice above the ice-free baseline of 0.30.
+        </p>
+
+        <h3>Stefan-Boltzmann Equilibrium Temperature</h3>
+        <p>
+            The equilibrium temperature is found by balancing absorbed solar flux with
+            outgoing long-wave radiation:
+        </p>
+        \[ T = \left( \frac{\bar{S}\,(1 - \alpha_\text{eff})}{4\,\sigma} \right)^{\!1/4} - 273.15 \]
+        <p>
+            Mean annual insolation accounting for orbital eccentricity \( e \)
+            (the orbit integral gives an exact result):
+        </p>
+        \[ \bar{S} = \frac{S_0}{\sqrt{1 - e^2}} \]
+        <p>
+            where \( S_0 = 1361\,\text{W m}^{-2} \) is the solar constant and
+            \( \sigma = 5.670 \times 10^{-8}\,\text{W m}^{-2}\text{K}^{-4} \) is the
+            Stefan-Boltzmann constant. The result is a no-atmosphere effective temperature;
+            the real Earth is ~33 °C warmer due to the greenhouse effect.
+        </p>
+    </div>
+</div>
+
+<script>
+// ── Constants ──────────────────────────────────────────────────────────────
+const S0    = 1361;           // solar constant, W m⁻²
+const SIGMA = 5.670374419e-8; // Stefan-Boltzmann constant
+
+// Today's orbital values (reference point for ΔT)
+const TODAY = { obliquity: 23.44, eccentricity: 0.0167, precession: 102 };
+
+// ── State ──────────────────────────────────────────────────────────────────
+let params    = { ...TODAY };
+let animating = false;
+let animPrev  = null; // timestamp of previous animation frame
+
+// ── Three.js setup ─────────────────────────────────────────────────────────
+const canvasEl = document.getElementById('globeCanvas');
+
+// Guard: if the Three.js CDN failed to load or WebGL is unavailable, surface a
+// visible message instead of leaving a silent blank canvas.
+function showGlobeError(msg) {
+    const ctx = canvasEl.getContext('2d');
+    if (ctx) {
+        ctx.fillStyle = '#161616';
+        ctx.fillRect(0, 0, canvasEl.width, canvasEl.height);
+        ctx.fillStyle = '#f4f4f4';
+        ctx.font = '14px "IBM Plex Sans", Arial, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(msg, canvasEl.width / 2, canvasEl.height / 2 - 8);
+        ctx.fillStyle = '#8c8c8c';
+        ctx.font = '12px "IBM Plex Sans", Arial, sans-serif';
+        ctx.fillText('Check your network connection and reload.', canvasEl.width / 2, canvasEl.height / 2 + 16);
+    }
+    const cap = document.getElementById('globeCaption');
+    if (cap) cap.textContent = msg;
+}
+
+if (typeof THREE === 'undefined') {
+    showGlobeError('3D library failed to load.');
+    throw new Error('THREE is not defined — Three.js CDN did not load.');
+}
+
+let renderer;
+try {
+    renderer = new THREE.WebGLRenderer({ canvas: canvasEl, antialias: true });
+} catch (e) {
+    showGlobeError('WebGL is not available in this browser.');
+    throw e;
+}
+renderer.setSize(400, 400);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+const scene  = new THREE.Scene();
+scene.background = new THREE.Color(0x050a14);
+
+const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
+camera.position.set(0, 0, 3.2);
+
+// Orbit controls — scroll to zoom, drag to orbit, right-drag to pan
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping  = true;
+controls.dampingFactor  = 0.06;
+controls.minDistance    = 1.5;
+controls.maxDistance    = 12;
+controls.target.set(0, 0, 0);
+
+// Sun position: to the right of the globe so it's visible when zoomed out
+const SUN_DIR = new THREE.Vector3(1, 0.18, 0.3).normalize();
+const SUN_DIST = 5.5;
+
+const sunLight = new THREE.DirectionalLight(0xfff8e8, 1.4);
+sunLight.position.copy(SUN_DIR.clone().multiplyScalar(SUN_DIST));
+scene.add(sunLight);
+scene.add(new THREE.AmbientLight(0x0d1a33, 1.2));
+
+// Visible sun sphere
+const sunSphere = new THREE.Mesh(
+    new THREE.SphereGeometry(0.18, 20, 10),
+    new THREE.MeshBasicMaterial({ color: 0xffee55 })
+);
+sunSphere.position.copy(sunLight.position);
+scene.add(sunSphere);
+
+// Soft glow halo around sun (additive blending)
+const sunHalo = new THREE.Mesh(
+    new THREE.SphereGeometry(0.38, 20, 10),
+    new THREE.MeshBasicMaterial({
+        color: 0xffcc22,
+        transparent: true,
+        opacity: 0.22,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+    })
+);
+sunHalo.position.copy(sunLight.position);
+scene.add(sunHalo);
+
+// Stars
+(function addStars() {
+    const geo = new THREE.BufferGeometry();
+    const count = 1800;
+    const pos = new Float32Array(count * 3);
+    for (let i = 0; i < count * 3; i++) pos[i] = (Math.random() - 0.5) * 90;
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    scene.add(new THREE.Points(geo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.09 })));
+}());
+
+// Earth group: carries the axial tilt (rotation.z)
+const earthGroup = new THREE.Group();
+scene.add(earthGroup);
+
+// Axis indicator — thin line through the poles
+const axisGeo = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(0, -1.4, 0),
+    new THREE.Vector3(0,  1.4, 0)
+]);
+const axisLine = new THREE.Line(
+    axisGeo,
+    new THREE.LineBasicMaterial({ color: 0x6699ff, transparent: true, opacity: 0.45 })
+);
+earthGroup.add(axisLine);
+
+// Texture canvas (equirectangular projection, 1024×512)
+const texCanvas = document.createElement('canvas');
+texCanvas.width  = 1024;
+texCanvas.height = 512;
+const globeTexture = new THREE.CanvasTexture(texCanvas);
+
+// Globe mesh
+const globeGeo = new THREE.SphereGeometry(1, 64, 32);
+const globeMat = new THREE.MeshPhongMaterial({
+    map:      globeTexture,
+    specular: new THREE.Color(0x0a1428),
+    shininess: 12
+});
+const globe = new THREE.Mesh(globeGeo, globeMat);
+earthGroup.add(globe);
+
+// Thin atmosphere shell
+const atmosMesh = new THREE.Mesh(
+    new THREE.SphereGeometry(1.035, 32, 16),
+    new THREE.MeshPhongMaterial({
+        color: 0x3377ff, transparent: true, opacity: 0.06,
+        side: THREE.FrontSide, depthWrite: false
+    })
+);
+earthGroup.add(atmosMesh);
+
+// ── Texture generation ─────────────────────────────────────────────────────
+// Fills a rectangular land patch on the equirectangular texture canvas
+function fillLand(ctx, latMin, latMax, lonMin, lonMax, W, H) {
+    const x = (lonMin + 180) / 360 * W;
+    const w = (lonMax  - lonMin) / 360 * W;
+    const y = (90 - latMax) / 180 * H;
+    const h = (latMax  - latMin) / 180 * H;
+    ctx.fillRect(Math.round(x), Math.round(y), Math.max(1, Math.round(w)), Math.max(1, Math.round(h)));
+}
+
+let lastTexIceN = -999, lastTexIceS = -999;
+
+function updateTexture(iceLatN, iceLatS) {
+    // Skip GPU re-upload when ice caps haven't moved perceptibly
+    if (Math.abs(iceLatN - lastTexIceN) < 0.15 && Math.abs(iceLatS - lastTexIceS) < 0.15) return;
+    lastTexIceN = iceLatN;
+    lastTexIceS = iceLatS;
+
+    const W = texCanvas.width, H = texCanvas.height;
+    const ctx = texCanvas.getContext('2d');
+
+    // Ocean base
+    ctx.fillStyle = '#1a6090';
+    ctx.fillRect(0, 0, W, H);
+
+    // ── Simplified continental outlines (equirectangular rectangles) ──
+    // Africa
+    ctx.fillStyle = '#4a7a38';
+    fillLand(ctx, -35,  5, -18, 52, W, H);
+    fillLand(ctx,   5, 37, -18, 40, W, H);
+
+    // Europe
+    fillLand(ctx, 35, 72, -10, 32, W, H);
+
+    // Asia
+    fillLand(ctx,  5, 77, 32, 145, W, H);
+
+    // N America
+    fillLand(ctx, 15, 70, -168, -55, W, H);
+
+    // S America
+    fillLand(ctx, -57, 13, -82, -34, W, H);
+
+    // Australia
+    fillLand(ctx, -43, -10, 113, 154, W, H);
+
+    // Greenland (slightly lighter)
+    ctx.fillStyle = '#5a8c48';
+    fillLand(ctx, 59, 84, -73, -14, W, H);
+
+    // ── North polar ice cap ──
+    const iceYN = Math.round((90 - iceLatN) / 180 * H);
+    ctx.fillStyle = '#ddeeff';
+    ctx.fillRect(0, 0, W, iceYN);
+    // soft gradient fringe
+    const gN = ctx.createLinearGradient(0, iceYN, 0, iceYN + 22);
+    gN.addColorStop(0, 'rgba(220,238,255,0.85)');
+    gN.addColorStop(1, 'rgba(220,238,255,0)');
+    ctx.fillStyle = gN;
+    ctx.fillRect(0, iceYN, W, 22);
+
+    // ── South polar ice cap ──
+    const iceYS = Math.round((90 + iceLatS) / 180 * H);
+    ctx.fillStyle = '#ddeeff';
+    ctx.fillRect(0, iceYS, W, H - iceYS);
+    const gS = ctx.createLinearGradient(0, iceYS - 22, 0, iceYS);
+    gS.addColorStop(0, 'rgba(220,238,255,0)');
+    gS.addColorStop(1, 'rgba(220,238,255,0.85)');
+    ctx.fillStyle = gS;
+    ctx.fillRect(0, iceYS - 22, W, 22);
+
+    globeTexture.needsUpdate = true;
+}
+
+// ── Physics ────────────────────────────────────────────────────────────────
+// Returns ice cap latitude boundaries for N and S poles.
+// Model calibration: obliquity 22.1° → boundary at ~60°N/S (glacial),
+//                   obliquity 24.5° → boundary at ~85°N/S (interglacial).
+// Precession × eccentricity creates a hemispheric asymmetry:
+// when perihelion falls in the N-summer (sin(precession) > 0), the N cap melts more.
+function computeIceLat(obliquity, eccentricity, precession) {
+    const base        = 60 + (obliquity - 22.1) / 2.4 * 25; // linear [60°, 85°]
+    const precRad     = precession * Math.PI / 180;
+    const asymmetry   = eccentricity * Math.sin(precRad) * 8; // degrees
+    const clamp = v   => Math.max(55, Math.min(85, v));
+    return {
+        iceLatN: clamp(base + asymmetry),
+        iceLatS: clamp(base - asymmetry)
+    };
+}
+
+function computeResults(obliquity, eccentricity, precession) {
+    const { iceLatN, iceLatS } = computeIceLat(obliquity, eccentricity, precession);
+
+    // Fraction of sphere in each polar cap: ∫_φ^90 cos(l)dl / 2 = (1 − sin φ) / 2
+    const fracN      = (1 - Math.sin(iceLatN * Math.PI / 180)) / 2;
+    const fracS      = (1 - Math.sin(iceLatS * Math.PI / 180)) / 2;
+    const iceFraction = fracN + fracS;
+
+    const alpha  = 0.30 + iceFraction * 0.45;
+    const S_mean = S0 / Math.sqrt(1 - eccentricity * eccentricity);
+    const T_K    = Math.pow(S_mean * (1 - alpha) / (4 * SIGMA), 0.25);
+    const T_C    = T_K - 273.15;
+
+    return { iceLatN, iceLatS, iceFraction, alpha, S_mean, T_C };
+}
+
+const refResults = computeResults(TODAY.obliquity, TODAY.eccentricity, TODAY.precession);
+
+// ── UI update ──────────────────────────────────────────────────────────────
+function updateDisplay() {
+    const { obliquity, eccentricity, precession } = params;
+    const r  = computeResults(obliquity, eccentricity, precession);
+    const dT = r.T_C - refResults.T_C;
+
+    document.getElementById('r-ice-n').textContent     = r.iceLatN.toFixed(1)        + '° N';
+    document.getElementById('r-ice-s').textContent     = r.iceLatS.toFixed(1)        + '° S';
+    document.getElementById('r-ice-frac').textContent  = (r.iceFraction * 100).toFixed(1) + '%';
+    document.getElementById('r-albedo').textContent    = r.alpha.toFixed(3);
+    document.getElementById('r-insol').textContent     = r.S_mean.toFixed(0)         + ' W/m²';
+    document.getElementById('r-temp').textContent      = r.T_C.toFixed(2)            + '°C';
+
+    const dtEl = document.getElementById('r-dt');
+    dtEl.textContent  = (dT >= 0 ? '+' : '') + dT.toFixed(2) + '°C';
+    dtEl.className    = 'result-value' + (dT > 0.05 ? ' hot' : dT < -0.05 ? ' cold' : '');
+
+    document.getElementById('globeCaption').textContent =
+        `Tilt: ${obliquity.toFixed(1)}°  ·  Ice N: ${r.iceLatN.toFixed(0)}°  ·  Ice S: ${r.iceLatS.toFixed(0)}°`;
+
+    earthGroup.rotation.z = obliquity * Math.PI / 180;
+    updateTexture(r.iceLatN, r.iceLatS);
+}
+
+// ── Slider bindings ────────────────────────────────────────────────────────
+function bindSlider(sliderId, valId, decimals, suffix, setter) {
+    const slider = document.getElementById(sliderId);
+    const valEl  = document.getElementById(valId);
+    slider.addEventListener('input', () => {
+        const v = parseFloat(slider.value);
+        setter(v);
+        valEl.textContent = v.toFixed(decimals) + suffix;
+        updateDisplay();
+    });
+}
+
+bindSlider('obliquitySlider',    'obliquityVal',    2, '°',  v => { params.obliquity    = v; });
+bindSlider('eccentricitySlider', 'eccentricityVal', 4, '',   v => { params.eccentricity = v; });
+bindSlider('precessionSlider',   'precessionVal',   0, '°',  v => { params.precession   = v; });
+
+// ── Button handlers ────────────────────────────────────────────────────────
+document.getElementById('animBtn').addEventListener('click', () => {
+    animating = !animating;
+    animPrev  = null;
+    const btn = document.getElementById('animBtn');
+    if (animating) {
+        btn.textContent = '⏹ Stop Animation';
+        btn.classList.add('animating');
+    } else {
+        btn.textContent = '▶ Animate Precession';
+        btn.classList.remove('animating');
+    }
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+    params = { ...TODAY };
+    document.getElementById('obliquitySlider').value    = TODAY.obliquity;
+    document.getElementById('eccentricitySlider').value = TODAY.eccentricity;
+    document.getElementById('precessionSlider').value   = TODAY.precession;
+    document.getElementById('obliquityVal').textContent    = TODAY.obliquity.toFixed(2)    + '°';
+    document.getElementById('eccentricityVal').textContent = TODAY.eccentricity.toFixed(4);
+    document.getElementById('precessionVal').textContent   = TODAY.precession.toFixed(0)   + '°';
+    updateDisplay();
+});
+
+// ── Animation loop ─────────────────────────────────────────────────────────
+// Precession animation: full 360° cycle in 20 s  (18°/s)
+let needsUpdate = true;
+let lastUpdateAt = 0;
+
+function animate(now) {
+    requestAnimationFrame(animate);
+
+    if (animating) {
+        if (animPrev !== null) {
+            const dt = now - animPrev;
+            params.precession = (params.precession + dt * 18 / 1000) % 360;
+            const pEl = document.getElementById('precessionSlider');
+            pEl.value = params.precession;
+            document.getElementById('precessionVal').textContent =
+                Math.round(params.precession) + '°';
+            needsUpdate = true;
+        }
+        animPrev = now;
+    }
+
+        // Throttle expensive texture + DOM update to ~30 fps (only during precession animation)
+    if (needsUpdate && (now - lastUpdateAt) > 33) {
+        updateDisplay();
+        needsUpdate  = false;
+        lastUpdateAt = now;
+    }
+
+    controls.update(); // needed for damping
+    globe.rotation.y += 0.003; // slow auto-spin
+    renderer.render(scene, camera);
+}
+
+// Boot — run initial display, then start loop (skip first-frame re-run)
+updateDisplay();
+needsUpdate  = false;
+lastUpdateAt = performance.now();
+requestAnimationFrame(animate);
+</script>
+</body>
+</html>
