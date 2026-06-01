@@ -5,12 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Planet Effective Temperature Calculator</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #e0e7ff, #f3f4f6);
+            font-family: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
+            background: #ffffff;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -22,13 +21,13 @@
             width: 450px;
             background: #ffffff;
             padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e5e7eb;
+            border-radius: 0;
+            box-shadow: none;
+            border: 1px solid #e0e0e0;
         }
 
         h1 {
-            color: #1e3a8a;
+            color: #0f62fe;
             text-align: center;
             margin-bottom: 25px;
             font-size: 24px;
@@ -43,7 +42,7 @@
 
         label {
             flex: 1;
-            color: #4b5563;
+            color: #525252;
             font-size: 14px;
             font-weight: 500;
         }
@@ -52,8 +51,8 @@
             width: 100px;
             padding: 8px 0;
             -webkit-appearance: none;
-            background: #d1d5db;
-            border-radius: 8px;
+            background: #c6c6c6;
+            border-radius: 0;
             height: 6px;
             outline: none;
             transition: background-color 0.3s ease;
@@ -63,28 +62,28 @@
             -webkit-appearance: none;
             width: 16px;
             height: 16px;
-            background: #3b82f6;
-            border-radius: 50%;
+            background: #0f62fe;
+            border-radius: 0;
             cursor: pointer;
             transition: background-color 0.3s ease, box-shadow 0.3s ease;
         }
 
         input[type="range"]:focus::-webkit-slider-thumb {
-            box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+            box-shadow: none;
         }
 
         input[type="range"]::-moz-range-thumb {
             width: 16px;
             height: 16px;
-            background: #3b82f6;
+            background: #0f62fe;
             border: none;
-            border-radius: 50%;
+            border-radius: 0;
             cursor: pointer;
             transition: background-color 0.3s ease, box-shadow 0.3s ease;
         }
 
         input[type="range"]:focus::-moz-range-thumb {
-            box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+            box-shadow: none;
         }
 
         .value-container {
@@ -96,7 +95,7 @@
         .arrow-btn {
             padding: 6px 10px;
             border: none;
-            border-radius: 6px;
+            border-radius: 0;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
@@ -104,66 +103,66 @@
         }
 
         #upBtn {
-            background: #1e3a8a;
+            background: #0f62fe;
             color: white;
         }
 
         #upBtn:hover {
-            background: #1e40af;
+            background: #0050e6;
             transform: translateY(-2px);
         }
 
         #downBtn {
-            background: #9ca3af;
+            background: #8c8c8c;
             color: white;
         }
 
         #downBtn:hover {
-            background: #6b7280;
+            background: #525252;
             transform: translateY(-2px);
         }
 
         .temperature-display {
             margin-top: 25px;
             padding: 20px;
-            background: #f9fafb;
-            border-radius: 10px;
-            border: 1px solid #e5e7eb;
-            color: #374151;
+            background: #ffffff;
+            border-radius: 0;
+            border: 1px solid #e0e0e0;
+            color: #161616;
             font-size: 14px;
             text-align: center;
         }
 
         .temperature-display span {
             font-weight: 600;
-            color: #1f2937;
+            color: #161616;
         }
 
         canvas {
             margin-top: 20px;
             padding: 20px;
-            background: #f9fafb;
-            border-radius: 10px;
-            border: 1px solid #e5e7eb;
+            background: #ffffff;
+            border-radius: 0;
+            border: 1px solid #e0e0e0;
         }
 
         .explanation {
             margin-top: 20px;
             padding: 15px;
-            background: #eff6ff;
-            border-radius: 10px;
-            border: 1px solid #dbeafe;
+            background: #f4f4f4;
+            border-radius: 0;
+            border: 1px solid #edf5ff;
         }
 
         .explanation h2 {
-            color: #1e3a8a;
+            color: #0f62fe;
             font-size: 16px;
             margin-bottom: 10px;
             text-align: left;
         }
 
         .explanation p, .explanation ul {
-            color: #6b7280;
+            color: #525252;
             font-size: 13px;
             margin: 5px 0;
         }
@@ -175,6 +174,20 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="../styles.css">
+    <!-- pwa-install-marker -->
+    <link rel="icon" type="image/svg+xml" href="../icons/icon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="../icons/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../icons/favicon-16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon.png">
+    <link rel="manifest" href="../manifest.webmanifest">
+    <meta name="theme-color" content="#0f62fe">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Insights">
+    <meta name="mobile-web-app-capable" content="yes">
+    <script src="../pwa.js" defer></script>
+
 </head>
 <body>
     <div class="calculator">
@@ -248,7 +261,7 @@
                 datasets: [{
                     label: 'Temperature vs. Albedo',
                     data: albedos.map((a, i) => (({x: a, y: temperatures[i]}))),
-                    borderColor: '#3b82f6',
+                    borderColor: '#0f62fe',
                     backgroundColor: 'rgba(59, 130, 246, 0.1)',
                     fill: false,
                     pointRadius: 0
@@ -256,7 +269,7 @@
                     label: 'Current',
                     data: [{x: 0.3, y: calculateTemperature(0.3)}],
                     type: 'scatter',
-                    pointBackgroundColor: '#dc2626',
+                    pointBackgroundColor: '#da1e28',
                     pointRadius: 5
                 }]
             },
@@ -268,33 +281,33 @@
                         title: {
                             display: true,
                             text: 'Albedo',
-                            color: '#1f2937',
+                            color: '#161616',
                             font: {
                                 size: 14
                             }
                         },
                         grid: {
-                            color: '#e5e7eb'
+                            color: '#e0e0e0'
                         }
                     },
                     y: {
                         title: {
                             display: true,
                             text: 'Effective Temperature (°C)',
-                            color: '#1f2937',
+                            color: '#161616',
                             font: {
                                 size: 14
                             }
                         },
                         grid: {
-                            color: '#e5e7eb'
+                            color: '#e0e0e0'
                         }
                     }
                 },
                 plugins: {
                     legend: {
                         labels: {
-                            color: '#1f2937',
+                            color: '#161616',
                             font: {
                                 size: 14
                             }
@@ -303,7 +316,7 @@
                     title: {
                         display: true,
                         text: 'Effective Temperature vs. Albedo',
-                        color: '#1e3a8a',
+                        color: '#0f62fe',
                         font: {
                             size: 16
                         }

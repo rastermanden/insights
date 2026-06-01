@@ -3,71 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Card Links Page</title>
+    <title>Insights — Math &amp; Physics</title>
+    <link rel="stylesheet" href="styles.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        body { background: var(--ibm-canvas); }
+        .topics-eyebrow {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            background-color: #f0f0f0;
-        }
-        .card-container {
-            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 24px;
+            margin-bottom: 32px;
             flex-wrap: wrap;
-            gap: 20px;
-            max-width: 1200px;
-            padding: 20px;
         }
-        .card {
-            background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 200px;
-            padding: 20px;
-            text-align: center;
-            text-decoration: none;
-            color: #333;
-            transition: transform 0.2s;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-        }
-        .card h3 {
-            margin: 0 0 10px;
-        }
-        .card p {
+        .topics-eyebrow h2 {
+            font-size: 32px;
+            font-weight: 400;
+            line-height: 1.25;
             margin: 0;
+        }
+        .topics-eyebrow .ibm-eyebrow {
             font-size: 14px;
-            color: #666;
+            letter-spacing: 0.16px;
+            color: var(--ibm-ink-muted);
+            margin: 0;
+        }
+        .topic-filter {
+            display: flex;
+            gap: 0;
+            border-bottom: 1px solid var(--ibm-hairline);
+            margin-bottom: 32px;
+        }
+        .topic-filter button {
+            background: transparent;
+            border: 0;
+            padding: 16px 20px;
+            font-family: var(--ibm-font);
+            font-size: 14px;
+            color: var(--ibm-ink-muted);
+            letter-spacing: 0.16px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+        }
+        .topic-filter button:hover { color: var(--ibm-ink); }
+        .topic-filter button.active {
+            color: var(--ibm-ink);
+            font-weight: 600;
+            border-bottom-color: var(--ibm-primary);
         }
     </style>
+    <!-- pwa-install-marker -->
+    <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#0f62fe">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Insights">
+    <meta name="mobile-web-app-capable" content="yes">
+    <script src="pwa.js" defer></script>
 </head>
 <body>
-    <div class="card-container" id="cardContainer"></div>
+    <div class="ibm-utility-bar" role="region" aria-label="Site utility">
+        <span>Interactive learning · Math &amp; Physics</span>
+    </div>
+    <header class="ibm-top-nav" role="banner">
+        <div class="ibm-wordmark"><a href="index.html">Insights</a></div>
+    </header>
+
+    <main class="ibm-page">
+        <section class="ibm-hero">
+            <p class="ibm-eyebrow">Interactive demos</p>
+            <h1>Insights for math and physics, one calculator at a time.</h1>
+            <p class="ibm-lead">A collection of small, self-contained tools that turn formulas into something you can poke at — Bayes' theorem, Stefan-Boltzmann, Kepler's third law, and more.</p>
+        </section>
+
+        <section class="ibm-section" id="topics">
+            <div class="topics-eyebrow">
+                <h2>Browse the demos</h2>
+                <p class="ibm-eyebrow">Seventeen interactive pages</p>
+            </div>
+            <div class="topic-filter" role="tablist" aria-label="Filter by topic">
+                <button class="active" data-filter="all" role="tab">All</button>
+                <button data-filter="math" role="tab">Math</button>
+                <button data-filter="physics" role="tab">Physics</button>
+            </div>
+            <div class="ibm-card-grid" id="cardContainer"></div>
+        </section>
+    </main>
+
+    <footer class="ibm-footer" role="contentinfo">
+        <div class="ibm-footer-inner">
+            <p class="ibm-wordmark">Insights</p>
+            <p>Interactive math &amp; physics demos.</p>
+            <p>Static site, no tracking, no build.</p>
+        </div>
+    </footer>
 
     <script>
         const pages = [
-            { title: "Reverse polish notation", description: "Demo of the stack in reverse polish notation", link: "math/polish.html" },
-            { title: "Bayes theorem", description: "Demo of Baeyes Theorem", link: "math/bayes.html" },
-            { title: "Abosute and relative risk", description: "Calculating efficacy, risk and number neeeded to treat NNT", link: "math/risk.html" },
-            { title: "Earth temperature", description: "Calculating earth temperature with Stefan-Boltzmann with changing albedo", link: "physics/earth_temperature.html" }
-
+            { title: "Reverse Polish Notation", description: "Demo of the stack in Reverse Polish Notation", link: "math/polish.html", topic: "math" },
+            { title: "Linear Regression", description: "Find the line of best fit through data points and explore slope, intercept, and R squared.", link: "math/linear_regression.html", topic: "math" },
+            { title: "Exponential Functions", description: "Explore growth and decay with y = a·e^(bx) — adjust parameters and see doubling time or half-life.", link: "math/exponential.html", topic: "math" },
+            { title: "Bayes' Theorem", description: "Demo of Bayes' Theorem.", link: "math/bayes.html", topic: "math" },
+            { title: "Absolute and Relative Risk", description: "Calculating efficacy, risk, and Number Needed to Treat (NNT).", link: "math/risk.html", topic: "math" },
+            { title: "Earth Temperature", description: "Calculating Earth's temperature with the Stefan-Boltzmann law by varying albedo.", link: "physics/earth_temperature.html", topic: "physics" },
+            { title: "Milankovitch Cycles &amp; Ice-Albedo", description: "3D globe showing how orbital cycles drive ice ages via Stefan-Boltzmann and albedo feedback.", link: "physics/milankovitch_globe.html", topic: "physics" },
+            { title: "Simple Equations", description: "Explore linear and quadratic equations — adjust parameters, visualize graphs, and solve for x.", link: "math/equations.html", topic: "math" },
+            { title: "K-Ar Rock Dating", description: "Use Potassium-40 to Argon-40 radioactive decay to determine the age of igneous rocks.", link: "physics/decay_dating.html", topic: "physics" },
+            { title: "Carbon-14 Dating", description: "Use C-14 to N-14 radioactive decay to determine the age of organic materials such as wood, bone, and charcoal.", link: "physics/carbon14_dating.html", topic: "physics" },
+            { title: "Sine and Cosine", description: "Explore sin and cos through the unit circle — adjust the angle and watch the waves respond.", link: "math/sine_cosine.html", topic: "math" },
+            { title: "Simpson's Paradox", description: "See how a trend within groups can reverse direction once the groups are merged.", link: "math/simpsons_paradox.html", topic: "math" },
+            { title: "P-Value &amp; Confidence Interval", description: "Read the result line in any scientific abstract — see how p-values, confidence intervals, and intervals crossing zero relate.", link: "math/p_value.html", topic: "math" },
+            { title: "Central Limit Theorem", description: "Watch sample means turn into a bell curve regardless of the source distribution.", link: "math/clt.html", topic: "math" },
+            { title: "Blackbody Spectrum", description: "Watch Planck's law shift with temperature — see Wien's displacement and the T to the fourth Stefan-Boltzmann scaling.", link: "physics/blackbody.html", topic: "physics" },
+            { title: "Time Dilation", description: "Explore the Lorentz factor — how moving clocks slow and lengths contract as you approach the speed of light.", link: "physics/time_dilation.html", topic: "physics" },
+            { title: "Kepler's Third Law", description: "Vary a planet's orbit and watch T squared equals a cubed play out — period, perihelion, aphelion, and orbital speed.", link: "physics/kepler.html", topic: "physics" }
         ];
 
         const cardContainer = document.getElementById('cardContainer');
 
-        pages.forEach(page => {
-            const card = document.createElement('a');
-            card.className = 'card';
-            card.href = page.link;
-            card.innerHTML = `
-                <h3>${page.title}</h3>
-                <p>${page.description}</p>
-            `;
-            cardContainer.appendChild(card);
+        function render(filter) {
+            cardContainer.innerHTML = '';
+            pages
+                .filter(p => filter === 'all' || p.topic === filter)
+                .forEach(page => {
+                    const card = document.createElement('a');
+                    card.className = 'ibm-tile';
+                    card.href = page.link;
+                    card.setAttribute('aria-label', `Open ${page.title}`);
+                    card.innerHTML = `
+                        <p class="ibm-tile-eyebrow">${page.topic === 'math' ? 'Math' : 'Physics'}</p>
+                        <h3>${page.title}</h3>
+                        <p>${page.description}</p>
+                        <span class="ibm-tile-arrow">Open →</span>
+                    `;
+                    cardContainer.appendChild(card);
+                });
+        }
+
+        render('all');
+
+        function setFilter(filter) {
+            document.querySelectorAll('.topic-filter button').forEach(b => {
+                b.classList.toggle('active', b.dataset.filter === filter);
+            });
+            render(filter);
+        }
+
+        document.querySelectorAll('.topic-filter button').forEach(btn => {
+            btn.addEventListener('click', () => setFilter(btn.dataset.filter));
         });
     </script>
 </body>
