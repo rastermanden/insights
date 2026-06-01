@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risk, NNT, and NNH Calculator</title>
+    <style>
+        body {
+            font-family: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+
+        .calculator {
+            width: 560px;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 0;
+            box-shadow: none;
+            border: 1px solid #e0e0e0;
+            margin: 30px 0;
+        }
+
+        h2 {
+            color: #0f62fe;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 24px;
+            letter-spacing: 1px;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+        }
+
+        label {
+            flex: 1;
+            color: #525252;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100px;
+            padding: 8px 12px;
+            border: 1px solid #c6c6c6;
+            border-radius: 0;
+            font-size: 14px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #0f62fe;
+            box-shadow: none;
+        }
+
+        .value-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .arrow-btn {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 0;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .up-btn {
+            background: #0f62fe;
+            color: white;
+        }
+
+        .up-btn:hover {
+            background: #0050e6;
+            transform: translateY(-2px);
+        }
+
+        .down-btn {
+            background: #8c8c8c;
+            color: white;
+        }
+
+        .down-btn:hover {
+            background: #525252;
+            transform: translateY(-2px);
+        }
+
+        #results {
+            margin-top: 25px;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 0;
+            border: 1px solid #e0e0e0;
+        }
+
+        #results p {
+            margin: 6px 0;
+            color: #161616;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 8px 12px;
+        }
+
+        #results span {
+            font-weight: 600;
+            color: #161616;
+            text-align: right;
+            font-family: 'IBM Plex Mono', 'SF Mono', Consolas, monospace;
+        }
+
+        .subhead {
+            color: #0f62fe;
+            font-size: 15px;
+            margin: 22px 0 8px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 6px;
+        }
+
+        #results .subhead:first-child {
+            margin-top: 0;
+        }
+
+        .metric-raw {
+            background: #ffffff;
+        }
+
+        .metric-relative {
+            background: #fff8e1;
+            border-left: 3px solid #f1c21b;
+        }
+
+        .metric-absolute {
+            background: #edf5ff;
+            border-left: 3px solid #0f62fe;
+        }
+
+        .metric-headline {
+            font-weight: 600;
+        }
+
+        .legend {
+            display: flex;
+            gap: 14px;
+            font-size: 12px;
+            color: #525252;
+            margin: 6px 0 12px;
+            flex-wrap: wrap;
+        }
+
+        .legend .swatch {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+
+        .swatch.rel { background: #fff8e1; border-left: 3px solid #f1c21b; }
+        .swatch.abs { background: #edf5ff; border-left: 3px solid #0f62fe; }
+
+        #error {
+            color: #da1e28;
+            font-size: 13px;
+            margin-top: 10px;
+            display: none;
+            text-align: center;
+        }
+
+        .instructions {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f4f4f4;
+            border-radius: 0;
+            border: 1px solid #edf5ff;
+        }
+
+        .instructions h3 {
+            color: #0f62fe;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .instructions p {
+            color: #525252;
+            font-size: 13px;
+            margin: 5px 0;
+        }
+
+        @media (max-width: 600px) {
+            .calculator {
+                width: 90%;
+                padding: 20px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="../styles.css">
+    <!-- pwa-install-marker -->
+    <link rel="icon" type="image/svg+xml" href="../icons/icon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="../icons/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../icons/favicon-16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon.png">
+    <link rel="manifest" href="../manifest.webmanifest">
+    <meta name="theme-color" content="#0f62fe">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Insights">
+    <meta name="mobile-web-app-capable" content="yes">
+    <script src="../pwa.js" defer></script>
+
+</head>
+<body>
+    <div class="calculator">
+        <h2>Risk, NNT, and NNH Calculator</h2>
+
+        <h3 class="subhead">Primary endpoint (e.g. COVID-19 cases)</h3>
+        <div class="input-group">
+            <label for="controlEvents">Control Group Events:</label>
+            <div class="value-container">
+                <input type="number" id="controlEvents" min="0" value="162" required aria-label="Control group events">
+                <button class="arrow-btn up-btn" data-input="controlEvents" aria-label="Increase control events" tabindex="0">↑</button>
+                <button class="arrow-btn down-btn" data-input="controlEvents" aria-label="Decrease control events" tabindex="0">↓</button>
+            </div>
+        </div>
+        <div class="input-group">
+            <label for="controlTotal">Control Group Total:</label>
+            <div class="value-container">
+                <input type="number" id="controlTotal" min="1" value="21728" required aria-label="Control group total">
+                <button class="arrow-btn up-btn" data-input="controlTotal" aria-label="Increase control total" tabindex="0">↑</button>
+                <button class="arrow-btn down-btn" data-input="controlTotal" aria-label="Decrease control total" tabindex="0">↓</button>
+            </div>
+        </div>
+        <div class="input-group">
+            <label for="treatmentEvents">Treatment Group Events:</label>
+            <div class="value-container">
+                <input type="number" id="treatmentEvents" min="0" value="8" required aria-label="Treatment group events">
+                <button class="arrow-btn up-btn" data-input="treatmentEvents" aria-label="Increase treatment events" tabindex="0">↑</button>
+                <button class="arrow-btn down-btn" data-input="treatmentEvents" aria-label="Decrease treatment events" tabindex="0">↓</button>
+            </div>
+        </div>
+        <div class="input-group">
+            <label for="treatmentTotal">Treatment Group Total:</label>
+            <div class="value-container">
+                <input type="number" id="treatmentTotal" min="1" value="21720" required aria-label="Treatment group total">
+                <button class="arrow-btn up-btn" data-input="treatmentTotal" aria-label="Increase treatment total" tabindex="0">↑</button>
+                <button class="arrow-btn down-btn" data-input="treatmentTotal" aria-label="Decrease treatment total" tabindex="0">↓</button>
+            </div>
+        </div>
+
+        <h3 class="subhead">Serious adverse events (SAE)</h3>
+        <div class="input-group">
+            <label for="controlSAE">Control SAE Events:</label>
+            <div class="value-container">
+                <input type="number" id="controlSAE" min="0" value="33" required aria-label="Control group SAE events">
+                <button class="arrow-btn up-btn" data-input="controlSAE" aria-label="Increase control SAE" tabindex="0">↑</button>
+                <button class="arrow-btn down-btn" data-input="controlSAE" aria-label="Decrease control SAE" tabindex="0">↓</button>
+            </div>
+        </div>
+        <div class="input-group">
+            <label for="treatmentSAE">Treatment SAE Events:</label>
+            <div class="value-container">
+                <input type="number" id="treatmentSAE" min="0" value="60" required aria-label="Treatment group SAE events">
+                <button class="arrow-btn up-btn" data-input="treatmentSAE" aria-label="Increase treatment SAE" tabindex="0">↑</button>
+                <button class="arrow-btn down-btn" data-input="treatmentSAE" aria-label="Decrease treatment SAE" tabindex="0">↓</button>
+            </div>
+        </div>
+
+        <div id="error"></div>
+
+        <div id="results">
+            <h3 class="subhead">Benefit — primary endpoint</h3>
+            <div class="legend">
+                <span><span class="swatch rel"></span>Relative measure</span>
+                <span><span class="swatch abs"></span>Absolute measure</span>
+            </div>
+            <p class="metric-raw">Control event rate (CER): <span id="cer"></span></p>
+            <p class="metric-raw">Treatment event rate (TER): <span id="ter"></span></p>
+            <p class="metric-relative">Relative Risk (RR = TER ÷ CER): <span id="rr"></span></p>
+            <p class="metric-relative metric-headline">Relative Risk Reduction (RRR = 1 − RR): <span id="rrr"></span></p>
+            <p class="metric-absolute metric-headline">Absolute Risk Reduction (ARR = CER − TER): <span id="arr"></span></p>
+            <p class="metric-absolute metric-headline">Number Needed to Treat (NNT = 1 ÷ ARR): <span id="nnt"></span></p>
+
+            <h3 class="subhead">Harm — serious adverse events</h3>
+            <p class="metric-raw">Control SAE rate (CER<sub>SAE</sub>): <span id="cerSae"></span></p>
+            <p class="metric-raw">Treatment SAE rate (TER<sub>SAE</sub>): <span id="terSae"></span></p>
+            <p class="metric-relative">Relative Risk (RR<sub>SAE</sub> = TER<sub>SAE</sub> ÷ CER<sub>SAE</sub>): <span id="rrSae"></span></p>
+            <p class="metric-relative metric-headline">Relative Risk Increase (RRI = RR<sub>SAE</sub> − 1): <span id="rri"></span></p>
+            <p class="metric-absolute metric-headline">Absolute Risk Increase (ARI = TER<sub>SAE</sub> − CER<sub>SAE</sub>): <span id="ariSae"></span></p>
+            <p class="metric-absolute metric-headline">Number Needed to Harm (NNH = 1 ÷ ARI): <span id="nnh"></span></p>
+        </div>
+
+        <div class="instructions">
+            <h3>Instructions</h3>
+            <p>Enter event counts and totals for control and treatment groups for both the primary endpoint and serious adverse events (SAE). Results update automatically.</p>
+            <p>Default values (162 / 21,728 control, 8 / 21,720 treatment for the primary endpoint; 33 / 60 SAE) come from the Pfizer–BioNTech BNT162b2 phase&nbsp;3 trial — Polack et&nbsp;al. <em>NEJM</em> 2020 (<a href="https://www.nejm.org/doi/full/10.1056/NEJMoa2034577" target="_blank" rel="noopener">NEJMoa2034577</a>) — combined with the SAE arm counts from Fraiman et&nbsp;al. (2022) reanalysis (<a href="https://pubmed.ncbi.nlm.nih.gov/36055877" target="_blank" rel="noopener">PubMed 36055877</a>).</p>
+            <p><strong>Relative vs absolute.</strong> Relative measures (RR, RRR, RRI) describe how risk changes <em>proportionally</em> between groups — they ignore how common the event is. Absolute measures (ARR, ARI, NNT, NNH) describe how risk changes for an individual <em>in real terms</em>. The two can diverge dramatically when the baseline rate is small: a 95% relative risk reduction may correspond to a &lt;1% absolute risk reduction.</p>
+            <p><strong>NNT</strong> = number of people who must be treated for one to benefit. <strong>NNH</strong> = number who must be treated for one to be harmed (here, suffer an SAE). Both are derived from absolute differences.</p>
+            <p><strong>SAE</strong> = serious adverse event: fatal, life-threatening, requires/prolongs hospitalization, causes persistent disability, or congenital anomaly.</p>
+        </div>
+    </div>
+
+    <script>
+        class RiskCalculator {
+            constructor() {
+                this.errorDisplay = document.getElementById('error');
+                this.clearResults();
+            }
+
+            calculate(controlEvents, controlTotal, treatmentEvents, treatmentTotal, controlSAE, treatmentSAE) {
+                controlEvents = Number(controlEvents);
+                controlTotal = Number(controlTotal);
+                treatmentEvents = Number(treatmentEvents);
+                treatmentTotal = Number(treatmentTotal);
+                controlSAE = Number(controlSAE);
+                treatmentSAE = Number(treatmentSAE);
+
+                if (isNaN(controlEvents) || isNaN(controlTotal) ||
+                    isNaN(treatmentEvents) || isNaN(treatmentTotal) ||
+                    isNaN(controlSAE) || isNaN(treatmentSAE)) {
+                    throw new Error("All inputs must be valid numbers");
+                }
+
+                if (controlTotal <= 0 || treatmentTotal <= 0) {
+                    throw new Error("Totals must be greater than zero");
+                }
+
+                if (controlEvents > controlTotal || treatmentEvents > treatmentTotal ||
+                    controlEvents < 0 || treatmentEvents < 0) {
+                    throw new Error("Events must be between 0 and total");
+                }
+
+                if (controlSAE > controlTotal || treatmentSAE > treatmentTotal ||
+                    controlSAE < 0 || treatmentSAE < 0) {
+                    throw new Error("SAE counts must be between 0 and total");
+                }
+
+                const cer = controlEvents / controlTotal;
+                const ter = treatmentEvents / treatmentTotal;
+                const arr = cer - ter;
+                const rr = cer === 0 ? NaN : ter / cer;
+                const rrr = cer === 0 ? NaN : 1 - rr;
+                const nnt = arr === 0 ? Infinity : 1 / arr;
+
+                const cerSae = controlSAE / controlTotal;
+                const terSae = treatmentSAE / treatmentTotal;
+                const ariSae = terSae - cerSae;
+                const rrSae = cerSae === 0 ? NaN : terSae / cerSae;
+                const rri = cerSae === 0 ? NaN : rrSae - 1;
+                const nnh = ariSae === 0 ? Infinity : 1 / ariSae;
+
+                return {
+                    controlEvents, controlTotal, treatmentEvents, treatmentTotal,
+                    controlSAE, treatmentSAE,
+                    cer, ter, arr, rr, rrr, nnt,
+                    cerSae, terSae, ariSae, rrSae, rri, nnh
+                };
+            }
+
+            displayResults(r) {
+                const set = (id, text) => { document.getElementById(id).textContent = text; };
+
+                set('cer', this.fmtRate(r.controlEvents, r.controlTotal, r.cer));
+                set('ter', this.fmtRate(r.treatmentEvents, r.treatmentTotal, r.ter));
+                set('rr', this.fmtRatio(r.rr));
+                set('rrr', this.fmtPercent(r.rrr));
+                set('arr', this.fmtAbsolute(r.arr));
+                set('nnt', this.fmtNN(r.nnt, r.arr));
+
+                set('cerSae', this.fmtRate(r.controlSAE, r.controlTotal, r.cerSae));
+                set('terSae', this.fmtRate(r.treatmentSAE, r.treatmentTotal, r.terSae));
+                set('rrSae', this.fmtRatio(r.rrSae));
+                set('rri', this.fmtPercent(r.rri));
+                set('ariSae', this.fmtAbsolute(r.ariSae));
+                set('nnh', this.fmtNN(r.nnh, r.ariSae));
+            }
+
+            fmtRate(events, total, rate) {
+                if (!isFinite(rate)) return '—';
+                const pct = (rate * 100).toFixed(3);
+                return `${events.toLocaleString()} / ${total.toLocaleString()} = ${pct}%`;
+            }
+
+            fmtRatio(rr) {
+                if (!isFinite(rr) || isNaN(rr)) return '—';
+                return rr.toFixed(4);
+            }
+
+            fmtPercent(x) {
+                if (!isFinite(x) || isNaN(x)) return '—';
+                return `${(x * 100).toFixed(2)}%`;
+            }
+
+            fmtAbsolute(x) {
+                if (!isFinite(x) || isNaN(x)) return '—';
+                const pct = (x * 100).toFixed(3);
+                const pp = `${pct} percentage points`;
+                return `${x.toFixed(5)} (${pp})`;
+            }
+
+            fmtNN(n, delta) {
+                if (!isFinite(n)) return '∞ (no difference)';
+                const rounded = Math.round(Math.abs(n));
+                const sign = delta < 0 ? '−' : '';
+                return `${sign}${rounded.toLocaleString()}`;
+            }
+
+            clearResults() {
+                this.errorDisplay.style.display = 'none';
+                ['cer', 'ter', 'rr', 'rrr', 'arr', 'nnt',
+                 'cerSae', 'terSae', 'rrSae', 'rri', 'ariSae', 'nnh'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = '';
+                });
+            }
+
+            showError(message) {
+                this.errorDisplay.textContent = message;
+                this.errorDisplay.style.display = 'block';
+            }
+        }
+
+        const calculator = new RiskCalculator();
+
+        function calculate() {
+            try {
+                const results = calculator.calculate(
+                    document.getElementById('controlEvents').value,
+                    document.getElementById('controlTotal').value,
+                    document.getElementById('treatmentEvents').value,
+                    document.getElementById('treatmentTotal').value,
+                    document.getElementById('controlSAE').value,
+                    document.getElementById('treatmentSAE').value
+                );
+                calculator.displayResults(results);
+            } catch (error) {
+                calculator.showError("Error: " + error.message);
+                calculator.clearResults();
+            }
+        }
+
+        function adjustValue(inputId, direction) {
+            const input = document.getElementById(inputId);
+            let value = parseFloat(input.value);
+            const step = 1;
+            const min = parseFloat(input.min);
+            if (direction === 'up') {
+                value += step;
+            } else if (direction === 'down' && value > min) {
+                value -= step;
+            }
+            input.value = Math.max(min, Math.round(value));
+            calculate();
+        }
+
+        document.querySelectorAll('.up-btn').forEach(btn => {
+            btn.addEventListener('click', () => adjustValue(btn.dataset.input, 'up'));
+        });
+        document.querySelectorAll('.down-btn').forEach(btn => {
+            btn.addEventListener('click', () => adjustValue(btn.dataset.input, 'down'));
+        });
+
+        ['controlEvents', 'controlTotal', 'treatmentEvents', 'treatmentTotal',
+         'controlSAE', 'treatmentSAE'].forEach(id => {
+            document.getElementById(id).addEventListener('input', calculate);
+        });
+
+        calculate();
+    </script>
+</body>
+</html>
