@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Milankovitch Cycles &amp; Ice-Albedo Feedback</title>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="stylesheet" href="../styles.css">
     <style>
@@ -301,6 +302,7 @@
         <div class="globe-panel">
             <canvas id="globeCanvas" width="400" height="400"></canvas>
             <p class="globe-caption" id="globeCaption">Tilt: 23.4° · Ice N: 74° · Ice S: 74°</p>
+            <p class="globe-caption" style="margin-top:2px;color:#525252">Scroll to zoom · drag to orbit</p>
         </div>
 
         <!-- ── Controls + Results ── -->
@@ -323,7 +325,7 @@
                     <span class="slider-val" id="eccentricityVal">0.0167</span>
                 </div>
                 <input type="range" id="eccentricitySlider" min="0" max="0.06" step="0.0001" value="0.0167">
-                <div class="slider-range-labels"><span>0.000</span><span>0.060</span></div>
+                <div class="slider-range-labels"><span>0.000</span><span>0.060 · ~100 kyr cycle</span></div>
             </div>
 
             <!-- Precession -->
@@ -372,6 +374,16 @@
                 <div class="result-row">
                     <span class="result-label">&#916;T from today</span>
                     <span class="result-value" id="r-dt">–</span>
+                </div>
+            </div>
+
+            <!-- Orbital shape diagram -->
+            <div class="results-box" style="margin-top:12px">
+                <div class="results-title">Orbital Shape</div>
+                <canvas id="orbitDiagram" width="440" height="130"
+                        style="display:block;width:100%;height:auto;background:#050a14"></canvas>
+                <div style="font-size:10px;color:#8c8c8c;padding:4px 8px;background:#f4f4f4;border-top:1px solid #e0e0e0">
+                    Eccentricity shape ×8 exaggerated &nbsp;·&nbsp; P = perihelion &nbsp;·&nbsp; A = aphelion
                 </div>
             </div>
         </div>
@@ -492,13 +504,46 @@ const scene  = new THREE.Scene();
 scene.background = new THREE.Color(0x050a14);
 
 const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
-camera.position.set(0, 0, 2.85);
+camera.position.set(0, 0, 3.2);
 
-// Lighting: key light (sun direction) + soft ambient for night-side visibility
+// Orbit controls — scroll to zoom, drag to orbit, right-drag to pan
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping  = true;
+controls.dampingFactor  = 0.06;
+controls.minDistance    = 1.5;
+controls.maxDistance    = 12;
+controls.target.set(0, 0, 0);
+
+// Sun position: to the right of the globe so it's visible when zoomed out
+const SUN_DIR = new THREE.Vector3(1, 0.18, 0.3).normalize();
+const SUN_DIST = 5.5;
+
 const sunLight = new THREE.DirectionalLight(0xfff8e8, 1.4);
-sunLight.position.set(5, 1, 2);
+sunLight.position.copy(SUN_DIR.clone().multiplyScalar(SUN_DIST));
 scene.add(sunLight);
 scene.add(new THREE.AmbientLight(0x0d1a33, 1.2));
+
+// Visible sun sphere
+const sunSphere = new THREE.Mesh(
+    new THREE.SphereGeometry(0.18, 20, 10),
+    new THREE.MeshBasicMaterial({ color: 0xffee55 })
+);
+sunSphere.position.copy(sunLight.position);
+scene.add(sunSphere);
+
+// Soft glow halo around sun (additive blending)
+const sunHalo = new THREE.Mesh(
+    new THREE.SphereGeometry(0.38, 20, 10),
+    new THREE.MeshBasicMaterial({
+        color: 0xffcc22,
+        transparent: true,
+        opacity: 0.22,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+    })
+);
+sunHalo.position.copy(sunLight.position);
+scene.add(sunHalo);
 
 // Stars
 (function addStars() {
@@ -682,6 +727,113 @@ function updateDisplay() {
 
     earthGroup.rotation.z = obliquity * Math.PI / 180;
     updateTexture(r.iceLatN, r.iceLatS);
+    drawOrbitDiagram();
+}
+
+// ── Orbit diagram (2D canvas) ──────────────────────────────────────────────
+// Eccentricity range 0–0.06 is nearly indistinguishable from a circle,
+// so the visual shape is amplified ×8 while real values are shown in labels.
+function drawOrbitDiagram() {
+    const oc = document.getElementById('orbitDiagram');
+    if (!oc) return;
+    const ctx = oc.getContext('2d');
+    const W = oc.width, H = oc.height;
+    const e    = params.eccentricity;
+    const prec = params.precession * Math.PI / 180;
+
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#050a14';
+    ctx.fillRect(0, 0, W, H);
+
+    // Visual eccentricity (×8, capped)
+    const eV = Math.min(e * 8, 0.88);
+    const PAD = 28;
+    const a   = W / 2 - PAD;             // semi-major axis (px)
+    const b   = a * Math.sqrt(1 - eV * eV); // semi-minor axis
+    const fV  = a * eV;                  // focal distance (px)
+
+    // Ellipse center at (cx, cy); sun at right focus (cx + fV, cy)
+    const cx = W / 2, cy = H / 2;
+    const sunX = cx + fV, sunY = cy;
+
+    // Draw orbit ellipse
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, a, b, 0, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(68,136,204,0.7)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Perihelion marker (right vertex = closest to right focus)
+    const periX = cx + a;
+    ctx.beginPath();
+    ctx.arc(periX, cy, 3, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,110,40,0.85)';
+    ctx.fill();
+
+    // Aphelion marker (left vertex)
+    const aphX = cx - a;
+    ctx.beginPath();
+    ctx.arc(aphX, cy, 3, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(68,136,204,0.85)';
+    ctx.fill();
+
+    // Earth position: polar orbit from sun focus
+    // r = a_real(1−e²)/(1+e·cosθ) — use visual a but real e for position fidelity
+    const rPx  = a * (1 - eV * eV) / (1 + eV * Math.cos(prec));
+    const eaX  = sunX + rPx * Math.cos(Math.PI + prec); // π offset: θ=0 at perihelion
+    const eaY  = sunY - rPx * Math.sin(Math.PI + prec); // canvas y inverted
+
+    // Earth–Sun line
+    ctx.beginPath();
+    ctx.moveTo(sunX, sunY);
+    ctx.lineTo(eaX, eaY);
+    ctx.strokeStyle = 'rgba(255,238,85,0.18)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Sun
+    const sg = ctx.createRadialGradient(sunX, sunY, 1, sunX, sunY, 11);
+    sg.addColorStop(0,   'rgba(255,245,100,1)');
+    sg.addColorStop(0.35,'rgba(255,210,50,0.85)');
+    sg.addColorStop(1,   'rgba(255,150,20,0)');
+    ctx.beginPath();
+    ctx.arc(sunX, sunY, 11, 0, Math.PI * 2);
+    ctx.fillStyle = sg;
+    ctx.fill();
+
+    // Earth dot
+    ctx.beginPath();
+    ctx.arc(eaX, eaY, 5, 0, Math.PI * 2);
+    ctx.fillStyle = '#2266dd';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(eaX, eaY, 5, 0, Math.PI * 2);
+    ctx.strokeStyle = '#66aaff';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Labels
+    ctx.font = '10px "IBM Plex Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(255,110,40,0.8)';
+    ctx.fillText('P', periX, cy - 8);
+    ctx.fillStyle = 'rgba(68,136,204,0.8)';
+    ctx.fillText('A', aphX, cy - 8);
+
+    // Distance labels
+    const periAU = (1 - e).toFixed(4);
+    const aphAU  = (1 + e).toFixed(4);
+    ctx.font = '9px "IBM Plex Sans", Arial, sans-serif';
+    ctx.fillStyle = 'rgba(255,110,40,0.65)';
+    ctx.fillText(periAU + ' AU', periX, cy + b + 13);
+    ctx.fillStyle = 'rgba(68,136,204,0.65)';
+    ctx.fillText(aphAU + ' AU', aphX, cy + b + 13);
+
+    // Current season indicator near Earth
+    ctx.fillStyle = 'rgba(102,170,255,0.9)';
+    ctx.textAlign = 'center';
+    const labelOff = 14;
+    ctx.fillText('Earth', eaX, eaY - labelOff);
 }
 
 // ── Slider bindings ────────────────────────────────────────────────────────
@@ -753,6 +905,7 @@ function animate(now) {
         lastUpdateAt = now;
     }
 
+    controls.update(); // needed for damping
     globe.rotation.y += 0.003; // slow auto-spin
     renderer.render(scene, camera);
 }
