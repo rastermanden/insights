@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Milankovitch Cycles &amp; Ice-Albedo Feedback</title>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="stylesheet" href="../styles.css">
     <style>
@@ -301,6 +302,7 @@
         <div class="globe-panel">
             <canvas id="globeCanvas" width="400" height="400"></canvas>
             <p class="globe-caption" id="globeCaption">Tilt: 23.4° · Ice N: 74° · Ice S: 74°</p>
+            <p class="globe-caption" style="margin-top:2px;color:#525252">Scroll to zoom · drag to orbit</p>
         </div>
 
         <!-- ── Controls + Results ── -->
@@ -492,13 +494,46 @@ const scene  = new THREE.Scene();
 scene.background = new THREE.Color(0x050a14);
 
 const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
-camera.position.set(0, 0, 2.85);
+camera.position.set(0, 0, 3.2);
 
-// Lighting: key light (sun direction) + soft ambient for night-side visibility
+// Orbit controls — scroll to zoom, drag to orbit, right-drag to pan
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping  = true;
+controls.dampingFactor  = 0.06;
+controls.minDistance    = 1.5;
+controls.maxDistance    = 12;
+controls.target.set(0, 0, 0);
+
+// Sun position: to the right of the globe so it's visible when zoomed out
+const SUN_DIR = new THREE.Vector3(1, 0.18, 0.3).normalize();
+const SUN_DIST = 5.5;
+
 const sunLight = new THREE.DirectionalLight(0xfff8e8, 1.4);
-sunLight.position.set(5, 1, 2);
+sunLight.position.copy(SUN_DIR.clone().multiplyScalar(SUN_DIST));
 scene.add(sunLight);
 scene.add(new THREE.AmbientLight(0x0d1a33, 1.2));
+
+// Visible sun sphere
+const sunSphere = new THREE.Mesh(
+    new THREE.SphereGeometry(0.18, 20, 10),
+    new THREE.MeshBasicMaterial({ color: 0xffee55 })
+);
+sunSphere.position.copy(sunLight.position);
+scene.add(sunSphere);
+
+// Soft glow halo around sun (additive blending)
+const sunHalo = new THREE.Mesh(
+    new THREE.SphereGeometry(0.38, 20, 10),
+    new THREE.MeshBasicMaterial({
+        color: 0xffcc22,
+        transparent: true,
+        opacity: 0.22,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+    })
+);
+sunHalo.position.copy(sunLight.position);
+scene.add(sunHalo);
 
 // Stars
 (function addStars() {
@@ -753,6 +788,7 @@ function animate(now) {
         lastUpdateAt = now;
     }
 
+    controls.update(); // needed for damping
     globe.rotation.y += 0.003; // slow auto-spin
     renderer.render(scene, camera);
 }
