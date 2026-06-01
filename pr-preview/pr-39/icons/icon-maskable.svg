@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Insights light bulb maskable icon">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1e3a8a"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+    <radialGradient id="glass" cx="0.4" cy="0.35" r="0.85">
+      <stop offset="0%" stop-color="#fff8c2"/>
+      <stop offset="55%" stop-color="#fde68a"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.45" r="0.6">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Full-bleed background for maskable -->
+  <rect x="0" y="0" width="512" height="512" fill="url(#bg)"/>
+
+  <!-- Icon scaled to ~70% of canvas, centered, leaving safe zone -->
+  <g transform="translate(76 76) scale(0.703125)">
+    <g stroke="#fde68a" stroke-width="14" stroke-linecap="round" opacity="0.85">
+      <line x1="256" y1="60"  x2="256" y2="22"/>
+      <line x1="106" y1="120" x2="78"  y2="92"/>
+      <line x1="406" y1="120" x2="434" y2="92"/>
+      <line x1="56"  y1="240" x2="18"  y2="240"/>
+      <line x1="456" y1="240" x2="494" y2="240"/>
+    </g>
+
+    <path d="M256 80
+             C 168 80 104 146 104 230
+             C 104 280 128 318 156 348
+             C 178 372 188 392 188 414
+             L 188 420
+             L 324 420
+             L 324 414
+             C 324 392 334 372 356 348
+             C 384 318 408 280 408 230
+             C 408 146 344 80 256 80 Z"
+          fill="url(#glass)" stroke="#b45309" stroke-width="6" stroke-linejoin="round"/>
+
+    <ellipse cx="220" cy="200" rx="60" ry="40" fill="url(#glow)"/>
+
+    <path d="M210 300
+             C 210 270 240 270 240 240
+             C 240 210 272 210 272 240
+             C 272 270 302 270 302 300"
+          fill="none" stroke="#b45309" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="200" y1="320" x2="220" y2="306" stroke="#b45309" stroke-width="8" stroke-linecap="round"/>
+    <line x1="312" y1="320" x2="292" y2="306" stroke="#b45309" stroke-width="8" stroke-linecap="round"/>
+
+    <g fill="#9ca3af" stroke="#4b5563" stroke-width="3" stroke-linejoin="round">
+      <rect x="186" y="424" width="140" height="22" rx="6"/>
+      <rect x="190" y="450" width="132" height="20" rx="4"/>
+      <rect x="196" y="474" width="120" height="18" rx="4"/>
+    </g>
+    <path d="M222 494 L 290 494 L 270 512 L 242 512 Z" fill="#374151"/>
+  </g>
+</svg>
