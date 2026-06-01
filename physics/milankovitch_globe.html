@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Milankovitch Cycles &amp; Ice-Albedo Feedback</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="stylesheet" href="../styles.css">
     <style>
@@ -453,8 +452,39 @@ let animating = false;
 let animPrev  = null; // timestamp of previous animation frame
 
 // ── Three.js setup ─────────────────────────────────────────────────────────
-const canvasEl  = document.getElementById('globeCanvas');
-const renderer  = new THREE.WebGLRenderer({ canvas: canvasEl, antialias: true });
+const canvasEl = document.getElementById('globeCanvas');
+
+// Guard: if the Three.js CDN failed to load or WebGL is unavailable, surface a
+// visible message instead of leaving a silent blank canvas.
+function showGlobeError(msg) {
+    const ctx = canvasEl.getContext('2d');
+    if (ctx) {
+        ctx.fillStyle = '#161616';
+        ctx.fillRect(0, 0, canvasEl.width, canvasEl.height);
+        ctx.fillStyle = '#f4f4f4';
+        ctx.font = '14px "IBM Plex Sans", Arial, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(msg, canvasEl.width / 2, canvasEl.height / 2 - 8);
+        ctx.fillStyle = '#8c8c8c';
+        ctx.font = '12px "IBM Plex Sans", Arial, sans-serif';
+        ctx.fillText('Check your network connection and reload.', canvasEl.width / 2, canvasEl.height / 2 + 16);
+    }
+    const cap = document.getElementById('globeCaption');
+    if (cap) cap.textContent = msg;
+}
+
+if (typeof THREE === 'undefined') {
+    showGlobeError('3D library failed to load.');
+    throw new Error('THREE is not defined — Three.js CDN did not load.');
+}
+
+let renderer;
+try {
+    renderer = new THREE.WebGLRenderer({ canvas: canvasEl, antialias: true });
+} catch (e) {
+    showGlobeError('WebGL is not available in this browser.');
+    throw e;
+}
 renderer.setSize(400, 400);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
